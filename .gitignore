@@ -1,0 +1,8 @@
+.env
+data/raw/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+rag/faiss_index.bin
+rag/events_store.pkl

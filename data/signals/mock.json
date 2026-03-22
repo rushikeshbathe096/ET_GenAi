@@ -1,0 +1,100 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "confluence_score": 9.2,
+    "why_now": "Promoter spending personal capital + positive news sentiment",
+    "current_price": 3420,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123456",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 3.0,
+        "score_reason": "Promoter bought — Rs 3.4Cr personal funds",
+        "contribution_pct": 30
+      },
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "Institutional bulk deal — 5,00,000 shares",
+        "contribution_pct": 20
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": 1.0,
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 10
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "ma_breakout",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Price crossed 200-day MA today"
+      },
+      {
+        "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 3.2x above 20-day average"
+      }
+    ]
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "confluence_score": 6.5,
+    "why_now": "Institutional accumulation in low-coverage period",
+    "current_price": 1820,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123457",
+    "filing_signals": [
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "SBI MF bulk deal — 8,00,000 shares",
+        "contribution_pct": 35
+      },
+      {
+        "deal_type": "regulatory_change",
+        "score": 1.0,
+        "score_reason": "SEBI new IT sector disclosure norms",
+        "contribution_pct": 17
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 2.4x above 20-day average"
+      }
+    ]
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "confluence_score": 4.1,
+    "why_now": "",
+    "current_price": 1640,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123458",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 2.0,
+        "score_reason": "Director bought — Rs 0.85Cr",
+        "contribution_pct": 40
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": -1.0,
+        "score_reason": "Negative news — proceed cautiously",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": []
+  }
+]

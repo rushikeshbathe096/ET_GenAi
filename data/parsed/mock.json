@@ -1,0 +1,70 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "buy",
+        "quantity": 100000,
+        "value": 34200000
+      },
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "HDFC Mutual Fund",
+        "quantity": 500000
+      },
+      {
+        "deal_type": "announcement",
+        "title": "Q3 Results — PAT up 22% YoY"
+      }
+    ],
+    "news": {
+      "score": 0.41,
+      "signal": "positive",
+      "headlines": ["Titan posts strong Q3 results"]
+    },
+    "date": "2024-03-12"
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "SBI Mutual Fund",
+        "quantity": 800000
+      },
+      {
+        "deal_type": "regulatory_change",
+        "title": "SEBI new disclosure norms for IT sector"
+      }
+    ],
+    "news": {
+      "score": 0.15,
+      "signal": null,
+      "headlines": ["Infosys wins new contract worth $200M"]
+    },
+    "date": "2024-03-12"
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 50000,
+        "value": 8500000
+      }
+    ],
+    "news": {
+      "score": -0.35,
+      "signal": "negative",
+      "headlines": ["HDFC Bank faces RBI scrutiny on lending norms"]
+    },
+    "date": "2024-03-12"
+  }
+]

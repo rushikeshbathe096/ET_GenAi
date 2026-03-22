@@ -1,0 +1,69 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "confluence_score": 9.2,
+    "why_now": "Promoter spending personal capital + positive news sentiment",
+    "current_price": 3420,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123456",
+    "actionability": {
+      "confidence_pct": "82%",
+      "risk_level": "Medium",
+      "time_horizon": "Short-term (2-4 weeks)",
+      "color": "green"
+    },
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 3.0,
+        "score_reason": "Promoter bought — Rs 3.4Cr personal funds",
+        "contribution_pct": 30
+      },
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "HDFC MF bulk deal — 5,00,000 shares",
+        "contribution_pct": 20
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": 1.0,
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 10
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "ma_breakout",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Price crossed 200-day MA today"
+      },
+      {
+        "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 3.2x above 20-day average"
+      }
+    ],
+    "similar_events": [
+      {
+        "event": "Promoter bought 2% float",
+        "date": "2023-03-12",
+        "outcome_pct_30d": 18.4
+      }
+    ],
+    "historical_base_rate": "3/3 similar setups resulted in 10%+ move in 30 days",
+    "reasoning_card": "Titan promoter has purchased shares using personal capital, signalling strong conviction in the company's undervaluation. Combined with FII accumulation and the stock breaking above its 200-day moving average on 3x normal volume, this is a high-conviction setup. Not investment advice. Educational purposes only.",
+    "confidence_breakdown": [
+      {"label": "Promoter buy — personal funds", "contribution_pct": 30},
+      {"label": "FII bulk position", "contribution_pct": 20},
+      {"label": "MA breakout", "contribution_pct": 15},
+      {"label": "Volume spike", "contribution_pct": 15},
+      {"label": "Positive news", "contribution_pct": 10}
+    ],
+    "news_headlines": ["Titan posts strong Q3 results"],
+    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice."
+  }
+]
