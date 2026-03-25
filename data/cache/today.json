@@ -1,0 +1,229 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "confluence_score": 9.2,
+    "why_now": "Promoter spending personal capital + positive news sentiment",
+    "current_price": 3420,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123456",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 3.0,
+        "score_reason": "Promoter bought \u2014 Rs 3.4Cr personal funds",
+        "contribution_pct": 30
+      },
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "Institutional bulk deal \u2014 5,00,000 shares",
+        "contribution_pct": 20
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": 1.0,
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 10
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "ma_breakout",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Price crossed 200-day MA today"
+      },
+      {
+        "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 3.2x above 20-day average"
+      }
+    ],
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.3145604729652405,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      },
+      {
+        "rank": 2,
+        "score": 0.3040182292461395,
+        "id": 18,
+        "ticker": "POWERGRID",
+        "company": "Power Grid Corporation of India Ltd",
+        "event_description": "New transmission project awards and stable regulated returns sustained defensive buying interest.",
+        "outcome_pct_30d": 2.7
+      },
+      {
+        "rank": 3,
+        "score": 0.2679275572299957,
+        "id": 12,
+        "ticker": "TATAMOTORS",
+        "company": "Tata Motors Ltd",
+        "event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+        "outcome_pct_30d": 11.6
+      }
+    ],
+    "historical_base_rate": "1/3 events gave >10% return",
+    "actionability": "high confidence",
+    "reasoning_card": [
+      "TITAN is marked as high confidence confidence due to multiple supporting signals in the current setup.",
+      "Why now: Promoter spending personal capital + positive news sentiment.",
+      "Historical precedent shows weak outcomes (1/3 events gave >10% return). This is presented as analytical data only."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 9.2,
+      "actionability": "high confidence",
+      "historical_base_rate": "1/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 1
+    }
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "confluence_score": 6.5,
+    "why_now": "Institutional accumulation in low-coverage period",
+    "current_price": 1820,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123457",
+    "filing_signals": [
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "SBI MF bulk deal \u2014 8,00,000 shares",
+        "contribution_pct": 35
+      },
+      {
+        "deal_type": "regulatory_change",
+        "score": 1.0,
+        "score_reason": "SEBI new IT sector disclosure norms",
+        "contribution_pct": 17
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 2.4x above 20-day average"
+      }
+    ],
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.3571188449859619,
+        "id": 20,
+        "ticker": "INDUSINDBK",
+        "company": "IndusInd Bank Ltd",
+        "event_description": "Higher provisioning and slower retail disbursement trend created near-term earnings uncertainty.",
+        "outcome_pct_30d": -2.8
+      },
+      {
+        "rank": 2,
+        "score": 0.3303002715110779,
+        "id": 2,
+        "ticker": "INFY",
+        "company": "Infosys Ltd",
+        "event_description": "Company revised full-year revenue guidance upward after better-than-expected digital services demand.",
+        "outcome_pct_30d": 7.4
+      },
+      {
+        "rank": 3,
+        "score": 0.3148951530456543,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      }
+    ],
+    "historical_base_rate": "0/3 events gave >10% return",
+    "actionability": "medium",
+    "reasoning_card": [
+      "INFY is marked as medium confidence due to multiple supporting signals in the current setup.",
+      "Why now: Institutional accumulation in low-coverage period.",
+      "Historical precedent shows weak outcomes (0/3 events gave >10% return). This is presented as analytical data only."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 6.5,
+      "actionability": "medium",
+      "historical_base_rate": "0/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 0
+    }
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "confluence_score": 4.1,
+    "why_now": "",
+    "current_price": 1640,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123458",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 2.0,
+        "score_reason": "Director bought \u2014 Rs 0.85Cr",
+        "contribution_pct": 40
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": -1.0,
+        "score_reason": "Negative news \u2014 proceed cautiously",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": [],
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.2623217701911926,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      },
+      {
+        "rank": 2,
+        "score": 0.25567254424095154,
+        "id": 1,
+        "ticker": "TCS",
+        "company": "Tata Consultancy Services Ltd",
+        "event_description": "Large multi-year banking transformation deal win in Europe announced with strong order book commentary.",
+        "outcome_pct_30d": 6.8
+      },
+      {
+        "rank": 3,
+        "score": 0.21231938898563385,
+        "id": 12,
+        "ticker": "TATAMOTORS",
+        "company": "Tata Motors Ltd",
+        "event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+        "outcome_pct_30d": 11.6
+      }
+    ],
+    "historical_base_rate": "1/3 events gave >10% return",
+    "actionability": "low",
+    "reasoning_card": [
+      "HDFCBANK is marked as low confidence due to multiple supporting signals in the current setup.",
+      "Why now: Recent filings and patterns are being tracked.",
+      "Historical precedent shows weak outcomes (1/3 events gave >10% return). This is presented as analytical data only."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 4.1,
+      "actionability": "low",
+      "historical_base_rate": "1/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 1
+    }
+  }
+]
