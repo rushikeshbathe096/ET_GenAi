@@ -1,0 +1,172 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "buy",
+        "quantity": 100000,
+        "value": 34200000
+      },
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "HDFC Mutual Fund",
+        "quantity": 500000
+      },
+      {
+        "deal_type": "announcement",
+        "title": "Q3 Results — PAT up 22% YoY"
+      }
+    ],
+    "news": {
+      "score": 0.41,
+      "signal": "positive",
+      "headlines": [
+        "Titan posts strong Q3 results"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "buy",
+        "quantity": 100000,
+        "value": 34200000,
+        "score": 3.0,
+        "score_reason": "Promoter bought shares — Rs 3.4Cr",
+        "contribution_pct": 46
+      },
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "HDFC Mutual Fund",
+        "quantity": 500000,
+        "score": 1.0,
+        "score_reason": "Institutional bulk deal — 500,000 shares",
+        "contribution_pct": 15
+      },
+      {
+        "deal_type": "announcement",
+        "title": "Q3 Results — PAT up 22% YoY",
+        "score": 1.5,
+        "score_reason": "Quarterly results filed",
+        "contribution_pct": 23
+      },
+      {
+        "score": 1.0,
+        "signal": "positive",
+        "headlines": [
+          "Titan posts strong Q3 results"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 15
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 6.5,
+    "why_now": "Promoter spending personal capital + combined with institutional accumulation + earnings results filed this week + positive news sentiment"
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "SBI Mutual Fund",
+        "quantity": 800000
+      },
+      {
+        "deal_type": "regulatory_change",
+        "title": "SEBI new disclosure norms for IT sector"
+      }
+    ],
+    "news": {
+      "score": 0.15,
+      "signal": null,
+      "headlines": [
+        "Infosys wins new contract worth $200M"
+      ]
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "SBI Mutual Fund",
+        "quantity": 800000,
+        "score": 1.6,
+        "score_reason": "Institutional bulk deal — 800,000 shares",
+        "contribution_pct": 62
+      },
+      {
+        "deal_type": "regulatory_change",
+        "title": "SEBI new disclosure norms for IT sector",
+        "score": 1.0,
+        "score_reason": "SEBI regulatory change",
+        "contribution_pct": 38
+      },
+      {
+        "score": 0.0,
+        "signal": null,
+        "headlines": [
+          "Infosys wins new contract worth $200M"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Neutral news",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 2.6,
+    "why_now": ""
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 50000,
+        "value": 8500000
+      }
+    ],
+    "news": {
+      "score": -0.35,
+      "signal": "negative",
+      "headlines": [
+        "HDFC Bank faces RBI scrutiny on lending norms"
+      ]
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 50000,
+        "value": 8500000,
+        "score": 1.7,
+        "score_reason": "Director bought shares — Rs 0.8Cr",
+        "contribution_pct": 100
+      },
+      {
+        "score": -1.0,
+        "signal": "negative",
+        "headlines": [
+          "HDFC Bank faces RBI scrutiny on lending norms"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Negative news — caution",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 1.7,
+    "why_now": "WARNING: negative news — review carefully"
+  }
+]
