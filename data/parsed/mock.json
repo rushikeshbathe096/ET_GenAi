@@ -23,7 +23,8 @@
     "news": {
       "score": 0.41,
       "signal": "positive",
-      "headlines": ["Titan posts strong Q3 results"]
+      "headlines": ["Titan posts strong Q3 results"],
+      "deal_type": "news_sentiment"
     },
     "date": "2024-03-12"
   },
