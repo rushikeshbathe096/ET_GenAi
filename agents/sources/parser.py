@@ -1,5 +1,18 @@
 from datetime import datetime
 
+
+def _fallback_price_event() -> dict:
+    return {
+        "deal_type": "price_movement",
+        "reason": "nse_data_unavailable",
+        "price": None,
+        "change_pct": 0
+    }
+
+
+def _has_price_movement(events: list) -> bool:
+    return any(event.get("deal_type") == "price_movement" for event in events)
+
 def merge_all_sources(bse_data, sebi_data, nse_data, circular_data, news_data):
     """
     Merge all sources into one structured output per ticker.
@@ -52,10 +65,37 @@ def merge_all_sources(bse_data, sebi_data, nse_data, circular_data, news_data):
 
         add_event(ticker, company, event)
 
-    # 🔹 NSE announcements (no ticker → skip or map)
+    # 🔹 NSE price events
     for item in nse_data:
-        # optional: skip since no ticker mapping
-        continue
+        ticker = item.get("ticker")
+        if not ticker:
+            continue
+
+        company = item.get("company", ticker)
+        nse_events = item.get("events")
+
+        if isinstance(nse_events, list) and nse_events:
+            for nse_event in nse_events:
+                event = {
+                    "deal_type": nse_event.get("deal_type", "price_movement"),
+                    "price": nse_event.get("price"),
+                    "change_pct": nse_event.get("change_pct")
+                }
+                add_event(ticker, company, event)
+            continue
+
+        # Backward-compatible fallback for flat NSE entries.
+        event = {
+            "deal_type": item.get("deal_type", "price_movement"),
+            "price": item.get("price"),
+            "change_pct": item.get("change_pct")
+        }
+        add_event(ticker, company, event)
+
+    # Ensure every grouped ticker has a price movement event.
+    for ticker, data in grouped.items():
+        if not _has_price_movement(data.get("events", [])):
+            add_event(ticker, data.get("company", ticker), _fallback_price_event())
 
     # 🔹 Circulars (global events → skip or attach later)
     for item in circular_data:

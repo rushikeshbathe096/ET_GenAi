@@ -12,6 +12,7 @@ import sys
 import traceback
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
+import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -46,6 +47,12 @@ def _lazy_import():
     except Exception as e:
         print(f"ERROR: Failed to import required modules: {e}")
         return False
+
+
+def _ensure_imports() -> None:
+    """Ensure lazily loaded dependencies are available for tests."""
+    if not _lazy_import():
+        pytest.fail("Failed to import required pipeline modules")
 
 
 # ============================================================================
@@ -172,27 +179,29 @@ def validate_output_structure(row: Dict[str, Any]) -> Tuple[bool, str]:
 # TEST 1: LOAD INPUT
 # ============================================================================
 
-def test_load_input() -> List[Dict[str, Any]] | None:
+@pytest.fixture(scope="module")
+def signals() -> List[Dict[str, Any]]:
     """Load and validate input from mock.json."""
+    _ensure_imports()
     try:
         if not INPUT_PATH.exists():
             log_step("LOAD INPUT", "FAIL", "", f"Input file not found: {INPUT_PATH}")
-            return None
+            pytest.fail(f"Input file not found: {INPUT_PATH}")
         
         with open(INPUT_PATH, "r", encoding="utf-8") as f:
-            signals = json.load(f)
+            loaded_signals = json.load(f)
         
-        if not isinstance(signals, list):
+        if not isinstance(loaded_signals, list):
             log_step("LOAD INPUT", "FAIL", "", "Input is not a JSON array")
-            return None
+            pytest.fail("Input is not a JSON array")
         
-        if len(signals) == 0:
+        if len(loaded_signals) == 0:
             log_step("LOAD INPUT", "FAIL", "", "Input is empty")
-            return None
+            pytest.fail("Input is empty")
         
         # Validate structure of all signals
         invalid_signals = []
-        for idx, signal in enumerate(signals):
+        for idx, signal in enumerate(loaded_signals):
             valid, error = validate_signal_structure(signal)
             if not valid:
                 invalid_signals.append((idx, error))
@@ -200,22 +209,28 @@ def test_load_input() -> List[Dict[str, Any]] | None:
         if invalid_signals:
             errors_str = "; ".join([f"Signal {idx}: {err}" for idx, err in invalid_signals])
             log_step("LOAD INPUT", "FAIL", "", errors_str)
-            return None
+            pytest.fail(errors_str)
         
-        details = f"Loaded {len(signals)} signals with valid structure"
+        details = f"Loaded {len(loaded_signals)} signals with valid structure"
         log_step("LOAD INPUT", "PASS", details)
-        return signals
+        return loaded_signals
     
     except Exception as e:
         log_step("LOAD INPUT", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-        return None
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
+
+
+def test_load_input(signals: List[Dict[str, Any]]) -> None:
+    """Validate that input signals are loaded."""
+    assert isinstance(signals, list)
+    assert len(signals) > 0
 
 
 # ============================================================================
 # TEST 2: TEST RAG
 # ============================================================================
 
-def test_rag(signals: List[Dict[str, Any]]) -> bool:
+def test_rag(signals: List[Dict[str, Any]]) -> None:
     """Test RAG functionality."""
     try:
         # Check if index exists
@@ -228,21 +243,21 @@ def test_rag(signals: List[Dict[str, Any]]) -> bool:
                 log_step("TEST RAG - Index Built", "PASS", "Index built successfully")
             except Exception as e:
                 log_step("TEST RAG - Index Build Failed", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-                return False
+                pytest.fail(f"RAG index build failed: {type(e).__name__}: {str(e)}")
         
         # Test health check query
         try:
             sample = get_similar_events("health check query", k=1)
             if not isinstance(sample, list) or len(sample) == 0:
                 log_step("TEST RAG - Health Check", "FAIL", "", "Health check query returned empty")
-                return False
-                log_step("TEST RAG - Health Check", "PASS", "Health check query returned 1 event")
+                pytest.fail("RAG health check query returned empty")
+            log_step("TEST RAG - Health Check", "PASS", "Health check query returned events")
         except FileNotFoundError as e:
             log_step("TEST RAG - Health Check", "FAIL", "", f"RAG index missing: {str(e)}")
-            return False
+            pytest.fail(f"RAG index missing: {str(e)}")
         except Exception as e:
             log_step("TEST RAG - Health Check", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-            return False
+            pytest.fail(f"RAG health check failed: {type(e).__name__}: {str(e)}")
         
         # Test querying for each signal
         query_results = []
@@ -266,29 +281,30 @@ def test_rag(signals: List[Dict[str, Any]]) -> bool:
         
         if passed == total:
             log_step("TEST RAG - Signal Queries", "PASS", details)
-            return True
+            assert True
         else:
             errors = [f"{ticker}: {error}" for ticker, success, error in query_results if not success]
             log_step("TEST RAG - Signal Queries", "FAIL", details, "; ".join(errors))
-            return False
+            pytest.fail("; ".join(errors))
     
     except Exception as e:
         log_step("TEST RAG", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-        return False
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
 
 
 # ============================================================================
 # TEST 3: TEST DECISION AGENT
 # ============================================================================
 
-def test_decision_agent(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]] | None:
-    """Test decision agent enrichment."""
+@pytest.fixture(scope="module")
+def enriched_signals(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Run decision-agent enrichment for downstream tests."""
     try:
-        enriched_signals = []
+        enriched = []
         for signal in signals:
             try:
-                enriched = enrich_signal(signal, k=3)
-                enriched_signals.append(enriched)
+                enriched_signal_row = enrich_signal(signal, k=3)
+                enriched.append(enriched_signal_row)
             except Exception as e:
                 log_step(
                     "TEST DECISION AGENT",
@@ -296,40 +312,46 @@ def test_decision_agent(signals: List[Dict[str, Any]]) -> List[Dict[str, Any]] |
                     f"Failed to enrich signal {signal.get('ticker', 'UNKNOWN')}",
                     str(e)
                 )
-                return None
+                pytest.fail(str(e))
         
         # Validate enriched signals
         invalid = []
-        for idx, enriched in enumerate(enriched_signals):
+        for idx, row in enumerate(enriched):
             required = {"similar_events", "historical_base_rate", "actionability"}
-            missing = required - set(enriched.keys())
+            missing = required - set(row.keys())
             if missing:
                 invalid.append((idx, f"Missing: {sorted(missing)}"))
             
             # Validate similar_events
-            similar = enriched.get("similar_events", [])
+            similar = row.get("similar_events", [])
             if not isinstance(similar, list) or len(similar) != 3:
                 invalid.append((idx, f"similar_events count = {len(similar)}, expected 3"))
         
         if invalid:
             error_str = "; ".join([f"Signal {idx}: {err}" for idx, err in invalid])
             log_step("TEST DECISION AGENT", "FAIL", "", error_str)
-            return None
+            pytest.fail(error_str)
         
-        details = f"Enriched {len(enriched_signals)} signals with similar_events, base_rate, actionability"
+        details = f"Enriched {len(enriched)} signals with similar_events, base_rate, actionability"
         log_step("TEST DECISION AGENT", "PASS", details)
-        return enriched_signals
+        return enriched
     
     except Exception as e:
         log_step("TEST DECISION AGENT", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-        return None
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
+
+
+def test_decision_agent(enriched_signals: List[Dict[str, Any]]) -> None:
+    """Validate decision-agent output is available."""
+    assert isinstance(enriched_signals, list)
+    assert len(enriched_signals) > 0
 
 
 # ============================================================================
 # TEST 4: TEST EXPLANATION AGENT
 # ============================================================================
 
-def test_explanation_agent(enriched_signals: List[Dict[str, Any]]) -> List[Dict[str, Any]] | None:
+def test_explanation_agent(enriched_signals: List[Dict[str, Any]]) -> None:
     """Test explanation agent enrichment."""
     try:
         final_signals = enrich_explanations(enriched_signals)
@@ -362,51 +384,59 @@ def test_explanation_agent(enriched_signals: List[Dict[str, Any]]) -> List[Dict[
         if invalid:
             error_str = "; ".join([f"Signal {idx}: {err}" for idx, err in invalid])
             log_step("TEST EXPLANATION AGENT", "FAIL", "", error_str)
-            return None
+            pytest.fail(error_str)
         
         details = f"Generated explanations for {len(final_signals)} signals with reasoning_card and confidence_breakdown"
         log_step("TEST EXPLANATION AGENT", "PASS", details)
-        return final_signals
+        assert True
     
     except Exception as e:
         log_step("TEST EXPLANATION AGENT", "FAIL", "", f"{type(e).__name__}: {str(e)}")
         traceback.print_exc()
-        return None
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
 
 
 # ============================================================================
 # TEST 5: RUN FULL PIPELINE
 # ============================================================================
 
-def test_full_pipeline() -> List[Dict[str, Any]] | None:
+@pytest.fixture(scope="module")
+def final_signals() -> List[Dict[str, Any]]:
     """Run the complete M3 pipeline."""
+    _ensure_imports()
     try:
-        final_signals = run()
+        generated_signals = run()
         
-        if not isinstance(final_signals, list) or len(final_signals) == 0:
+        if not isinstance(generated_signals, list) or len(generated_signals) == 0:
             log_step("RUN FULL PIPELINE", "FAIL", "", "run() returned None or empty list")
-            return None
+            pytest.fail("run() returned None or empty list")
         
         # Verify output file was created
         if not OUTPUT_PATH.exists():
             log_step("RUN FULL PIPELINE", "FAIL", "", f"Output file not created: {OUTPUT_PATH}")
-            return None
+            pytest.fail(f"Output file not created: {OUTPUT_PATH}")
         
-        details = f"Pipeline executed, {len(final_signals)} signals processed, output saved to {OUTPUT_PATH.name}"
+        details = f"Pipeline executed, {len(generated_signals)} signals processed, output saved to {OUTPUT_PATH.name}"
         log_step("RUN FULL PIPELINE", "PASS", details)
-        return final_signals
+        return generated_signals
     
     except Exception as e:
         log_step("RUN FULL PIPELINE", "FAIL", "", f"{type(e).__name__}: {str(e)}")
         traceback.print_exc()
-        return None
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
+
+
+def test_full_pipeline(final_signals: List[Dict[str, Any]]) -> None:
+    """Validate full pipeline produces output."""
+    assert isinstance(final_signals, list)
+    assert len(final_signals) > 0
 
 
 # ============================================================================
 # TEST 6: VALIDATE OUTPUT FORMAT
 # ============================================================================
 
-def test_validate_output_format(final_signals: List[Dict[str, Any]]) -> bool:
+def test_validate_output_format(final_signals: List[Dict[str, Any]]) -> None:
     """Validate the final output format."""
     try:
         invalid_rows = []
@@ -418,22 +448,22 @@ def test_validate_output_format(final_signals: List[Dict[str, Any]]) -> bool:
         if invalid_rows:
             errors = "; ".join([f"Signal {idx}: {err}" for idx, err in invalid_rows])
             log_step("VALIDATE OUTPUT FORMAT", "FAIL", "", errors)
-            return False
+            pytest.fail(errors)
         
         details = f"All {len(final_signals)} output signals have required structure and valid fields"
         log_step("VALIDATE OUTPUT FORMAT", "PASS", details)
-        return True
+        assert True
     
     except Exception as e:
         log_step("VALIDATE OUTPUT FORMAT", "FAIL", "", f"{type(e).__name__}: {str(e)}")
-        return False
+        pytest.fail(f"{type(e).__name__}: {str(e)}")
 
 
 # ============================================================================
 # TEST 7: EDGE CASES
 # ============================================================================
 
-def test_edge_cases() -> bool:
+def test_edge_cases() -> None:
     """Test edge cases and error handling."""
     all_pass = True
     
@@ -489,7 +519,7 @@ def test_edge_cases() -> bool:
         log_step("EDGE CASE - Missing Signal Fields", "FAIL", "", str(e))
         all_pass = False
     
-    return all_pass
+    assert all_pass
 
 
 # ============================================================================

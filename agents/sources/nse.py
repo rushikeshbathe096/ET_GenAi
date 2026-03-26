@@ -1,5 +1,4 @@
-import random
-from datetime import datetime
+from .nse_source import fetch_nse_data
 
 try:
     from config import DEBUG
@@ -7,35 +6,63 @@ except ImportError:
     DEBUG = False
 
 
-def fetch_nse_announcements():
-    """
-    NSE is unreliable / blocks requests.
-    So we skip live fetching and return simulated but realistic announcements.
-    Always returns valid structured data.
-    """
+def get_nse_data(ticker: str):
+    data = fetch_nse_data(ticker)
+
+    fallback_company_map = {
+        "TITAN": "Titan Company Ltd",
+        "INFY": "Infosys Ltd",
+        "HDFCBANK": "HDFC Bank Ltd",
+        "RELIANCE": "Reliance Industries Ltd",
+        "TCS": "Tata Consultancy Services Ltd"
+    }
+    fallback_company = fallback_company_map.get(ticker, ticker)
+
+    if data:
+        info = data.get("info", {})
+        price_info = data.get("priceInfo", {})
+
+        return {
+            "ticker": info.get("symbol", ticker),
+            "company": info.get("companyName", fallback_company),
+            "events": [
+                {
+                    "deal_type": "price_movement",
+                    "price": price_info.get("lastPrice"),
+                    "change_pct": price_info.get("pChange")
+                }
+            ]
+        }
 
     if DEBUG:
-        print("Skipping NSE RSS (unreliable). Using fallback data.")
+        print(f"NSE live fetch unavailable for {ticker}. Using fallback event.")
+
+    return {
+        "ticker": ticker,
+        "company": fallback_company,
+        "events": [
+            {
+                "deal_type": "price_movement",
+                "reason": "nse_data_unavailable",
+                "price": None,
+                "change_pct": 0
+            }
+        ]
+    }
+
+
+def fetch_nse_announcements():
+    """
+    Fetch NSE price movement data for tracked tickers.
+    Uses live NSE data when available; falls back to simulated events when unavailable.
+    """
 
     companies = ["TITAN", "INFY", "HDFCBANK", "RELIANCE", "TCS"]
-    titles = [
-        "Q3 Results Announced",
-        "Board Meeting Update",
-        "Dividend Declared",
-        "Earnings Call Scheduled",
-        "Strategic Partnership Announced"
-    ]
 
     results = []
 
-    for company in companies:
-        results.append({
-            "title": f"{company}: {random.choice(titles)}",
-            "summary": f"Simulated corporate announcement for {company}",
-            "date": datetime.now().strftime("%Y-%m-%d"),
-            "source_url": "https://www.nseindia.com/",
-            "deal_type": "announcement"
-        })
+    for ticker in companies:
+        results.append(get_nse_data(ticker))
 
     return results
 

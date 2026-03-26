@@ -44,7 +44,7 @@
     "similar_events": [
       {
         "rank": 1,
-        "score": 0.3145604729652405,
+        "score": 0.3145604133605957,
         "id": 15,
         "ticker": "WIPRO",
         "company": "Wipro Ltd",
@@ -53,7 +53,7 @@
       },
       {
         "rank": 2,
-        "score": 0.3040182292461395,
+        "score": 0.30401811003685,
         "id": 18,
         "ticker": "POWERGRID",
         "company": "Power Grid Corporation of India Ltd",
@@ -62,7 +62,7 @@
       },
       {
         "rank": 3,
-        "score": 0.2679275572299957,
+        "score": 0.26792752742767334,
         "id": 12,
         "ticker": "TATAMOTORS",
         "company": "Tata Motors Ltd",
@@ -71,15 +71,15 @@
       }
     ],
     "historical_base_rate": "1/3 events gave >10% return",
-    "actionability": "high confidence",
+    "actionability": "High-conviction setup: drivers include institutional bulk activity, positive sentiment, technical confirmation. Risk: confirmation is still required.",
     "reasoning_card": [
-      "TITAN is marked as high confidence confidence due to multiple supporting signals in the current setup.",
-      "Why now: Promoter spending personal capital + positive news sentiment.",
-      "Historical precedent shows weak outcomes (1/3 events gave >10% return). This is presented as analytical data only."
+      "TITAN is showing a strong setup, supported by institutional bulk activity, positive sentiment, technical confirmation.",
+      "This matters now because Promoter spending personal capital + positive news sentiment.",
+      "Limitation: historical support is weak (1/3 events gave >10% return), so confirmation is still important."
     ],
     "confidence_breakdown": {
       "confluence_score": 9.2,
-      "actionability": "high confidence",
+      "actionability": "High-conviction setup: drivers include institutional bulk activity, positive sentiment, technical confirmation. Risk: confirmation is still required.",
       "historical_base_rate": "1/3 events gave >10% return",
       "similar_events_count": 3,
       "similar_events_above_10pct": 1
@@ -118,7 +118,7 @@
     "similar_events": [
       {
         "rank": 1,
-        "score": 0.3571188449859619,
+        "score": 0.35711872577667236,
         "id": 20,
         "ticker": "INDUSINDBK",
         "company": "IndusInd Bank Ltd",
@@ -136,7 +136,7 @@
       },
       {
         "rank": 3,
-        "score": 0.3148951530456543,
+        "score": 0.31489503383636475,
         "id": 15,
         "ticker": "WIPRO",
         "company": "Wipro Ltd",
@@ -145,15 +145,15 @@
       }
     ],
     "historical_base_rate": "0/3 events gave >10% return",
-    "actionability": "medium",
+    "actionability": "Constructive setup: drivers include institutional bulk activity, technical confirmation. Risk: historical hit-rate support is limited.",
     "reasoning_card": [
-      "INFY is marked as medium confidence due to multiple supporting signals in the current setup.",
-      "Why now: Institutional accumulation in low-coverage period.",
-      "Historical precedent shows weak outcomes (0/3 events gave >10% return). This is presented as analytical data only."
+      "INFY is showing a constructive setup, supported by institutional bulk activity, technical confirmation.",
+      "This matters now because Institutional accumulation in low-coverage period.",
+      "Limitation: historical support is weak (0/3 events gave >10% return), so confirmation is still important."
     ],
     "confidence_breakdown": {
       "confluence_score": 6.5,
-      "actionability": "medium",
+      "actionability": "Constructive setup: drivers include institutional bulk activity, technical confirmation. Risk: historical hit-rate support is limited.",
       "historical_base_rate": "0/3 events gave >10% return",
       "similar_events_count": 3,
       "similar_events_above_10pct": 0
@@ -185,7 +185,7 @@
     "similar_events": [
       {
         "rank": 1,
-        "score": 0.2623217701911926,
+        "score": 0.26232174038887024,
         "id": 15,
         "ticker": "WIPRO",
         "company": "Wipro Ltd",
@@ -203,7 +203,7 @@
       },
       {
         "rank": 3,
-        "score": 0.21231938898563385,
+        "score": 0.21231944859027863,
         "id": 12,
         "ticker": "TATAMOTORS",
         "company": "Tata Motors Ltd",
@@ -212,15 +212,15 @@
       }
     ],
     "historical_base_rate": "1/3 events gave >10% return",
-    "actionability": "low",
+    "actionability": "Balanced setup: drivers include limited driver alignment. Risk: negative sentiment could cap upside.",
     "reasoning_card": [
-      "HDFCBANK is marked as low confidence due to multiple supporting signals in the current setup.",
-      "Why now: Recent filings and patterns are being tracked.",
-      "Historical precedent shows weak outcomes (1/3 events gave >10% return). This is presented as analytical data only."
+      "HDFCBANK is showing a constructive setup, supported by mixed filing signals.",
+      "This matters now because Recent filings and news flow suggest activity worth tracking.",
+      "Limitation: historical support is weak (1/3 events gave >10% return), so confirmation is still important."
     ],
     "confidence_breakdown": {
       "confluence_score": 4.1,
-      "actionability": "low",
+      "actionability": "Balanced setup: drivers include limited driver alignment. Risk: negative sentiment could cap upside.",
       "historical_base_rate": "1/3 events gave >10% return",
       "similar_events_count": 3,
       "similar_events_above_10pct": 1

@@ -53,24 +53,106 @@ def _compute_historical_base_rate(similar_events: List[Dict[str, Any]]) -> str:
 	return f"{wins}/{total} events gave >10% return"
 
 
-def _actionability(confluence_score: float) -> str:
+def _driver_tags(signal: Dict[str, Any]) -> List[str]:
+	tags: List[str] = []
+	for item in signal.get("filing_signals", []):
+		if not isinstance(item, dict):
+			continue
+		deal_type = str(item.get("deal_type", "")).lower()
+		transaction = str(item.get("transaction", "")).lower()
+		role = str(item.get("person_role", "")).lower()
+		score = float(item.get("score", 0.0))
+
+		if deal_type == "insider_trade" and transaction == "buy" and "promoter" in role:
+			tags.append("promoter buying")
+		elif deal_type == "insider_trade" and transaction == "buy":
+			tags.append("insider accumulation")
+		elif deal_type == "bulk_deal" and score > 0:
+			tags.append("institutional bulk activity")
+		elif deal_type == "news_sentiment" and score > 0.3:
+			tags.append("positive sentiment")
+		elif deal_type == "announcement":
+			tags.append("fresh company disclosure")
+
+	tech_patterns = signal.get("technical_patterns", [])
+	if isinstance(tech_patterns, list) and len(tech_patterns) > 0:
+		tags.append("technical confirmation")
+
+	seen = set()
+	ordered = []
+	for tag in tags:
+		if tag not in seen:
+			ordered.append(tag)
+			seen.add(tag)
+	return ordered
+
+
+def _risk_tags(signal: Dict[str, Any], similar_events: List[Dict[str, Any]], confluence_score: float) -> List[str]:
+	risks: List[str] = []
+	for item in signal.get("filing_signals", []):
+		if not isinstance(item, dict):
+			continue
+		if str(item.get("deal_type", "")).lower() == "news_sentiment" and float(item.get("score", 0.0)) < -0.3:
+			risks.append("negative sentiment could cap upside")
+
+	if confluence_score < 5.0:
+		risks.append("signal strength is still weak")
+
+	wins = sum(1 for e in similar_events if float(e.get("outcome_pct_30d", 0.0)) > 10.0)
+	total = len(similar_events)
+	if total == 0 or wins == 0:
+		risks.append("historical hit-rate support is limited")
+
+	if not isinstance(signal.get("technical_patterns"), list) or len(signal.get("technical_patterns", [])) == 0:
+		risks.append("technical confirmation is not yet visible")
+
+	seen = set()
+	ordered = []
+	for risk in risks:
+		if risk not in seen:
+			ordered.append(risk)
+			seen.add(risk)
+	return ordered
+
+
+def _descriptive_decision(signal: Dict[str, Any], similar_events: List[Dict[str, Any]], confluence_score: float) -> str:
 	if confluence_score >= 8:
-		return "high confidence"
-	if confluence_score >= 6:
-		return "medium"
-	return "low"
+		strength = "High-conviction setup"
+	elif confluence_score >= 6:
+		strength = "Constructive setup"
+	elif confluence_score >= 4:
+		strength = "Balanced setup"
+	else:
+		strength = "Early-stage setup"
+
+	drivers = _driver_tags(signal)
+	if drivers:
+		driver_text = ", ".join(drivers[:3])
+	else:
+		driver_text = "limited driver alignment"
+
+	risks = _risk_tags(signal, similar_events, confluence_score)
+	risk_text = risks[0] if risks else "confirmation is still required"
+
+	return f"{strength}: drivers include {driver_text}. Risk: {risk_text}."
 
 
 def enrich_signal(signal: Dict[str, Any], k: int = 3) -> Dict[str, Any]:
 	query = _build_query(signal)
-	similar_events = get_similar_events(query, k=k)
+	try:
+		similar_events = get_similar_events(query, k=k)
+		if not isinstance(similar_events, list):
+			similar_events = []
+	except Exception:
+		similar_events = []
+
 	base_rate = _compute_historical_base_rate(similar_events)
 	confluence_score = float(signal.get("confluence_score", 0.0))
 
 	enriched = dict(signal)
 	enriched["similar_events"] = similar_events
 	enriched["historical_base_rate"] = base_rate
-	enriched["actionability"] = _actionability(confluence_score)
+	enriched["actionability"] = _descriptive_decision(signal, similar_events, confluence_score)
 	return enriched
 
 

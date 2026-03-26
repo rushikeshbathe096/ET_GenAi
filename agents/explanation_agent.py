@@ -42,28 +42,76 @@ def _historical_strength(historical_base_rate: str) -> str:
 	return "weak"
 
 
+def _aligned_signals(signal: Dict[str, Any]) -> List[str]:
+	aligned: List[str] = []
+	for item in signal.get("filing_signals", []):
+		if not isinstance(item, dict):
+			continue
+		deal_type = str(item.get("deal_type", "")).lower()
+		transaction = str(item.get("transaction", "")).lower()
+		role = str(item.get("person_role", "")).lower()
+		score = float(item.get("score", 0.0))
+
+		if deal_type == "insider_trade" and transaction == "buy" and "promoter" in role:
+			aligned.append("promoter buying")
+		elif deal_type == "insider_trade" and transaction == "buy":
+			aligned.append("insider accumulation")
+		elif deal_type == "bulk_deal" and score > 0:
+			aligned.append("institutional bulk activity")
+		elif deal_type == "news_sentiment" and score > 0.3:
+			aligned.append("positive sentiment")
+
+	tech = signal.get("technical_patterns", [])
+	if isinstance(tech, list) and tech:
+		aligned.append("technical confirmation")
+
+	if not aligned:
+		return ["mixed filing signals"]
+
+	seen = set()
+	ordered = []
+	for item in aligned:
+		if item not in seen:
+			ordered.append(item)
+			seen.add(item)
+	return ordered
+
+
+def _setup_strength(confluence_score: Any) -> str:
+	try:
+		score = float(confluence_score)
+	except Exception:
+		score = 0.0
+
+	if score >= 7.0:
+		return "strong"
+	if score >= 4.0:
+		return "constructive"
+	return "early"
+
+
 def _build_reasoning_card(signal: Dict[str, Any]) -> List[str]:
-	ticker = str(signal.get("ticker", "Unknown"))
-	actionability = str(signal.get("actionability", "low"))
-	why_now = str(signal.get("why_now", "")).strip() or "Recent filings and patterns are being tracked"
+	ticker = str(signal.get("ticker", "This stock"))
+	why_now = str(signal.get("why_now", "")).strip() or "Recent filings and news flow suggest activity worth tracking"
 	historical_base_rate = str(signal.get("historical_base_rate", "0/0 events gave >10% return"))
 	hist_strength = _historical_strength(historical_base_rate)
+	alignment = _aligned_signals(signal)
+	alignment_text = ", ".join(alignment[:3])
+	strength = _setup_strength(signal.get("confluence_score", 0.0))
 
 	similar_events = signal.get("similar_events", [])
 	top_event = similar_events[0] if isinstance(similar_events, list) and similar_events else {}
-	top_event_company = str(top_event.get("company", "similar companies"))
+	top_event_company = str(top_event.get("company", "comparable names"))
 
 	prompt = (
-		f"Create simple explanation for {ticker} with actionability {actionability}, "
+		f"Create simple explanation for {ticker} with setup strength {strength}, "
 		f"base rate {historical_base_rate}, top match {top_event_company}, and why now {why_now}."
 	)
 	_ = call_llm(prompt)
 
-	sentence_1 = f"{ticker} is marked as {actionability} confidence due to multiple supporting signals in the current setup."
-	sentence_2 = f"Why now: {why_now}."
-	sentence_3 = (
-		f"Historical precedent shows {hist_strength} outcomes ({historical_base_rate}). This is presented as analytical data only."
-	)
+	sentence_1 = f"{ticker} is showing a {strength} setup, supported by {alignment_text}."
+	sentence_2 = f"This matters now because {why_now}."
+	sentence_3 = f"Limitation: historical support is {hist_strength} ({historical_base_rate}), so confirmation is still important."
 
 	return [sentence_1, sentence_2, sentence_3]
 
@@ -79,7 +127,7 @@ def _build_confidence_breakdown(signal: Dict[str, Any]) -> Dict[str, Any]:
 
 	return {
 		"confluence_score": float(signal.get("confluence_score", 0.0)),
-		"actionability": str(signal.get("actionability", "low")),
+		"actionability": str(signal.get("actionability", "Setup is being monitored with mixed conviction")),
 		"historical_base_rate": str(signal.get("historical_base_rate", "0/0 events gave >10% return")),
 		"similar_events_count": total,
 		"similar_events_above_10pct": positive_10,

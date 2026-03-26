@@ -10,10 +10,12 @@ import json
 # Import your source functions
 from agents.sources.bse import fetch_bulk_deals
 from agents.sources.sebi import fetch_insider_trades
-from agents.sources.nse import fetch_nse_announcements
 from agents.sources.circulars import fetch_circulars
 from agents.sources.news import fetch_news_sentiment
 from agents.sources.parser import merge_all_sources
+
+
+DEFAULT_TICKERS = ["TITAN", "INFY", "HDFCBANK", "RELIANCE", "TCS"]
 
 
 class OpportunityRadarDataFlow(FlowSpec):
@@ -45,12 +47,55 @@ class OpportunityRadarDataFlow(FlowSpec):
 
     @step
     def fetch_nse(self):
-        print("[fetch_nse] Fetching NSE announcements...")
+        print("[fetch_nse] Fetching NSE data...")
         try:
-            self.nse_data = fetch_nse_announcements()
+            from agents.sources.nse import get_nse_data
+
+            ticker_set = set(DEFAULT_TICKERS)
+
+            for item in self.bse_data:
+                ticker = item.get("ticker")
+                if ticker:
+                    ticker_set.add(str(ticker))
+
+            for item in self.sebi_data:
+                ticker = item.get("ticker")
+                if ticker:
+                    ticker_set.add(str(ticker))
+
+            self.nse_data = []
+            for ticker in sorted(ticker_set):
+                data = get_nse_data(ticker)
+                if data:
+                    self.nse_data.append(data)
+                else:
+                    self.nse_data.append({
+                        "ticker": ticker,
+                        "events": [
+                            {
+                                "deal_type": "price_movement",
+                                "reason": "nse_data_unavailable",
+                                "price": None,
+                                "change_pct": 0
+                            }
+                        ]
+                    })
         except Exception as e:
             print(f"NSE failed: {e}")
-            self.nse_data = []
+            self.nse_data = [
+                {
+                    "ticker": ticker,
+                    "events": [
+                        {
+                            "deal_type": "price_movement",
+                            "reason": "nse_data_unavailable",
+                            "price": None,
+                            "change_pct": 0
+                        }
+                    ]
+                }
+                for ticker in DEFAULT_TICKERS
+            ]
         self.next(self.fetch_news)
 
     @step
