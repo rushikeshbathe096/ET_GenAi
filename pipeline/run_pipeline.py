@@ -1,215 +1,218 @@
-from datetime import date as date_cls
+from datetime import date
 from typing import Any, Dict, List
 
 from agents.analysis_agent import compute_signals
-from agents.decision_agent import enrich_signal
-from agents.utils.data_loader import load_parsed_data
+from agents.decision_agent import generate_decision
+from agents.explanation_agent import generate_explanation
+from agents.sources.news import fetch_news_sentiment
+from agents.sources.nse_source import fetch_price_data, fetch_bulk_deals, fetch_insider_trades
+from nsepython import nse_get_top_gainers, nse_get_top_losers
 
 
-def _signal_label(signal_type: str) -> str:
-    return str(signal_type).replace("_", " ").strip().title()
+def _normalize_symbol(symbol: str) -> str:
+    normalized = str(symbol or "").strip().upper()
+    if not normalized:
+        raise ValueError("symbol is required")
+    return normalized
 
-
-def _safe_float(value: Any, default: float = 0.0) -> float:
+def get_market_tickers() -> list[str]:
+    import pandas as pd
+    tickers = []
     try:
-        return float(value)
+        gainers = nse_get_top_gainers()
+        if isinstance(gainers, pd.DataFrame) and not gainers.empty:
+            tickers += gainers["symbol"].str.strip().str.upper().tolist()[:5]
+    except Exception:
+        pass
+    try:
+        losers = nse_get_top_losers()
+        if isinstance(losers, pd.DataFrame) and not losers.empty:
+            tickers += losers["symbol"].str.strip().str.upper().tolist()[:5]
+    except Exception:
+        pass
+    if not tickers:
+        tickers = ["TCS", "INFY", "HDFCBANK"]
+    return list(dict.fromkeys(tickers))
+
+
+def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
+    decision = str(payload.get("decision") or "HOLD").upper()
+    if decision not in {"BUY", "SELL", "HOLD"}:
+        decision = "HOLD"
+
+    try:
+        confidence = int(payload.get("confidence", 0))
     except (TypeError, ValueError):
-        return float(default)
+        confidence = 0
+    confidence = max(0, min(100, confidence))
 
+    risks = payload.get("risks", [])
+    if not isinstance(risks, list):
+        risks = [str(risks)] if risks is not None else []
 
-def _decision_and_confidence(signal_summary: List[Dict[str, Any]]) -> tuple[str, int, float, float, bool]:
-    positive_weight = 0.0
-    negative_weight = 0.0
+    signals = payload.get("signals", [])
+    if not isinstance(signals, list):
+        signals = []
 
-    for item in signal_summary:
-        if not isinstance(item, dict):
-            continue
-        score = _safe_float(item.get("score"), 0.0)
-        weight = _safe_float(item.get("weight"), 1.0)
-        weighted = score * weight
+    price = payload.get("price", None)
+    try:
+        price = float(price) if price is not None else None
+    except (TypeError, ValueError):
+        price = None
 
-        if weighted > 0:
-            positive_weight += weighted
-        elif weighted < 0:
-            negative_weight += abs(weighted)
+    change_pct = payload.get("change_pct", None)
+    try:
+        change_pct = float(change_pct) if change_pct is not None else None
+    except (TypeError, ValueError):
+        change_pct = None
 
-    conflict = positive_weight > 0 and negative_weight > 0
-    total_strength = positive_weight + negative_weight
-
-    if conflict:
-        decision = "HOLD"
-    elif positive_weight > negative_weight and positive_weight >= 1.0:
-        decision = "BUY"
-    elif negative_weight > positive_weight and negative_weight >= 1.0:
-        decision = "SELL"
-    else:
-        decision = "HOLD"
-
-    if decision == "HOLD":
-        if total_strength < 0.8:
-            confidence = 24
-        elif conflict:
-            confidence = 45
-        else:
-            confidence = 58
-    else:
-        dominance = abs(positive_weight - negative_weight)
-        confidence = int(round(70 + min(30, dominance * 10)))
-        confidence = max(70, min(100, confidence))
-
-    # Guardrail requested: very high confidence should never stay HOLD.
-    if decision == "HOLD" and confidence > 75:
-        confidence = 60
-
-    return decision, confidence, positive_weight, negative_weight, conflict
-
-
-def _build_why_now(signal_summary: List[Dict[str, Any]], decision: str, conflict: bool) -> str:
-    positives = []
-    negatives = []
-
-    for item in signal_summary:
-        if not isinstance(item, dict):
-            continue
-
-        score = _safe_float(item.get("score"), 0.0)
-        weight = _safe_float(item.get("weight"), 1.0)
-        weighted = score * weight
-        reason = str(item.get("reason") or _signal_label(item.get("type", "signal"))).strip()
-        signal_name = _signal_label(item.get("type", "signal"))
-
-        entry = {
-            "name": signal_name,
-            "reason": reason,
-            "strength": abs(weighted),
-        }
-
-        if weighted > 0:
-            positives.append(entry)
-        elif weighted < 0:
-            negatives.append(entry)
-
-    positives.sort(key=lambda row: row["strength"], reverse=True)
-    negatives.sort(key=lambda row: row["strength"], reverse=True)
-
-    if decision == "BUY":
-        if len(positives) >= 2:
-            return (
-                f"{positives[0]['name']} and {positives[1]['name']} are driving the bullish setup, "
-                f"with {positives[0]['reason'].lower()}."
-            )
-        if positives:
-            return f"{positives[0]['name']} is the key upside driver, supported by {positives[0]['reason'].lower()}."
-        return "Positive setup is emerging, but additional confirmation would strengthen conviction."
-
-    if decision == "SELL":
-        if len(negatives) >= 2:
-            return (
-                f"{negatives[0]['name']} and {negatives[1]['name']} are putting pressure on the setup, "
-                f"with {negatives[0]['reason'].lower()}."
-            )
-        if negatives:
-            return f"{negatives[0]['name']} is the main downside driver, highlighted by {negatives[0]['reason'].lower()}."
-        return "Downside risk is elevated, though additional bearish confirmation is still useful."
-
-    if conflict and positives and negatives:
-        return (
-            f"Signals are split: {positives[0]['name']} supports upside while {negatives[0]['name']} adds downside risk, "
-            f"with bullish context from {positives[0]['reason'].lower()} and caution from {negatives[0]['reason'].lower()}."
-        )
-
-    if positives:
-        return f"Constructive signals exist, led by {positives[0]['name']}, but conviction is not strong enough for a buy call."
-    if negatives:
-        return f"Risk signals are present, led by {negatives[0]['name']}, but not broad enough for a full sell call."
-    return "Signal set is currently neutral, so no immediate directional edge is visible."
-
-
-def generate_decision(signals: List[Dict[str, Any]]) -> Dict[str, Any]:
-    if not signals:
-        return {
-            "decision": "HOLD",
-            "confidence": 20,
-            "why_now": "No signals available for this stock.",
-            "risks": ["No signal data available"],
-            "signals": [],
-        }
-
-    enriched = enrich_signal(signals[0])
-    signal_summary = enriched.get("signals", [])
-    if not isinstance(signal_summary, list):
-        signal_summary = []
-
-    decision, confidence, _, _, conflict = _decision_and_confidence(signal_summary)
-
-    why_now = _build_why_now(signal_summary, decision, conflict)
-
-    risks: List[str] = []
-    for item in signal_summary:
-        if not isinstance(item, dict):
-            continue
-        if item.get("direction") == "negative":
-            reason = item.get("reason") or item.get("type") or "Negative signal"
-            risks.append(str(reason))
-
-    if conflict:
-        risks.append("Conflicting bullish and bearish signals")
+    volume = payload.get("volume", None)
+    try:
+        volume = float(volume) if volume is not None else None
+    except (TypeError, ValueError):
+        volume = None
 
     return {
+        "symbol": str(payload.get("symbol") or ""),
+        "company": str(payload.get("company") or ""),
         "decision": decision,
         "confidence": confidence,
-        "why_now": why_now,
+        "why": str(payload.get("why_now") or payload.get("why") or ""),
         "risks": risks,
-        "signals": signal_summary,
+        "signals": signals,
+        "price_data": payload.get("price_data", {}),
+        "current_price": payload.get("current_price"),
+        "date": payload.get("date"),
+        "disclaimer": payload.get("disclaimer"),
+        "actionability": payload.get("actionability", {}),
+        "confidence_breakdown": payload.get("confidence_breakdown", []),
     }
 
 
-def run_pipeline() -> Dict[str, Any]:
-    today = date_cls.today().isoformat()
-    parsed_data = load_parsed_data(today)
+def fetch_data(symbol: str) -> Dict[str, Any]:
+    normalized = _normalize_symbol(symbol)
 
-    opportunities: List[Dict[str, Any]] = []
+    price_data = fetch_price_data(normalized)
+    insider_data = fetch_insider_trades(normalized)
+    bulk_deals = fetch_bulk_deals(normalized)
 
-    for stock in parsed_data:
-        if not isinstance(stock, dict):
-            continue
-
-        stock_signals = compute_signals([stock])
-        stock_decision = generate_decision(stock_signals)
-
-        opportunities.append(
-            {
-                "symbol": str(stock.get("ticker", "")),
-                "company": str(stock.get("company", "")),
-                "decision": stock_decision["decision"],
-                "confidence": stock_decision["confidence"],
-                "why_now": stock_decision["why_now"],
-                "risks": stock_decision["risks"],
-                "signals": stock_decision["signals"],
-            }
-        )
-
-    opportunities.sort(key=lambda item: int(item.get("confidence", 0)), reverse=True)
-
-    ranked_opportunities: List[Dict[str, Any]] = []
-    for idx, item in enumerate(opportunities, start=1):
-        ranked_opportunities.append(
-            {
-                "rank": idx,
-                "symbol": item.get("symbol", ""),
-                "company": item.get("company", ""),
-                "decision": item.get("decision", "HOLD"),
-                "confidence": int(item.get("confidence", 0)),
-                "why_now": item.get("why_now", ""),
-                "risks": item.get("risks", []),
-                "signals": item.get("signals", []),
-            }
-        )
+    company = str(price_data.get("company") or normalized)
+    news = fetch_news_sentiment(company)
 
     return {
-        "date": today,
-        "opportunities": ranked_opportunities,
+        "symbol": normalized,
+        "company": company,
+        "price_data": price_data,
+        "insider_data": insider_data if isinstance(insider_data, list) else [],
+        "bulk_deals": bulk_deals if isinstance(bulk_deals, list) else [],
+        "news": news if isinstance(news, dict) else {},
     }
 
 
-__all__ = ["run_pipeline", "generate_decision", "compute_signals", "load_parsed_data"]
+def _build_actionability(decision: str, confidence: int) -> dict:
+    if decision in ("BUY", "STRONG_BUY"):
+        color = "green"
+    elif decision in ("SELL", "STRONG_SELL"):
+        color = "red"
+    else:
+        color = "yellow"
+    
+    if confidence >= 70:
+        risk_level = "Low"
+    elif confidence >= 45:
+        risk_level = "Medium"
+    else:
+        risk_level = "High"
+    
+    return {
+        "confidence_pct": f"{confidence}%",
+        "risk_level": risk_level,
+        "time_horizon": "Short-term (2-4 weeks)",
+        "color": color
+    }
+
+
+def _build_confidence_breakdown(signals: list) -> list:
+    total_score = sum(abs(s.get("score", 0)) for s in signals)
+    breakdown = []
+    for s in signals:
+        if total_score == 0:
+            pct = 0
+        else:
+            pct = round((abs(s.get("score", 0)) / total_score) * 100)
+        breakdown.append({
+            "label": s.get("reason", s.get("type", "signal")),
+            "contribution_pct": pct
+        })
+    return breakdown
+
+
+def analyze_stock(symbol: str) -> Dict[str, Any]:
+    normalized = _normalize_symbol(symbol)
+    price_data = fetch_price_data(normalized)
+    payload = {
+        "symbol": normalized,
+        "company": price_data.get("company", normalized),
+        "price_data": {
+            "change_pct": price_data.get("change_pct", 0.0),
+            "price": price_data.get("price"),
+            "volume": price_data.get("volume"),
+        },
+        "bulk_deals": fetch_bulk_deals(normalized),
+        "insider_data": fetch_insider_trades(normalized),
+        "news": {}
+    }
+
+    signals = compute_signals([payload])
+    decision = generate_decision(signals)
+    explanation = generate_explanation(decision, signals)
+
+    computed_decision = str(decision.get("decision", "HOLD")).upper()
+    try:
+        computed_confidence = int(decision.get("confidence", 0))
+    except (TypeError, ValueError):
+        computed_confidence = 0
+
+    output = {
+        "symbol": payload["symbol"],
+        "company": payload["company"],
+        "price_data": payload["price_data"],
+        "decision": computed_decision,
+        "confidence": computed_confidence,
+        "why": explanation.get("why_now", decision.get("why_now", "")),
+        "risks": explanation.get("risks", decision.get("risks", [])),
+        "signals": signals,
+        "current_price": payload["price_data"].get("price"),
+        "date": date.today().strftime("%Y-%m-%d"),
+        "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
+        "actionability": _build_actionability(computed_decision, computed_confidence),
+        "confidence_breakdown": _build_confidence_breakdown(signals),
+    }
+
+    return _sanitize_output(output)
+
+
+def run_pipeline(symbols: List[str]) -> List[Dict[str, Any]]:
+    results = []
+    for symbol in symbols:
+        try:
+            results.append(analyze_stock(symbol))
+        except Exception:
+            continue
+    return results
+
+
+def run_market_pipeline() -> list[dict]:
+    tickers = get_market_tickers()
+    results = []
+    for ticker in tickers:
+        try:
+            result = analyze_stock(ticker)
+            if result:
+                results.append(result)
+        except Exception as e:
+            print(f"Failed for {ticker}: {e}")
+    return results
+
+
+__all__ = ["analyze_stock", "run_pipeline", "run_market_pipeline", "get_market_tickers"]

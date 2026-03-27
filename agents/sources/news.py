@@ -1,6 +1,3 @@
-import random
-from datetime import datetime
-
 try:
     import feedparser
 except ImportError:
@@ -29,7 +26,9 @@ def fetch_news_sentiment(company: str) -> dict:
         "score": 0.0,
         "signal": None,
         "headlines": [],
-        "deal_type": "news_sentiment"
+        "deal_type": "news_sentiment",
+        "is_fallback": True,
+        "source_status": "fallback",
     }
 
     try:
@@ -77,37 +76,17 @@ def fetch_news_sentiment(company: str) -> dict:
             "score": float(round(avg_score, 2)),
             "signal": signal,
             "headlines": matched,
-            "deal_type": "news_sentiment"
+            "deal_type": "news_sentiment",
+            "is_fallback": False,
+            "source_status": "live",
         }
 
     except Exception as e:
         if DEBUG:
             print(f"News fetch failed: {e}")
-            print("Using fallback sentiment")
 
-        # 🔥 Fallback (smart, not boring)
-        fallback_scores = [0.5, -0.4, 0.2]
-        score = random.choice(fallback_scores)
-
-        if score > 0.3:
-            signal = "positive"
-        elif score < -0.3:
-            signal = "negative"
-        else:
-            signal = None
-
-        headlines = [
-            f"{company} sees strong growth outlook",
-            f"{company} faces regulatory pressure",
-            f"{company} expands into new markets"
-        ]
-
-        return {
-            "score": score,
-            "signal": signal,
-            "headlines": headlines,
-            "deal_type": "news_sentiment"
-        }
+        # Fallback is explicit and non-signal generating.
+        return default_response
 
 
 if __name__ == "__main__":

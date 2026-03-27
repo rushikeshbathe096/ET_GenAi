@@ -225,5 +225,88 @@ def test_explanation_agent() -> None:
 		print(json.dumps(results[0], indent=2))
 
 
+def generate_explanation(decision: Dict[str, Any], signals: List[Dict[str, Any]]) -> Dict[str, Any]:
+	signal_rows = signals if isinstance(signals, list) else []
+
+	positives: List[Dict[str, Any]] = []
+	negatives: List[Dict[str, Any]] = []
+
+	for item in signal_rows:
+		if not isinstance(item, dict):
+			continue
+
+		try:
+			score = float(item.get("score", 0.0))
+		except (TypeError, ValueError):
+			score = 0.0
+
+		reason = str(item.get("reason") or "").strip()
+		if not reason:
+			continue
+
+		entry = {
+			"type": str(item.get("type", "signal")).replace("_", " ").title(),
+			"reason": reason,
+			"strength": abs(score),
+		}
+
+		if score > 0:
+			positives.append(entry)
+		elif score < 0:
+			negatives.append(entry)
+
+	positives.sort(key=lambda x: x["strength"], reverse=True)
+	negatives.sort(key=lambda x: x["strength"], reverse=True)
+
+	# Keep only meaningful driver rows.
+	positives = [row for row in positives if row["strength"] >= 0.25 and len(row["reason"].strip()) >= 10]
+	negatives = [row for row in negatives if row["strength"] >= 0.25 and len(row["reason"].strip()) >= 10]
+
+	decision_label = str(decision.get("decision", "HOLD")).upper()
+	lines: List[str] = []
+	strength = str(decision.get("reasoning_summary") or "")
+
+	if positives:
+		lead = positives[0]
+		if len(positives) > 1:
+			second = positives[1]
+			lines.append(
+				f"{decision_label} is driven by {lead['type']} and {second['type']} ({lead['reason']})."
+			)
+		else:
+			lines.append(f"{decision_label} is mainly supported by {lead['type']} ({lead['reason']}).")
+
+	if negatives:
+		lead_neg = negatives[0]
+		lines.append(f"Key downside driver is {lead_neg['type']} ({lead_neg['reason']}).")
+
+	if positives and negatives:
+		lines.append("Conflicting signals detected, so conviction depends on confirmation in upcoming sessions.")
+	elif positives:
+		lines.append("Signals are aligned on the upside, supporting a clearer directional setup.")
+	elif negatives:
+		lines.append("Signals are aligned on the downside, indicating a pressure-heavy setup.")
+	else:
+		if strength:
+			lines.append(f"Low conviction setup: {strength}")
+		else:
+			lines.append("Low conviction setup with no strong directional driver.")
+
+	why_now = "\n".join(lines[:3])
+
+	risks: List[str] = []
+	seen = set()
+	for item in negatives:
+		reason = item["reason"]
+		if reason not in seen:
+			risks.append(reason)
+			seen.add(reason)
+
+	return {
+		"why_now": why_now,
+		"risks": risks,
+	}
+
+
 if __name__ == "__main__":
 	test_explanation_agent()

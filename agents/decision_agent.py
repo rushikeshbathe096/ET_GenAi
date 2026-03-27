@@ -336,5 +336,91 @@ def test_decision_agent() -> None:
     print(json.dumps(enriched, indent=2))
 
 
+def generate_decision(signals: List[Dict[str, Any]]) -> Dict[str, Any]:
+    signal_rows = signals if isinstance(signals, list) else []
+
+    if not signal_rows:
+        return {
+            "decision": "HOLD",
+            "confidence": 15,
+            "reasoning_summary": "No valid signals were available.",
+        }
+
+    positive_weight = 0.0
+    negative_weight = 0.0
+    pos_count = 0
+    neg_count = 0
+
+    for item in signal_rows:
+        if not isinstance(item, dict):
+            continue
+
+        score = _safe_float(item.get("score"), 0.0)
+        weight = _safe_float(item.get("weight"), 1.0)
+        weighted_score = score * weight
+
+        if weighted_score > 0:
+            positive_weight += weighted_score
+            pos_count += 1
+        elif weighted_score < 0:
+            negative_weight += abs(weighted_score)
+            neg_count += 1
+
+    total_strength = positive_weight + negative_weight
+    net_strength = positive_weight - negative_weight
+    conflict = positive_weight > 0 and negative_weight > 0
+
+    if total_strength == 0:
+        decision = "HOLD"
+        confidence = 15
+    else:
+        dominance = abs(net_strength) / total_strength
+        base_conf = int(round(max(0.0, min(1.0, dominance)) * 100))
+
+        total_signals = pos_count + neg_count
+        if total_signals == 1:
+            base_conf = min(base_conf, 50)
+        elif total_signals == 2:
+            base_conf = min(base_conf, 65)
+        elif total_signals == 3:
+            base_conf = min(base_conf, 80)
+        # 4+ signals: no cap, formula runs freely
+
+        if conflict and dominance < 0.35:
+            decision = "HOLD"
+        elif net_strength > 0:
+            decision = "BUY"
+        elif net_strength < 0:
+            decision = "SELL"
+        else:
+            decision = "HOLD"
+
+        # Penalize conflicts and boost alignment while avoiding overconfidence.
+        if conflict:
+            confidence = base_conf - 20
+            if decision != "HOLD":
+                confidence -= 10
+        else:
+            confidence = base_conf + 10
+
+        if decision == "HOLD":
+            confidence = min(confidence, 60)
+        if conflict:
+            confidence = min(confidence, 80)
+
+        confidence = max(10, min(100, confidence))
+
+    reasoning_summary = (
+        f"Weighted score +{round(positive_weight, 2)} / -{round(negative_weight, 2)}; "
+        f"positive={pos_count}, negative={neg_count}."
+    )
+
+    return {
+        "decision": decision,
+        "confidence": int(max(0, min(100, confidence))),
+        "reasoning_summary": reasoning_summary,
+    }
+
+
 if __name__ == "__main__":
     test_decision_agent()
