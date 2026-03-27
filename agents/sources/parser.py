@@ -6,7 +6,8 @@ def _fallback_price_event() -> dict:
         "deal_type": "price_movement",
         "reason": "nse_data_unavailable",
         "price": None,
-        "change_pct": 0
+        "change_pct": 0,
+        "source": "fallback"
     }
 
 
@@ -29,6 +30,29 @@ def merge_all_sources(bse_data, sebi_data, nse_data, circular_data, news_data):
                 "news": None,
                 "date": datetime.now().strftime("%Y-%m-%d")
             }
+
+        if event.get("deal_type") == "price_movement":
+            existing_events = grouped[ticker]["events"]
+            existing_index = next(
+                (
+                    index
+                    for index, existing in enumerate(existing_events)
+                    if existing.get("deal_type") == "price_movement"
+                ),
+                None,
+            )
+
+            if existing_index is not None:
+                existing_event = existing_events[existing_index]
+                existing_source = existing_event.get("source")
+                incoming_source = event.get("source")
+
+                # Keep real market data over fallback, and upgrade fallback to real when available.
+                if existing_source in {"nse", "yfinance"} and incoming_source == "fallback":
+                    return
+                if existing_source == "fallback" and incoming_source in {"nse", "yfinance"}:
+                    existing_events[existing_index] = event
+                    return
 
         # deduplicate
         if event not in grouped[ticker]["events"]:
@@ -79,7 +103,8 @@ def merge_all_sources(bse_data, sebi_data, nse_data, circular_data, news_data):
                 event = {
                     "deal_type": nse_event.get("deal_type", "price_movement"),
                     "price": nse_event.get("price"),
-                    "change_pct": nse_event.get("change_pct")
+                    "change_pct": nse_event.get("change_pct"),
+                    "source": nse_event.get("source", "fallback")
                 }
                 add_event(ticker, company, event)
             continue
@@ -88,7 +113,8 @@ def merge_all_sources(bse_data, sebi_data, nse_data, circular_data, news_data):
         event = {
             "deal_type": item.get("deal_type", "price_movement"),
             "price": item.get("price"),
-            "change_pct": item.get("change_pct")
+            "change_pct": item.get("change_pct"),
+            "source": item.get("source", "fallback")
         }
         add_event(ticker, company, event)
 

@@ -3,6 +3,24 @@ import glob
 import os
 from datetime import date
 import yfinance as yf
+import requests
+
+# Shared session and User-Agent for Yahoo calls.
+session = requests.Session()
+session.headers['User-agent'] = 'Mozilla/5.0'
+
+
+def _to_float(value, default=0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _safe_lower(value) -> str:
+    if value is None:
+        return ""
+    return str(value).lower()
 
 
 # =========================
@@ -15,8 +33,9 @@ def score_filing_event(event: dict) -> dict:
         role = event.get('person_role', '')
         value = event.get('value', 0)
 
-        base = 3.0 if 'promoter' in role.lower() else \
-               2.0 if 'director' in role.lower() else 1.0
+        role_lower = _safe_lower(role)
+        base = 3.0 if 'promoter' in role_lower else \
+               2.0 if 'director' in role_lower else 1.0
 
         score = min(base, base * (value / 10_000_000))
 
@@ -34,7 +53,7 @@ def score_filing_event(event: dict) -> dict:
             'score_reason': f'Institutional bulk deal — {qty:,} shares'
         }
 
-    elif deal_type == 'announcement' and 'result' in event.get('title', '').lower():
+    elif deal_type == 'announcement' and 'result' in _safe_lower(event.get('title')):
         return {
             'score': 1.5,
             'score_reason': 'Quarterly results filed'
@@ -56,6 +75,19 @@ def score_filing_event(event: dict) -> dict:
         else:
             return {'score': 0.0, 'score_reason': 'Neutral news'}
 
+    elif deal_type == 'price_movement':
+        change_pct = _to_float(event.get('change_pct'), 0.0)
+
+        if change_pct > 3:
+            return {'score': 2.0, 'score_reason': 'Strong positive price momentum'}
+        elif change_pct > 1:
+            return {'score': 1.0, 'score_reason': 'Moderate upward movement'}
+        elif change_pct < -2:
+            return {'score': -2.0, 'score_reason': 'Strong negative momentum'}
+        elif change_pct < -1:
+            return {'score': -1.0, 'score_reason': 'Weak price decline'}
+        return {'score': 0.0, 'score_reason': 'Flat price movement'}
+
     return {'score': 0.0, 'score_reason': 'No signal'}
 
 
@@ -67,7 +99,7 @@ def generate_why_now(ticker: str, events: list, news_score: float) -> str:
 
     promoter_buy = any(
         e.get('deal_type') == 'insider_trade' and
-        e.get('person_role', '').lower() == 'promoter' and
+        _safe_lower(e.get('person_role')) == 'promoter' and
         e.get('transaction') == 'buy'
         for e in events
     )
@@ -75,8 +107,13 @@ def generate_why_now(ticker: str, events: list, news_score: float) -> str:
     has_bulk = any(e.get('deal_type') == 'bulk_deal' for e in events)
 
     has_result = any(
-        'result' in e.get('title', '').lower()
+        'result' in _safe_lower(e.get('title'))
         for e in events
+    )
+
+    price_event = next(
+        (e for e in events if e.get('deal_type') == 'price_movement'),
+        None
     )
 
     if promoter_buy:
@@ -87,6 +124,16 @@ def generate_why_now(ticker: str, events: list, news_score: float) -> str:
 
     if has_result:
         parts.append('earnings results filed this week')
+
+    if price_event:
+        change_pct = _to_float(price_event.get('change_pct'), 0.0)
+        if change_pct > 1:
+            momentum = f'Stock is gaining momentum with +{change_pct:.1f}% move'
+            if promoter_buy:
+                momentum = f'{momentum} supported by insider buying'
+            parts.append(momentum)
+        elif change_pct < -1:
+            parts.append(f'Stock is under pressure with {change_pct:.1f}% move')
 
     if news_score > 0.3:
         parts.append('positive news sentiment')
@@ -102,10 +149,15 @@ def generate_why_now(ticker: str, events: list, news_score: float) -> str:
 # =========================
 def check_technical_patterns(ticker: str) -> list[dict]:
     try:
-        hist = yf.Ticker(f'{ticker}.NS').history(period='1y')
+        hist = yf.Ticker(f'{ticker}.NS', session=session).history(period='1y', interval='1d')
 
         if len(hist) < 50:
-            return []
+            return [
+                {
+                    "type": "technical_unavailable",
+                    "reason": "Technical data not available, decision based on fundamentals and sentiment"
+                }
+            ]
 
         patterns = []
 
@@ -143,10 +195,23 @@ def check_technical_patterns(ticker: str) -> list[dict]:
                 'reason': f'Price near 52-week high of Rs {high_52w:.0f}'
             })
 
+        if not patterns:
+            return [
+                {
+                    "type": "technical_unavailable",
+                    "reason": "Technical data not available, decision based on fundamentals and sentiment"
+                }
+            ]
+
         return patterns
 
     except Exception:
-        return []  # NEVER crash
+        return [
+            {
+                "type": "technical_unavailable",
+                "reason": "Technical data not available, decision based on fundamentals and sentiment"
+            }
+        ]  # NEVER crash
 
 
 # =========================
@@ -191,13 +256,13 @@ def compute_confluence(company_data: dict) -> dict:
 
     # Technical patterns
     tech_patterns = check_technical_patterns(ticker)
-    tech_score = sum(p['score_add'] for p in tech_patterns)
+    tech_score = sum(float(p.get('score_add', 0.0)) for p in tech_patterns)
 
-    # Filing score (only positive)
-    filing_score = sum(max(0, e.get('score', 0)) for e in scored_events)
+    # Filing score includes downside momentum and negative sentiment.
+    filing_score = sum(float(e.get('score', 0.0)) for e in scored_events)
 
     raw_total = filing_score + tech_score
-    normalized = round(min(10.0, raw_total), 1)
+    normalized = round(max(0.0, min(10.0, raw_total)), 1)
 
     # Why Now
     why_now = generate_why_now(ticker, events, news.get('score', 0))
@@ -210,12 +275,16 @@ def compute_confluence(company_data: dict) -> dict:
         'why_now': why_now,
     }
 
-def compute_signals(data):
-    results = [compute_confluence(c) for c in data]
 
-    results.sort(key=lambda x: x['confluence_score'], reverse=True)
+def compute_signals(data: list[dict]) -> list[dict]:
+    if not isinstance(data, list):
+        return []
 
+    results = [compute_confluence(company_data) for company_data in data]
+    results.sort(key=lambda x: x.get('confluence_score', 0.0), reverse=True)
     return results
+
+
 # =========================
 # STEP 6 — MAIN RUN
 # =========================
@@ -230,10 +299,7 @@ def run(input_path='data/parsed', output_path='data/signals'):
     with open(latest_file) as f:
         data = json.load(f)
 
-    results = [compute_confluence(c) for c in data]
-
-    # Sort by score descending
-    results.sort(key=lambda x: x['confluence_score'], reverse=True)
+    results = compute_signals(data)
 
     # Top 10 only
     results = results[:10]

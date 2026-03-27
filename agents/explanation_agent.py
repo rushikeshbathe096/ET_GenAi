@@ -98,6 +98,15 @@ def _build_reasoning_card(signal: Dict[str, Any]) -> List[str]:
 	alignment = _aligned_signals(signal)
 	alignment_text = ", ".join(alignment[:3])
 	strength = _setup_strength(signal.get("confluence_score", 0.0))
+	confidence = str(signal.get("confidence", "MEDIUM"))
+	has_conflict = bool(signal.get("signal_conflict", False))
+	decision = str(signal.get("decision", "HOLD"))
+
+	bias = "balanced"
+	if decision in {"STRONG_BUY", "BUY"}:
+		bias = "bullish"
+	elif decision in {"STRONG_SELL", "SELL"}:
+		bias = "bearish"
 
 	similar_events = signal.get("similar_events", [])
 	top_event = similar_events[0] if isinstance(similar_events, list) and similar_events else {}
@@ -109,9 +118,13 @@ def _build_reasoning_card(signal: Dict[str, Any]) -> List[str]:
 	)
 	_ = call_llm(prompt)
 
-	sentence_1 = f"{ticker} is showing a {strength} setup, supported by {alignment_text}."
-	sentence_2 = f"This matters now because {why_now}."
-	sentence_3 = f"Limitation: historical support is {hist_strength} ({historical_base_rate}), so confirmation is still important."
+	sentence_1 = f"{ticker} is showing a {strength} and {bias} setup, supported by {alignment_text}."
+	sentence_2 = f"This matters now because {why_now}"
+	if has_conflict:
+		sentence_2 += " Signal directions are mixed, so conviction is tempered."
+	else:
+		sentence_2 += "."
+	sentence_3 = f"Confidence is {confidence.lower()}, and historical support is {hist_strength} ({historical_base_rate}), so confirmation remains important."
 
 	return [sentence_1, sentence_2, sentence_3]
 
@@ -128,6 +141,8 @@ def _build_confidence_breakdown(signal: Dict[str, Any]) -> Dict[str, Any]:
 	return {
 		"confluence_score": float(signal.get("confluence_score", 0.0)),
 		"actionability": str(signal.get("actionability", "Setup is being monitored with mixed conviction")),
+		"decision": str(signal.get("decision", "HOLD")),
+		"confidence": str(signal.get("confidence", "MEDIUM")),
 		"historical_base_rate": str(signal.get("historical_base_rate", "0/0 events gave >10% return")),
 		"similar_events_count": total,
 		"similar_events_above_10pct": positive_10,
@@ -174,7 +189,11 @@ def run() -> List[Dict[str, Any]]:
 	required_fields = {
 		"ticker",
 		"company",
+		"decision",
+		"confidence",
 		"confluence_score",
+		"why_now",
+		"signals",
 		"actionability",
 		"reasoning_card",
 		"confidence_breakdown",

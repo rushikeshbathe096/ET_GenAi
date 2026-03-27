@@ -1,0 +1,3 @@
+[MFLOG|0|2026-03-27T09:47:21.614474Z|runtime|bf0267d4-289c-4462-81c1-8708d00b019a][parse_and_save] Merging and saving data...
+[MFLOG|0|2026-03-27T09:47:23.030043Z|runtime|8b96c98f-5b6d-4253-83ed-bd3d066ec403]No valid entries found in SEBI circulars feed.
+[MFLOG|0|2026-03-27T09:47:23.244212Z|runtime|1b2cd1e0-ba32-40d5-b5e6-05f3e9a2033f]Using simulated fallback data for SEBI circulars.

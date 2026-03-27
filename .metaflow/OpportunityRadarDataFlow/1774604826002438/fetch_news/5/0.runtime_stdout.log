@@ -1,0 +1,11 @@
+[MFLOG|0|2026-03-27T09:47:17.835035Z|runtime|10052120-92e9-4373-ba32-b8e7302ca170][fetch_news] Fetching news sentiment...
+[MFLOG|0|2026-03-27T09:47:18.366962Z|runtime|2945d3e3-1c94-4665-b3cd-7134d65d1654]News fetch failed: No RSS entries
+[MFLOG|0|2026-03-27T09:47:18.823211Z|runtime|c26822f4-aa87-4062-877f-af64a639bc61]Using fallback sentiment
+[MFLOG|0|2026-03-27T09:47:18.823606Z|runtime|a8157459-dca4-4d6c-b346-fd55c7ab0058]News fetch failed: No RSS entries
+[MFLOG|0|2026-03-27T09:47:19.261310Z|runtime|b0114504-5838-4274-a091-7783e3c72840]Using fallback sentiment
+[MFLOG|0|2026-03-27T09:47:19.261492Z|runtime|cad09b6a-317b-4439-aaae-f240d954dc23]News fetch failed: No RSS entries
+[MFLOG|0|2026-03-27T09:47:19.668319Z|runtime|0f4a1abf-e370-477e-8b8a-472f1e12d226]Using fallback sentiment
+[MFLOG|0|2026-03-27T09:47:19.668513Z|runtime|df9187e8-2467-44c8-8dfa-4e309000a097]News fetch failed: No RSS entries
+[MFLOG|0|2026-03-27T09:47:20.095874Z|runtime|bad1133b-211c-4143-9b9e-dfc6d766f1b1]Using fallback sentiment
+[MFLOG|0|2026-03-27T09:47:20.096097Z|runtime|1cb35c81-2ac8-4f3b-ac84-3baea809232b]News fetch failed: No RSS entries
+[MFLOG|0|2026-03-27T09:47:20.267769Z|runtime|cb1308af-101f-47d8-b647-177d8775516d]Using fallback sentiment
