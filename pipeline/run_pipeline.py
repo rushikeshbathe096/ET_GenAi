@@ -2,6 +2,8 @@ from datetime import date
 from typing import Any, Dict, List
 
 from agents.analysis_agent import compute_signals
+from agents.decision_agent import enrich_signal
+from agents.utils.data_loader import load_parsed_data, load_latest_data
 from agents.decision_agent import generate_decision
 from agents.explanation_agent import generate_explanation
 from agents.sources.news import fetch_news_sentiment
@@ -96,6 +98,9 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def run_pipeline() -> Dict[str, Any]:
+    today = "2026-03-27"
+    parsed_data = load_parsed_data(today)
 def fetch_data(symbol: str) -> Dict[str, Any]:
     normalized = _normalize_symbol(symbol)
 
@@ -116,6 +121,42 @@ def fetch_data(symbol: str) -> Dict[str, Any]:
     }
 
 
+def analyze_stock(symbol: str) -> Dict[str, Any]:
+    parsed_data = load_latest_data()
+
+    target_stock = None
+    for stock in parsed_data:
+        if not isinstance(stock, dict):
+            continue
+        if str(stock.get("ticker", "")).upper() == symbol.upper():
+            target_stock = stock
+            break
+
+    if not target_stock:
+        return {
+            "symbol": symbol,
+            "decision": "HOLD",
+            "confidence": 0,
+            "why_now": f"No data available for symbol {symbol}.",
+            "risks": ["Symbol not found in latest parsed data"],
+            "signals": []
+        }
+
+    stock_signals = compute_signals([target_stock])
+    stock_decision = generate_decision(stock_signals)
+
+    return {
+        "symbol": str(target_stock.get("ticker", "")),
+        "company": str(target_stock.get("company", "")),
+        "decision": stock_decision["decision"],
+        "confidence": stock_decision["confidence"],
+        "why_now": stock_decision["why_now"],
+        "risks": stock_decision["risks"],
+        "signals": stock_decision["signals"],
+    }
+
+
+__all__ = ["run_pipeline", "generate_decision", "compute_signals", "load_parsed_data", "analyze_stock"]
 def _build_actionability(decision: str, confidence: int) -> dict:
     if decision in ("BUY", "STRONG_BUY"):
         color = "green"

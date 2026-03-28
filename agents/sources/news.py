@@ -14,10 +14,10 @@ try:
 except ImportError:
     TEXTBLOB_AVAILABLE = False
 
-try:
-    from config import DEBUG
-except ImportError:
-    DEBUG = False
+# try:
+#     from config import DEBUG
+# except ImportError:
+#     DEBUG = False
 
 
 COMPANY_RSS_SOURCES = [

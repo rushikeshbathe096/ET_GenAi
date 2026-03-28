@@ -7,6 +7,39 @@ from pydantic import BaseModel
 
 from pipeline.run_pipeline import analyze_stock as run_pipeline_analyze_stock
 
+from fastapi.middleware.cors import CORSMiddleware
+from database import models, db
+from routers import auth_router, stock_router, market_router, wishlist_router
+
+
+# Initialize database tables
+models.Base.metadata.create_all(bind=db.engine)
+
+app = FastAPI(
+    title="ET GenAI Stock Platform",
+    description="Backend API for AI-powered stock analysis platform",
+    version="1.0.0"
+)
+
+# Setup CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(auth_router.router)
+app.include_router(stock_router.router)
+app.include_router(market_router.router)
+app.include_router(wishlist_router.router)
+app.include_router(wishlist_router.dashboard_router)
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the ET GenAI Stock Platform API"}
 
 app = FastAPI(
     title="ET GenAI Dynamic API",
@@ -27,7 +60,7 @@ _WISHLIST_LOCK = Lock()
 
 
 class WishlistItem(BaseModel):
-    user_id: str
+    user_id: int
     symbol: str
 
 
@@ -64,18 +97,21 @@ def market():
 
 
 @app.get("/dashboard")
-def get_dashboard(user_id: str = Query(default="demo-user")) -> Dict[str, Any]:
-    user_key = str(user_id).strip() or "demo-user"
-
-    with _WISHLIST_LOCK:
-        symbols = sorted(_WISHLIST.get(user_key, set()))
+def get_dashboard(user_id: int = Query(default=1)) -> Dict[str, Any]:
+    session = db.SessionLocal()
+    from database import crud
+    try:
+        items = crud.get_wishlist(session, user_id=user_id)
+        symbols = [item.symbol for item in items]
+    finally:
+        session.close()
 
     analyzed = [run_pipeline_analyze_stock(symbol) for symbol in symbols]
     analyzed.sort(key=lambda row: int(row.get("confidence", 0)), reverse=True)
 
     return _api_response(
         {
-            "user_id": user_key,
+            "user_id": user_id,
             "count": len(analyzed),
             "stocks": analyzed,
         }
@@ -84,44 +120,42 @@ def get_dashboard(user_id: str = Query(default="demo-user")) -> Dict[str, Any]:
 
 @app.post("/wishlist/add")
 def wishlist_add(payload: WishlistItem) -> Dict[str, Any]:
-    user_key = str(payload.user_id).strip()
     symbol = _normalize_symbol(payload.symbol)
+    session = db.SessionLocal()
+    from database import crud
+    try:
+        crud.add_to_wishlist(session, user_id=payload.user_id, symbol=symbol)
+        items = crud.get_wishlist(session, user_id=payload.user_id)
+        symbols = [item.symbol for item in items]
+    finally:
+        session.close()
 
-    if not user_key:
-        raise HTTPException(status_code=400, detail="user_id is required")
-
-    with _WISHLIST_LOCK:
-        _WISHLIST.setdefault(user_key, set()).add(symbol)
-        symbols = sorted(_WISHLIST[user_key])
-
-    return _api_response({"user_id": user_key, "symbols": symbols}, "symbol added")
+    return _api_response({"user_id": payload.user_id, "symbols": symbols}, "symbol added")
 
 
 @app.get("/wishlist")
-def wishlist_get(user_id: str = Query(...)) -> Dict[str, Any]:
-    user_key = str(user_id).strip()
-    if not user_key:
-        raise HTTPException(status_code=400, detail="user_id is required")
+def wishlist_get(user_id: int = Query(...)) -> Dict[str, Any]:
+    session = db.SessionLocal()
+    from database import crud
+    try:
+        items = crud.get_wishlist(session, user_id=user_id)
+        symbols = [item.symbol for item in items]
+    finally:
+        session.close()
 
-    with _WISHLIST_LOCK:
-        symbols = sorted(_WISHLIST.get(user_key, set()))
-
-    return _api_response({"user_id": user_key, "symbols": symbols})
+    return _api_response({"user_id": user_id, "symbols": symbols})
 
 
 @app.delete("/wishlist/remove")
-def wishlist_remove(user_id: str = Query(...), symbol: str = Query(...)) -> Dict[str, Any]:
-    user_key = str(user_id).strip()
+def wishlist_remove(user_id: int = Query(...), symbol: str = Query(...)) -> Dict[str, Any]:
     symbol = _normalize_symbol(symbol)
+    session = db.SessionLocal()
+    from database import crud
+    try:
+        crud.remove_from_wishlist(session, user_id=user_id, symbol=symbol)
+        items = crud.get_wishlist(session, user_id=user_id)
+        symbols = [item.symbol for item in items]
+    finally:
+        session.close()
 
-    if not user_key:
-        raise HTTPException(status_code=400, detail="user_id is required")
-
-    with _WISHLIST_LOCK:
-        if user_key in _WISHLIST:
-            _WISHLIST[user_key].discard(symbol)
-            symbols = sorted(_WISHLIST[user_key])
-        else:
-            symbols = []
-
-    return _api_response({"user_id": user_key, "symbols": symbols}, "symbol removed")
+    return _api_response({"user_id": user_id, "symbols": symbols}, "symbol removed")
