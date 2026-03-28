@@ -94,10 +94,6 @@ def get_signals_today():
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
+    # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
 
-
-=======
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
->>>>>>> 6952226ca9ab97847e23472ab97dd6e85e619d44
