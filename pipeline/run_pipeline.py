@@ -33,7 +33,7 @@ def get_market_tickers() -> list[str]:
     except Exception:
         pass
     if not tickers:
-        tickers = ["TCS", "INFY", "HDFCBANK"]
+        tickers = ["TCS", "INFY", "HDFCBANK", "RELIANCE", "ONGC"]
     return list(dict.fromkeys(tickers))
 
 
@@ -87,7 +87,7 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "signals": signals,
         "news": payload.get("news", {}),
         "news_headlines": payload.get("news_headlines", []),
-        "price_data": payload.get("price_data", {}),
+        "sector": str(payload.get("sector", "")),
         "price": price_data.get("price"),
         "change_pct": price_data.get("change_pct"),
         "volume": volume,
@@ -274,6 +274,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "similar_events": enriched.get("similar_events", []),
         "historical_base_rate": enriched.get("historical_base_rate", ""),
         "technical_patterns": tech_patterns,
+        "sector": payload["news"].get("sector", ""),
     }
 
     return _sanitize_output(output)
@@ -296,6 +297,8 @@ def run_market_pipeline() -> list[dict]:
         try:
             result = analyze_stock(ticker)
             if result:
+                # Ensure disclaimer is present as requested for Phase 4
+                result["disclaimer"] = "Educational analysis only. Not SEBI-registered investment advice."
                 results.append(result)
         except Exception as e:
             print(f"Failed for {ticker}: {e}")
