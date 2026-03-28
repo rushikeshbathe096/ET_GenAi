@@ -1,3 +1,13 @@
+import os
+
+# Allow running this diagnostic test without requiring external LLM keys.
+if not (
+    os.getenv("GROQ_API_KEY")
+    or os.getenv("GEMINI_API_KEY")
+    or os.getenv("ANTHROPIC_API_KEY")
+):
+    os.environ.setdefault("DEMO_MODE", "true")
+
 from pipeline.run_pipeline import analyze_stock
 
 from nsepython import nse_get_top_gainers, nse_get_top_losers
@@ -41,11 +51,11 @@ for stock in get_test_tickers():
         print("Price:", result.get("price"))
         print("Change %:", result.get("change_pct"))
         print("Volume:", result.get("volume"))
-        print("Decision:", result["decision"])
-        print("Confidence:", result["confidence"])
-        print("Why:", result["why_now"])
-        print("Risks:", result["risks"])
-        print("Signals count:", len(result["signals"]))
+        print("Decision:", result.get("decision"))
+        print("Confidence:", result.get("confidence"))
+        print("Why:", result.get("why_now", "N/A"))
+        print("Risks:", result.get("risks", []))
+        print("Signals count:", len(result.get("signals", [])))
 
     except Exception as e:
         print("ERROR:", e)
