@@ -1,0 +1,1 @@
+{"flow_id": "OpportunityRadarDataFlow", "run_number": "1774455892087798", "step_name": "fetch_nse", "task_id": "4", "field_name": "ds-root", "type": "ds-root", "value": "/home/rushikeshbathe096/hackathons/ET_GenAi/.metaflow", "tags": ["attempt_id:0"], "user_name": "rushikeshbathe096", "ts_epoch": 1774455930770}

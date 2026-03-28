@@ -1,0 +1,192 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "title": null,
+        "quantity": 482632,
+        "metadata": {},
+        "source_url": "https://bseindia.com/"
+      },
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 21578,
+        "value": 59974392.79,
+        "source_url": "https://www.sebi.gov.in/"
+      },
+      {
+        "deal_type": "price_movement",
+        "price": 3976.6,
+        "change_pct": -1.5522491520808126,
+        "source": "nse"
+      }
+    ],
+    "news": {
+      "score": 0.2,
+      "signal": null,
+      "headlines": [
+        "Titan Company Ltd sees strong growth outlook",
+        "Titan Company Ltd faces regulatory pressure",
+        "Titan Company Ltd expands into new markets"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2026-03-27"
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "title": null,
+        "quantity": 124950,
+        "metadata": {},
+        "source_url": "https://bseindia.com/"
+      },
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "sell",
+        "quantity": 3990,
+        "value": 11723954.0,
+        "source_url": "https://www.sebi.gov.in/"
+      },
+      {
+        "deal_type": "price_movement",
+        "price": 1269.5,
+        "change_pct": -0.7505277147994613,
+        "source": "nse"
+      }
+    ],
+    "news": {
+      "score": -0.4,
+      "signal": "negative",
+      "headlines": [
+        "Infosys Ltd sees strong growth outlook",
+        "Infosys Ltd faces regulatory pressure",
+        "Infosys Ltd expands into new markets"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2026-03-27"
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "title": null,
+        "quantity": 165403,
+        "metadata": {},
+        "source_url": "https://bseindia.com/"
+      },
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "sell",
+        "quantity": 61925,
+        "value": 142162822.37,
+        "source_url": "https://www.sebi.gov.in/"
+      },
+      {
+        "deal_type": "price_movement",
+        "price": 757.0,
+        "change_pct": -3.234053432187135,
+        "source": "nse"
+      }
+    ],
+    "news": {
+      "score": -0.4,
+      "signal": "negative",
+      "headlines": [
+        "HDFC Bank Ltd sees strong growth outlook",
+        "HDFC Bank Ltd faces regulatory pressure",
+        "HDFC Bank Ltd expands into new markets"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2026-03-27"
+  },
+  {
+    "ticker": "RELIANCE",
+    "company": "Reliance Industries Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "title": null,
+        "quantity": 343242,
+        "metadata": {},
+        "source_url": "https://bseindia.com/"
+      },
+      {
+        "deal_type": "insider_trade",
+        "person_role": "employee",
+        "transaction": "buy",
+        "quantity": 62214,
+        "value": 80479423.03,
+        "source_url": "https://www.sebi.gov.in/"
+      },
+      {
+        "deal_type": "price_movement",
+        "price": 1346.3,
+        "change_pct": -4.72719552756351,
+        "source": "nse"
+      }
+    ],
+    "news": {
+      "score": -0.4,
+      "signal": "negative",
+      "headlines": [
+        "Reliance Industries Ltd sees strong growth outlook",
+        "Reliance Industries Ltd faces regulatory pressure",
+        "Reliance Industries Ltd expands into new markets"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2026-03-27"
+  },
+  {
+    "ticker": "TCS",
+    "company": "Tata Consultancy Services Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "title": null,
+        "quantity": 264839,
+        "metadata": {},
+        "source_url": "https://bseindia.com/"
+      },
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "sell",
+        "quantity": 4368,
+        "value": 8872691.23,
+        "source_url": "https://www.sebi.gov.in/"
+      },
+      {
+        "deal_type": "price_movement",
+        "price": 2386.4,
+        "change_pct": 0.3785648187095146,
+        "source": "nse"
+      }
+    ],
+    "news": {
+      "score": 0.2,
+      "signal": null,
+      "headlines": [
+        "Tata Consultancy Services Ltd sees strong growth outlook",
+        "Tata Consultancy Services Ltd faces regulatory pressure",
+        "Tata Consultancy Services Ltd expands into new markets"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2026-03-27"
+  }
+]

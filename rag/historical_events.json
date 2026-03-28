@@ -1,1 +1,142 @@
-[]
+[
+	{
+		"id": 1,
+		"ticker": "TCS",
+		"company": "Tata Consultancy Services Ltd",
+		"event_description": "Large multi-year banking transformation deal win in Europe announced with strong order book commentary.",
+		"outcome_pct_30d": 6.8
+	},
+	{
+		"id": 2,
+		"ticker": "INFY",
+		"company": "Infosys Ltd",
+		"event_description": "Company revised full-year revenue guidance upward after better-than-expected digital services demand.",
+		"outcome_pct_30d": 7.4
+	},
+	{
+		"id": 3,
+		"ticker": "HDFCBANK",
+		"company": "HDFC Bank Ltd",
+		"event_description": "Quarterly update showed healthy loan growth and stable asset quality with improving deposit traction.",
+		"outcome_pct_30d": 4.1
+	},
+	{
+		"id": 4,
+		"ticker": "ICICIBANK",
+		"company": "ICICI Bank Ltd",
+		"event_description": "Strong net interest margin print and lower credit cost in quarterly results beat market expectations.",
+		"outcome_pct_30d": 8.2
+	},
+	{
+		"id": 5,
+		"ticker": "RELIANCE",
+		"company": "Reliance Industries Ltd",
+		"event_description": "Telecom and retail segments delivered robust growth while energy margin outlook improved.",
+		"outcome_pct_30d": 5.7
+	},
+	{
+		"id": 6,
+		"ticker": "TITAN",
+		"company": "Titan Company Ltd",
+		"event_description": "Festive season sales update indicated strong jewelry demand and market share gains.",
+		"outcome_pct_30d": 9.1
+	},
+	{
+		"id": 7,
+		"ticker": "BAJFINANCE",
+		"company": "Bajaj Finance Ltd",
+		"event_description": "AUM growth remained strong with controlled delinquency trends in consumer lending portfolio.",
+		"outcome_pct_30d": 10.3
+	},
+	{
+		"id": 8,
+		"ticker": "ASIANPAINT",
+		"company": "Asian Paints Ltd",
+		"event_description": "Raw material inflation concerns resurfaced and management guided for temporary margin pressure.",
+		"outcome_pct_30d": -3.6
+	},
+	{
+		"id": 9,
+		"ticker": "LT",
+		"company": "Larsen and Toubro Ltd",
+		"event_description": "Record order inflow in infrastructure and energy projects supported medium-term growth visibility.",
+		"outcome_pct_30d": 7.9
+	},
+	{
+		"id": 10,
+		"ticker": "SBIN",
+		"company": "State Bank of India",
+		"event_description": "Credit growth accelerated and slippages moderated, leading to improved profitability guidance.",
+		"outcome_pct_30d": 6.2
+	},
+	{
+		"id": 11,
+		"ticker": "MARUTI",
+		"company": "Maruti Suzuki India Ltd",
+		"event_description": "New SUV launch received strong bookings while supply chain constraints eased significantly.",
+		"outcome_pct_30d": 8.8
+	},
+	{
+		"id": 12,
+		"ticker": "TATAMOTORS",
+		"company": "Tata Motors Ltd",
+		"event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+		"outcome_pct_30d": 11.6
+	},
+	{
+		"id": 13,
+		"ticker": "ULTRACEMCO",
+		"company": "UltraTech Cement Ltd",
+		"event_description": "Volume growth beat estimates but realization pressure kept near-term EBITDA outlook muted.",
+		"outcome_pct_30d": -1.9
+	},
+	{
+		"id": 14,
+		"ticker": "SUNPHARMA",
+		"company": "Sun Pharmaceutical Industries Ltd",
+		"event_description": "US specialty pipeline progress and stable domestic formulation growth improved sentiment.",
+		"outcome_pct_30d": 5.3
+	},
+	{
+		"id": 15,
+		"ticker": "WIPRO",
+		"company": "Wipro Ltd",
+		"event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+		"outcome_pct_30d": -4.4
+	},
+	{
+		"id": 16,
+		"ticker": "HINDUNILVR",
+		"company": "Hindustan Unilever Ltd",
+		"event_description": "Rural demand recovery signs and premium portfolio growth supported steady earnings visibility.",
+		"outcome_pct_30d": 3.9
+	},
+	{
+		"id": 17,
+		"ticker": "AXISBANK",
+		"company": "Axis Bank Ltd",
+		"event_description": "Operating performance improved with healthy fee income and better cost-to-income ratio.",
+		"outcome_pct_30d": 4.8
+	},
+	{
+		"id": 18,
+		"ticker": "POWERGRID",
+		"company": "Power Grid Corporation of India Ltd",
+		"event_description": "New transmission project awards and stable regulated returns sustained defensive buying interest.",
+		"outcome_pct_30d": 2.7
+	},
+	{
+		"id": 19,
+		"ticker": "ADANIPORTS",
+		"company": "Adani Ports and Special Economic Zone Ltd",
+		"event_description": "Cargo volume growth remained strong with logistics integration improving overall realization.",
+		"outcome_pct_30d": 7.1
+	},
+	{
+		"id": 20,
+		"ticker": "INDUSINDBK",
+		"company": "IndusInd Bank Ltd",
+		"event_description": "Higher provisioning and slower retail disbursement trend created near-term earnings uncertainty.",
+		"outcome_pct_30d": -2.8
+	}
+]

@@ -1,0 +1,388 @@
+[
+  {
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "buy",
+        "quantity": 100000,
+        "value": 34200000
+      },
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "HDFC Mutual Fund",
+        "quantity": 500000
+      },
+      {
+        "deal_type": "announcement",
+        "title": "Q3 Results \u2014 PAT up 22% YoY"
+      }
+    ],
+    "news": {
+      "score": 0.41,
+      "signal": "positive",
+      "headlines": [
+        "Titan posts strong Q3 results"
+      ],
+      "deal_type": "news_sentiment"
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "promoter",
+        "transaction": "buy",
+        "quantity": 100000,
+        "value": 34200000,
+        "score": 3.0,
+        "score_reason": "Promoter bought shares \u2014 Rs 3.4Cr",
+        "contribution_pct": 46
+      },
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "HDFC Mutual Fund",
+        "quantity": 500000,
+        "score": 1.0,
+        "score_reason": "Institutional bulk deal \u2014 500,000 shares",
+        "contribution_pct": 15
+      },
+      {
+        "deal_type": "announcement",
+        "title": "Q3 Results \u2014 PAT up 22% YoY",
+        "score": 1.5,
+        "score_reason": "Quarterly results filed",
+        "contribution_pct": 23
+      },
+      {
+        "score": 1.0,
+        "signal": "positive",
+        "headlines": [
+          "Titan posts strong Q3 results"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 15
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 5.0,
+    "why_now": "Insider Trade and announcement both point to positive momentum in this setup.",
+    "total_score": 6.5,
+    "decision": "STRONG_BUY",
+    "confidence": "HIGH",
+    "signals": [
+      {
+        "type": "insider_trade",
+        "score": 3.0,
+        "weight": 1.6,
+        "direction": "positive",
+        "reason": "Promoter bought shares \u2014 Rs 3.4Cr"
+      },
+      {
+        "type": "bulk_deal",
+        "score": 1.0,
+        "weight": 1.1,
+        "direction": "positive",
+        "reason": "Institutional bulk deal \u2014 500,000 shares"
+      },
+      {
+        "type": "announcement",
+        "score": 1.5,
+        "weight": 0.8,
+        "direction": "positive",
+        "reason": "Quarterly results filed"
+      },
+      {
+        "type": "news_sentiment",
+        "score": 1.0,
+        "weight": 0.6,
+        "direction": "positive",
+        "reason": "Positive news sentiment"
+      }
+    ],
+    "signal_conflict": false,
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.30687886476516724,
+        "id": 18,
+        "ticker": "POWERGRID",
+        "company": "Power Grid Corporation of India Ltd",
+        "event_description": "New transmission project awards and stable regulated returns sustained defensive buying interest.",
+        "outcome_pct_30d": 2.7
+      },
+      {
+        "rank": 2,
+        "score": 0.29232460260391235,
+        "id": 12,
+        "ticker": "TATAMOTORS",
+        "company": "Tata Motors Ltd",
+        "event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+        "outcome_pct_30d": 11.6
+      },
+      {
+        "rank": 3,
+        "score": 0.2802189886569977,
+        "id": 4,
+        "ticker": "ICICIBANK",
+        "company": "ICICI Bank Ltd",
+        "event_description": "Strong net interest margin print and lower credit cost in quarterly results beat market expectations.",
+        "outcome_pct_30d": 8.2
+      }
+    ],
+    "historical_base_rate": "1/3 events gave >10% return",
+    "actionability": "STRONG_BUY",
+    "reasoning_card": [
+      "TITAN is showing a constructive and bullish setup, supported by promoter buying, institutional bulk activity, positive sentiment.",
+      "This matters now because Insider Trade and announcement both point to positive momentum in this setup..",
+      "Confidence is high, and historical support is weak (1/3 events gave >10% return), so confirmation remains important."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 5.0,
+      "actionability": "STRONG_BUY",
+      "decision": "STRONG_BUY",
+      "confidence": "HIGH",
+      "historical_base_rate": "1/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 1
+    }
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "events": [
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "SBI Mutual Fund",
+        "quantity": 800000
+      },
+      {
+        "deal_type": "regulatory_change",
+        "title": "SEBI new disclosure norms for IT sector"
+      }
+    ],
+    "news": {
+      "score": 0.15,
+      "signal": null,
+      "headlines": [
+        "Infosys wins new contract worth $200M"
+      ]
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "bulk_deal",
+        "buyer": "SBI Mutual Fund",
+        "quantity": 800000,
+        "score": 1.6,
+        "score_reason": "Institutional bulk deal \u2014 800,000 shares",
+        "contribution_pct": 62
+      },
+      {
+        "deal_type": "regulatory_change",
+        "title": "SEBI new disclosure norms for IT sector",
+        "score": 1.0,
+        "score_reason": "SEBI regulatory change",
+        "contribution_pct": 38
+      },
+      {
+        "score": 0.0,
+        "signal": null,
+        "headlines": [
+          "Infosys wins new contract worth $200M"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Neutral news",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 5.0,
+    "why_now": "Bulk Deal and regulatory change both point to positive momentum in this setup.",
+    "total_score": 2.6,
+    "decision": "STRONG_BUY",
+    "confidence": "HIGH",
+    "signals": [
+      {
+        "type": "bulk_deal",
+        "score": 1.6,
+        "weight": 1.1,
+        "direction": "positive",
+        "reason": "Institutional bulk deal \u2014 800,000 shares"
+      },
+      {
+        "type": "regulatory_change",
+        "score": 1.0,
+        "weight": 0.8,
+        "direction": "positive",
+        "reason": "SEBI regulatory change"
+      },
+      {
+        "type": "news_sentiment",
+        "score": 0.0,
+        "weight": 0.6,
+        "direction": "neutral",
+        "reason": "Neutral news"
+      }
+    ],
+    "signal_conflict": false,
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.3599289655685425,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      },
+      {
+        "rank": 2,
+        "score": 0.2657610774040222,
+        "id": 2,
+        "ticker": "INFY",
+        "company": "Infosys Ltd",
+        "event_description": "Company revised full-year revenue guidance upward after better-than-expected digital services demand.",
+        "outcome_pct_30d": 7.4
+      },
+      {
+        "rank": 3,
+        "score": 0.2636944651603699,
+        "id": 14,
+        "ticker": "SUNPHARMA",
+        "company": "Sun Pharmaceutical Industries Ltd",
+        "event_description": "US specialty pipeline progress and stable domestic formulation growth improved sentiment.",
+        "outcome_pct_30d": 5.3
+      }
+    ],
+    "historical_base_rate": "0/3 events gave >10% return",
+    "actionability": "STRONG_BUY",
+    "reasoning_card": [
+      "INFY is showing a constructive and bullish setup, supported by institutional bulk activity.",
+      "This matters now because Bulk Deal and regulatory change both point to positive momentum in this setup..",
+      "Confidence is high, and historical support is weak (0/3 events gave >10% return), so confirmation remains important."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 5.0,
+      "actionability": "STRONG_BUY",
+      "decision": "STRONG_BUY",
+      "confidence": "HIGH",
+      "historical_base_rate": "0/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 0
+    }
+  },
+  {
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "events": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 50000,
+        "value": 8500000
+      }
+    ],
+    "news": {
+      "score": -0.35,
+      "signal": "negative",
+      "headlines": [
+        "HDFC Bank faces RBI scrutiny on lending norms"
+      ]
+    },
+    "date": "2024-03-12",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "person_role": "director",
+        "transaction": "buy",
+        "quantity": 50000,
+        "value": 8500000,
+        "score": 1.7,
+        "score_reason": "Director bought shares \u2014 Rs 0.8Cr",
+        "contribution_pct": 100
+      },
+      {
+        "score": -1.0,
+        "signal": "negative",
+        "headlines": [
+          "HDFC Bank faces RBI scrutiny on lending norms"
+        ],
+        "deal_type": "news_sentiment",
+        "score_reason": "Negative news \u2014 caution",
+        "contribution_pct": 0
+      }
+    ],
+    "technical_patterns": [],
+    "confluence_score": 4.1,
+    "why_now": "Insider Trade is supportive, but news sentiment is acting as a drag. Mixed direction across signals reduces conviction.",
+    "total_score": 0.7,
+    "decision": "HOLD",
+    "confidence": "LOW",
+    "signals": [
+      {
+        "type": "insider_trade",
+        "score": 1.7,
+        "weight": 1.6,
+        "direction": "positive",
+        "reason": "Director bought shares \u2014 Rs 0.8Cr"
+      },
+      {
+        "type": "news_sentiment",
+        "score": -1.0,
+        "weight": 0.6,
+        "direction": "negative",
+        "reason": "Negative news \u2014 caution"
+      }
+    ],
+    "signal_conflict": true,
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.23441094160079956,
+        "id": 3,
+        "ticker": "HDFCBANK",
+        "company": "HDFC Bank Ltd",
+        "event_description": "Quarterly update showed healthy loan growth and stable asset quality with improving deposit traction.",
+        "outcome_pct_30d": 4.1
+      },
+      {
+        "rank": 2,
+        "score": 0.23258620500564575,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      },
+      {
+        "rank": 3,
+        "score": 0.22183270752429962,
+        "id": 1,
+        "ticker": "TCS",
+        "company": "Tata Consultancy Services Ltd",
+        "event_description": "Large multi-year banking transformation deal win in Europe announced with strong order book commentary.",
+        "outcome_pct_30d": 6.8
+      }
+    ],
+    "historical_base_rate": "0/3 events gave >10% return",
+    "actionability": "HOLD",
+    "reasoning_card": [
+      "HDFCBANK is showing a constructive and balanced setup, supported by insider accumulation.",
+      "This matters now because Insider Trade is supportive, but news sentiment is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered.",
+      "Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 4.1,
+      "actionability": "HOLD",
+      "decision": "HOLD",
+      "confidence": "LOW",
+      "historical_base_rate": "0/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 0
+    }
+  }
+]
