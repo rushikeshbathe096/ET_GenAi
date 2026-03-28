@@ -1,4 +1,4 @@
-from nsepython import nse_eq
+from nsepython import nse_eq, get_bulkdeals, get_blockdeals
 import yfinance as yf
 
 
@@ -9,14 +9,16 @@ def _to_float(value):
         return None
 
 
-def _build_price_payload(ticker: str, price: float, change_pct: float, source: str) -> dict:
+def _build_price_payload(ticker: str, price: float, change_pct: float, source: str, volume: float = None, company: str = None) -> dict:
     return {
         "ticker": ticker,
+        "company": company if company else ticker,
         "events": [
             {
                 "deal_type": "price_movement",
                 "price": price,
                 "change_pct": change_pct,
+                "volume": volume,
                 "source": source
             }
         ]
@@ -36,7 +38,25 @@ def _fetch_from_nse(ticker: str) -> dict | None:
         if price is None or change_pct is None:
             return None
 
-        return _build_price_payload(ticker, price, change_pct, "nse")
+        volume = None
+        market_book = data.get("marketDeptOrderBook", {})
+        if isinstance(market_book, dict):
+            trade_info = market_book.get("tradeInfo", {})
+            if isinstance(trade_info, dict):
+                volume = _to_float(trade_info.get("totalTradedVolume"))
+        if volume is None:
+            volume = _to_float(price_info.get("totalTradedVolume"))
+
+        company = None
+        info = data.get("info", {})
+        if isinstance(info, dict):
+            company = info.get("companyName")
+        if not company:
+            metadata = data.get("metadata", {})
+            if isinstance(metadata, dict):
+                company = metadata.get("companyName")
+
+        return _build_price_payload(ticker, price, change_pct, "nse", volume, company)
     except Exception as exc:
         print(f"NSE fetch failed for {ticker}: {exc}")
         return None
@@ -84,3 +104,80 @@ def fetch_nse_data(ticker: str) -> dict | None:
         return yf_data
 
     return None
+
+
+def fetch_price_data(symbol: str) -> dict:
+    """Return normalized price data for one symbol."""
+    ticker = str(symbol or "").strip().upper()
+    if not ticker:
+        return {
+            "symbol": "",
+            "company": "",
+            "price": None,
+            "change_pct": 0.0,
+            "volume": None,
+            "source": "unavailable",
+        }
+
+    payload = fetch_nse_data(ticker)
+    events = payload.get("events", []) if isinstance(payload, dict) else []
+    event = events[0] if events and isinstance(events[0], dict) else {}
+    company_name = payload.get("company") if isinstance(payload, dict) else None
+
+    return {
+        "symbol": ticker,
+        "company": company_name if company_name else ticker,
+        "price": event.get("price"),
+        "change_pct": _to_float(event.get("change_pct")) if event else 0.0,
+        "volume": _to_float(event.get("volume")) if event else None,
+        "source": event.get("source", "unavailable") if event else "unavailable",
+    }
+
+
+def fetch_bulk_deals(ticker: str) -> list[dict]:
+    try:
+        raw = get_bulkdeals()
+        if raw is None:
+            return []
+        
+        # get_bulkdeals() returns a pandas DataFrame
+        import pandas as pd
+        if isinstance(raw, pd.DataFrame):
+            df = raw
+        else:
+            return []
+        
+        if df.empty:
+            return []
+        
+        # Filter by ticker symbol
+        mask = df["Symbol"].str.strip().str.upper() == ticker.strip().upper()
+        filtered = df[mask]
+        
+        if filtered.empty:
+            return []
+        
+        results = []
+        for _, row in filtered.iterrows():
+            qty = _to_float(row.get("Quantity Traded", 0))
+            if not qty:
+                continue
+            results.append({
+                "deal_type": "bulk_deal",
+                "buyer": str(row.get("Client Name", "Unknown")).strip(),
+                "quantity": qty,
+                "transaction": str(row.get("Buy/Sell", "")).strip().lower(),
+                "price": _to_float(row.get("Trade Price / Wght. Avg. Price", 0)),
+                "is_fallback": False
+            })
+        return results
+    except Exception as exc:
+        print(f"Bulk deals fetch failed for {ticker}: {exc}")
+        return []
+
+
+def fetch_insider_trades(ticker: str) -> list[dict]:
+    # nsepython does not expose insider trading data
+    # returning empty list — will integrate SEBI source when available
+    return []
+

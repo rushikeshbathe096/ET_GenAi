@@ -276,13 +276,236 @@ def compute_confluence(company_data: dict) -> dict:
     }
 
 
-def compute_signals(data: list[dict]) -> list[dict]:
+def compute_signals(data: dict | list[dict]) -> list:
+    # Single-stock mode: returns list of normalized signal objects.
+    if isinstance(data, dict):
+        return _compute_signals_for_stock(data)
+
+    # Backward-compatible batch mode for existing scripts.
     if not isinstance(data, list):
         return []
 
-    results = [compute_confluence(company_data) for company_data in data]
+    results = []
+    for company_data in data:
+        if not isinstance(company_data, dict):
+            continue
+
+        try:
+            enriched = compute_confluence(company_data)
+        except Exception:
+            continue
+
+        filing_signals = enriched.get("filing_signals", [])
+        technical_patterns = enriched.get("technical_patterns", [])
+        normalized_signals = _normalize_signal_rows(filing_signals, technical_patterns)
+
+        if not normalized_signals:
+            continue
+
+        enriched["signals"] = normalized_signals
+        results.append(enriched)
+
     results.sort(key=lambda x: x.get('confluence_score', 0.0), reverse=True)
     return results
+
+
+def _compute_signals_for_stock(data: dict) -> list[dict]:
+    symbol = str(data.get("symbol") or data.get("ticker") or "").strip().upper()
+    weak_threshold = 0.25
+
+    signal_map: dict[str, dict] = {}
+
+    for item in data.get("insider_data", []):
+        if not isinstance(item, dict):
+            continue
+        if bool(item.get("is_fallback", False)):
+            continue
+        txn = str(item.get("transaction") or "").strip().lower()
+        role = str(item.get("person_role") or "insider").strip().lower()
+        value = _to_float(item.get("value"), 0.0)
+        if value <= 0:
+            continue
+
+        sign = 1.0 if txn == "buy" else -1.0 if txn == "sell" else 0.0
+        if sign == 0.0:
+            continue
+
+        cr = value / 10_000_000.0
+        base_score = min(3.0, max(0.3, cr))
+        if "promoter" in role:
+            base_score *= 1.2
+
+        signed_score = round(sign * base_score, 2)
+        if abs(signed_score) < weak_threshold:
+            continue
+
+        direction = "positive" if sign > 0 else "negative"
+        action_text = "bought" if sign > 0 else "sold"
+        reason = f"{role.title()} {action_text} shares worth Rs {cr:.1f}Cr".strip()
+        if len(reason) < 10:
+            continue
+        candidate = {
+            "type": "insider_trade",
+            "score": signed_score,
+            "weight": _signal_weight("insider_trade"),
+            "direction": direction,
+            "reason": reason,
+        }
+        existing = signal_map.get("insider_trade")
+        if not existing or abs(candidate["score"]) > abs(existing.get("score", 0.0)):
+            signal_map["insider_trade"] = candidate
+
+    for item in data.get("bulk_deals", []):
+        if not isinstance(item, dict):
+            continue
+        if bool(item.get("is_fallback", False)):
+            continue
+        qty = _to_float(item.get("quantity"), 0.0)
+        if qty <= 0:
+            continue
+
+        score = min(2.0, max(0.2, qty / 500_000.0))
+        if abs(score) < weak_threshold:
+            continue
+        reason = f"Bulk deal activity of {int(qty):,} shares"
+        if len(reason.strip()) < 10:
+            continue
+        candidate = {
+            "type": "bulk_deal",
+            "score": round(score, 2),
+            "weight": _signal_weight("bulk_deal"),
+            "direction": "positive",
+            "reason": reason,
+        }
+        existing = signal_map.get("bulk_deal")
+        if not existing or abs(candidate["score"]) > abs(existing.get("score", 0.0)):
+            signal_map["bulk_deal"] = candidate
+
+    price_row = data.get("price_data", {})
+    if isinstance(price_row, dict):
+        change_pct = _to_float(price_row.get("change_pct"), 0.0)
+        # Ignore weak movement (<1%), classify moderate and strong moves.
+        if abs(change_pct) > 1.0:
+            if change_pct > 2.0:
+                score = 2.0
+                direction = "positive"
+                reason = f"Strong positive move of {change_pct:.2f}%"
+            elif change_pct > 1.0:
+                score = 1.0
+                direction = "positive"
+                reason = f"Moderate positive move of {change_pct:.2f}%"
+            elif change_pct < -2.0:
+                score = -2.0
+                direction = "negative"
+                reason = f"Strong negative move of {abs(change_pct):.2f}%"
+            else:
+                score = -1.0
+                direction = "negative"
+                reason = f"Moderate negative move of {abs(change_pct):.2f}%"
+
+            if abs(score) >= weak_threshold and len(reason.strip()) >= 10:
+                signal_map["price_movement"] = {
+                    "type": "price_movement",
+                    "score": round(score, 2),
+                    "weight": _signal_weight("price_movement"),
+                    "direction": direction,
+                    "reason": reason,
+                }
+
+    news_row = data.get("news", {})
+    if isinstance(news_row, dict):
+        if bool(news_row.get("is_fallback", False)):
+            news_row = {}
+
+    if isinstance(news_row, dict) and news_row:
+        news_score = _to_float(news_row.get("score"), 0.0)
+        has_real_headline = bool(news_row.get("headlines"))
+        if abs(news_score) >= 0.2 and has_real_headline:
+            direction = "positive" if news_score > 0 else "negative"
+            reason = f"News sentiment score is {news_score:.2f} for {symbol}"
+            if len(reason.strip()) < 10:
+                return list(signal_map.values())
+            signal_map["news_sentiment"] = {
+                "type": "news_sentiment",
+                "score": round(news_score, 2),
+                "weight": _signal_weight("news_sentiment"),
+                "direction": direction,
+                "reason": reason,
+            }
+
+    # At most 4 signal types by design: insider, bulk, price, news.
+    return list(signal_map.values())
+
+
+def _signal_weight(signal_type: str) -> float:
+    weights = {
+        "insider_trade": 1.6,
+        "bulk_deal": 1.1,
+        "announcement": 0.8,
+        "regulatory_change": 0.8,
+        "news_sentiment": 0.6,
+        "price_movement": 1.0,
+        "technical_pattern": 0.9,
+        "ma_breakout": 0.9,
+        "volume_spike": 0.8,
+        "52w_high": 0.7,
+    }
+    return float(weights.get(str(signal_type or "").strip(), 0.7))
+
+
+def _build_signal_obj(signal_type: str, score: float, reason: str) -> dict | None:
+    normalized_type = str(signal_type or "").strip()
+    normalized_reason = str(reason or "").strip()
+    normalized_score = _to_float(score, 0.0)
+
+    if not normalized_type:
+        return None
+
+    if normalized_score == 0.0:
+        return None
+
+    if normalized_reason.lower() in {"no signal", "neutral news", "flat price movement"}:
+        return None
+
+    return {
+        "type": normalized_type,
+        "score": round(normalized_score, 2),
+        "weight": _signal_weight(normalized_type),
+        "direction": "positive" if normalized_score > 0 else "negative",
+        "reason": normalized_reason or normalized_type.replace("_", " ").title(),
+    }
+
+
+def _normalize_signal_rows(filing_signals: list, technical_patterns: list) -> list[dict]:
+    normalized = []
+
+    for item in filing_signals:
+        if not isinstance(item, dict):
+            continue
+
+        row = _build_signal_obj(
+            signal_type=str(item.get("deal_type", "unknown")),
+            score=_to_float(item.get("score"), 0.0),
+            reason=str(item.get("score_reason", "")),
+        )
+
+        if row:
+            normalized.append(row)
+
+    for pattern in technical_patterns:
+        if not isinstance(pattern, dict):
+            continue
+
+        row = _build_signal_obj(
+            signal_type=str(pattern.get("type", "technical_pattern")),
+            score=_to_float(pattern.get("score_add"), 0.0),
+            reason=str(pattern.get("reason", "")),
+        )
+
+        if row:
+            normalized.append(row)
+
+    return normalized
 
 
 # =========================

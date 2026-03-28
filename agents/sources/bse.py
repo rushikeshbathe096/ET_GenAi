@@ -9,7 +9,7 @@ HEADERS = {
     "Referer": "https://www.bseindia.com/"
 }
 
-def fetch_bulk_deals():
+def fetch_bulk_deals(symbol: str | None = None):
     try:
         resp = requests.get(BSE_BULK_URL, headers=HEADERS, timeout=5)
 
@@ -28,10 +28,14 @@ def fetch_bulk_deals():
                 "price": row.get("TRADE_PRICE", 0),
                 "deal_type": "bulk_deal",
                 "date": row.get("TRADE_DT", ""),
-                "source_url": "https://bseindia.com/corporates/Bulk_Block_Short.html"
+                "source_url": "https://bseindia.com/corporates/Bulk_Block_Short.html",
+                "is_fallback": False,
             })
 
         if deals:
+            if symbol:
+                normalized = str(symbol).strip().upper()
+                return [d for d in deals if str(d.get("ticker", "")).strip().upper() == normalized]
             return deals
 
     except Exception:
@@ -57,9 +61,13 @@ def fetch_bulk_deals():
             "price": random.uniform(1000, 3000),
             "deal_type": "bulk_deal",
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "source_url": "https://bseindia.com/"
+            "source_url": "https://bseindia.com/",
+            "is_fallback": True,
         })
 
+    if symbol:
+        normalized = str(symbol).strip().upper()
+        return [r for r in results if str(r.get("ticker", "")).strip().upper() == normalized]
     return results
 
 if __name__ == "__main__":

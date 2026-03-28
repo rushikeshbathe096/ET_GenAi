@@ -67,7 +67,8 @@ def fetch_insider_trades():
                         "value": value,
                         "deal_type": "insider_trade",
                         "date": datetime.now().strftime("%Y-%m-%d"),
-                        "source_url": url
+                        "source_url": url,
+                        "is_fallback": False,
                     })
                     
             except ET.ParseError as pe:
@@ -109,10 +110,27 @@ def fetch_insider_trades():
                 "value": round(val, 2),
                 "deal_type": "insider_trade",
                 "date": datetime.now().strftime("%Y-%m-%d"),
-                "source_url": "https://www.sebi.gov.in/"
+                "source_url": "https://www.sebi.gov.in/",
+                "is_fallback": True,
             })
             
     return results
+
+
+def fetch_insider_data(symbol: str):
+    normalized = str(symbol or "").strip().upper()
+    if not normalized:
+        return []
+
+    rows = fetch_insider_trades()
+    filtered = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        if str(row.get("ticker", "")).strip().upper() == normalized:
+            filtered.append(row)
+
+    return filtered
 
 if __name__ == "__main__":
     # If standalone, inject parent dir into path so `import config` works

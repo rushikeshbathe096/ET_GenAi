@@ -6,5 +6,6 @@ __pycache__/
 node_modules/
 rag/faiss_index.bin
 rag/events_store.pkl
+data/cache/
 venv/
 .pytest_cache/
