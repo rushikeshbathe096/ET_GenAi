@@ -1,36 +1,13 @@
 
 import os
 import json
-<<<<<<< HEAD
-from pipeline.run_pipeline import run_pipeline
-from database.db import SessionLocal
-from database.models import Opportunity
-
-if __name__ == "__main__":
-    result = run_pipeline()
-
-    db = SessionLocal()
-
-    for opp in result["opportunities"]:
-        db.add(Opportunity(
-            symbol=opp["symbol"],
-            company=opp["company"],
-            decision=opp["decision"],
-            confidence=opp["confidence"],
-            date=result["date"]
-        ))
-
-    db.commit()
-    db.close()
-
-    print("Saved to DB!")
-    print(json.dumps(result, indent=2, ensure_ascii=False))
-=======
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import time
-
+from pipeline.run_pipeline import run_pipeline
+from database.db import SessionLocal
+from database.models import Opportunity
 # Safely import the internal pipeline orchestration
 from agents.planner_agent import run_pipeline
 
@@ -79,4 +56,21 @@ def get_signals_today():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
->>>>>>> 348b0b48ff45c69f306c3fb9ff038632b00f5a58
+
+
+    db = SessionLocal()
+
+    for opp in result["opportunities"]:
+        db.add(Opportunity(
+            symbol=opp["symbol"],
+            company=opp["company"],
+            decision=opp["decision"],
+            confidence=opp["confidence"],
+            date=result["date"]
+        ))
+
+    db.commit()
+    db.close()
+
+    print("Saved to DB!")
+    print(json.dumps(result, indent=2, ensure_ascii=False))

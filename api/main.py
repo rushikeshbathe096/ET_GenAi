@@ -1,8 +1,17 @@
-<<<<<<< HEAD
-from fastapi import FastAPI
+
+from datetime import date as date_cls
+from threading import Lock
+from typing import Any, Dict, List
+
+from fastapi import FastAPI, HTTPException, Query
+from pydantic import BaseModel
+
+from pipeline.run_pipeline import analyze_stock as run_pipeline_analyze_stock
+
 from fastapi.middleware.cors import CORSMiddleware
 from database import models, db
 from routers import auth_router, stock_router, market_router, wishlist_router
+
 
 # Initialize database tables
 models.Base.metadata.create_all(bind=db.engine)
@@ -32,16 +41,6 @@ app.include_router(wishlist_router.dashboard_router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the ET GenAI Stock Platform API"}
-=======
-from datetime import date as date_cls
-from threading import Lock
-from typing import Any, Dict, List
-
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel
-
-from pipeline.run_pipeline import analyze_stock as run_pipeline_analyze_stock
-
 
 app = FastAPI(
     title="ET GenAI Dynamic API",
@@ -160,4 +159,3 @@ def wishlist_remove(user_id: str = Query(...), symbol: str = Query(...)) -> Dict
             symbols = []
 
     return _api_response({"user_id": user_key, "symbols": symbols}, "symbol removed")
->>>>>>> 348b0b48ff45c69f306c3fb9ff038632b00f5a58

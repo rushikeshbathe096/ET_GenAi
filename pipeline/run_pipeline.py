@@ -2,16 +2,13 @@ from datetime import date
 from typing import Any, Dict, List
 
 from agents.analysis_agent import compute_signals
-<<<<<<< HEAD
 from agents.decision_agent import enrich_signal
 from agents.utils.data_loader import load_parsed_data, load_latest_data
-=======
 from agents.decision_agent import generate_decision
 from agents.explanation_agent import generate_explanation
 from agents.sources.news import fetch_news_sentiment
 from agents.sources.nse_source import fetch_price_data, fetch_bulk_deals, fetch_insider_trades
 from nsepython import nse_get_top_gainers, nse_get_top_losers
->>>>>>> 348b0b48ff45c69f306c3fb9ff038632b00f5a58
 
 
 def _normalize_symbol(symbol: str) -> str:
@@ -94,14 +91,11 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-<<<<<<< HEAD
 def run_pipeline() -> Dict[str, Any]:
     today = "2026-03-27"
     parsed_data = load_parsed_data(today)
-=======
 def fetch_data(symbol: str) -> Dict[str, Any]:
     normalized = _normalize_symbol(symbol)
->>>>>>> 348b0b48ff45c69f306c3fb9ff038632b00f5a58
 
     price_data = fetch_price_data(normalized)
     insider_data = fetch_insider_trades(normalized)
@@ -120,7 +114,6 @@ def fetch_data(symbol: str) -> Dict[str, Any]:
     }
 
 
-<<<<<<< HEAD
 def analyze_stock(symbol: str) -> Dict[str, Any]:
     parsed_data = load_latest_data()
 
@@ -157,7 +150,6 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
 
 
 __all__ = ["run_pipeline", "generate_decision", "compute_signals", "load_parsed_data", "analyze_stock"]
-=======
 def _build_actionability(decision: str, confidence: int) -> dict:
     if decision in ("BUY", "STRONG_BUY"):
         color = "green"
@@ -265,4 +257,3 @@ def run_market_pipeline() -> list[dict]:
 
 
 __all__ = ["analyze_stock", "run_pipeline", "run_market_pipeline", "get_market_tickers"]
->>>>>>> 348b0b48ff45c69f306c3fb9ff038632b00f5a58
