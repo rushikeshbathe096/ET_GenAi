@@ -24,6 +24,6 @@ if not LLM_PROVIDER:
     else:
         LLM_PROVIDER = "none"
 
-if not DEMO_MODE:
-    if not (GROQ_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY):
-        raise ValueError("No LLM API key provided")
+if not (GROQ_API_KEY or GEMINI_API_KEY or ANTHROPIC_API_KEY):
+    # Default to demo mode when no LLM credentials are configured.
+    DEMO_MODE = True

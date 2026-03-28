@@ -74,15 +74,22 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
     except (TypeError, ValueError):
         volume = None
 
+    price_data = payload.get("price_data", {}) if isinstance(payload.get("price_data", {}), dict) else {}
+
     return {
         "symbol": str(payload.get("symbol") or ""),
         "company": str(payload.get("company") or ""),
         "decision": decision,
         "confidence": confidence,
+        "why_now": str(payload.get("why_now") or payload.get("why") or ""),
         "why": str(payload.get("why_now") or payload.get("why") or ""),
         "risks": risks,
         "signals": signals,
+        "news": payload.get("news", {}),
         "price_data": payload.get("price_data", {}),
+        "price": price_data.get("price"),
+        "change_pct": price_data.get("change_pct"),
+        "volume": price_data.get("volume"),
         "current_price": payload.get("current_price"),
         "date": payload.get("date"),
         "disclaimer": payload.get("disclaimer"),
@@ -187,13 +194,13 @@ def _build_confidence_breakdown(signals: list) -> list:
         })
     return breakdown
 
-
 def analyze_stock(symbol: str) -> Dict[str, Any]:
     normalized = _normalize_symbol(symbol)
     price_data = fetch_price_data(normalized)
+    company = price_data.get("company", normalized)
     payload = {
         "symbol": normalized,
-        "company": price_data.get("company", normalized),
+        "company": company,
         "price_data": {
             "change_pct": price_data.get("change_pct", 0.0),
             "price": price_data.get("price"),
@@ -201,10 +208,10 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         },
         "bulk_deals": fetch_bulk_deals(normalized),
         "insider_data": fetch_insider_trades(normalized),
-        "news": {}
+        "news": fetch_news_sentiment(company)
     }
 
-    signals = compute_signals([payload])
+    signals = compute_signals(payload)
     decision = generate_decision(signals)
     explanation = generate_explanation(decision, signals)
 
@@ -223,6 +230,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "why": explanation.get("why_now", decision.get("why_now", "")),
         "risks": explanation.get("risks", decision.get("risks", [])),
         "signals": signals,
+        "news": payload["news"],
         "current_price": payload["price_data"].get("price"),
         "date": date.today().strftime("%Y-%m-%d"),
         "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
