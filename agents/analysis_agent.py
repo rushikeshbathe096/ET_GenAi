@@ -3,11 +3,7 @@ import glob
 import os
 from datetime import date
 import yfinance as yf
-import requests
 
-# Shared session and User-Agent for Yahoo calls.
-session = requests.Session()
-session.headers['User-agent'] = 'Mozilla/5.0'
 
 
 def _to_float(value, default=0.0) -> float:
@@ -149,7 +145,7 @@ def generate_why_now(ticker: str, events: list, news_score: float) -> str:
 # =========================
 def check_technical_patterns(ticker: str) -> list[dict]:
     try:
-        hist = yf.Ticker(f'{ticker}.NS', session=session).history(period='1y', interval='1d')
+        hist = yf.Ticker(f'{ticker}.NS').history(period='1y', interval='1d')
 
         if len(hist) < 50:
             return [

@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any, Dict, List
 
-from agents.analysis_agent import compute_signals
+from agents.analysis_agent import compute_signals, check_technical_patterns
 from agents.decision_agent import enrich_signal
 from agents.utils.data_loader import load_parsed_data, load_latest_data
 from agents.decision_agent import generate_decision
@@ -69,10 +69,11 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         change_pct = None
 
     volume = payload.get("volume", None)
-    try:
-        volume = float(volume) if volume is not None else None
-    except (TypeError, ValueError):
-        volume = None
+    if volume is not None:
+        try:
+            volume = float(volume)
+        except (TypeError, ValueError):
+            volume = None
 
     price_data = payload.get("price_data", {}) if isinstance(payload.get("price_data", {}), dict) else {}
 
@@ -89,7 +90,7 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "price_data": payload.get("price_data", {}),
         "price": price_data.get("price"),
         "change_pct": price_data.get("change_pct"),
-        "volume": price_data.get("volume"),
+        "volume": volume,
         "current_price": payload.get("current_price"),
         "date": payload.get("date"),
         "disclaimer": payload.get("disclaimer"),
@@ -97,6 +98,7 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "confidence_breakdown": payload.get("confidence_breakdown", []),
         "similar_events": payload.get("similar_events", []),
         "historical_base_rate": str(payload.get("historical_base_rate", "")),
+        "technical_patterns": payload.get("technical_patterns", []),
     }
 
 
@@ -183,13 +185,13 @@ def _build_actionability(decision: str, confidence: int) -> dict:
 
 
 def _build_confidence_breakdown(signals: list) -> list:
-    total_score = sum(abs(s.get("score", 0)) for s in signals)
+    weighted_scores = [abs(float(s.get("score", 0)) * float(s.get("weight", 1.0))) for s in signals]
+    total_weighted = sum(weighted_scores)
+    
     breakdown = []
-    for s in signals:
-        if total_score == 0:
-            pct = 0
-        else:
-            pct = round((abs(s.get("score", 0)) / total_score) * 100)
+    for i, s in enumerate(signals):
+        val = weighted_scores[i]
+        pct = round((val / total_weighted * 100)) if total_weighted > 0 else 0
         breakdown.append({
             "label": s.get("reason", s.get("type", "signal")),
             "contribution_pct": pct
@@ -214,6 +216,33 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
     }
 
     signals = compute_signals(payload)
+    
+    # 2. News Signal Wiring (0.1 threshold, 0.6 weight)
+    # Remove any existing news_sentiment to avoid duplicates if compute_signals already added one
+    signals = [s for s in signals if s.get("type") != "news_sentiment"]
+    news_data = payload.get("news", {})
+    news_score = news_data.get("score")
+    if news_score is not None and abs(news_score) >= 0.1:
+        signals.append({
+            "type": "news_sentiment",
+            "score": news_score,
+            "weight": 0.6,
+            "direction": "positive" if news_score > 0 else "negative",
+            "reason": f"News sentiment score: {news_score}"
+        })
+
+    # 1. Technical Patterns Wiring
+    tech_patterns = check_technical_patterns(normalized)
+    for p in tech_patterns:
+        if p.get("score_add", 0) > 0:
+            signals.append({
+                "type": p["type"],
+                "score": p["score_add"],
+                "weight": 0.9,
+                "direction": "positive",
+                "reason": p["reason"]
+            })
+
     decision = generate_decision(signals)
     explanation = generate_explanation(decision, signals)
 
@@ -229,6 +258,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "symbol": payload["symbol"],
         "company": payload["company"],
         "price_data": payload["price_data"],
+        "volume": payload.get("price_data", {}).get("volume"),
         "decision": computed_decision,
         "confidence": computed_confidence,
         "why_now": explanation.get("why_now", decision.get("why_now", "")),
@@ -243,6 +273,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "confidence_breakdown": _build_confidence_breakdown(signals),
         "similar_events": enriched.get("similar_events", []),
         "historical_base_rate": enriched.get("historical_base_rate", ""),
+        "technical_patterns": tech_patterns,
     }
 
     return _sanitize_output(output)
