@@ -1,18 +1,91 @@
+# ============================================================================
+# ETGenAi Project Requirements
+# ============================================================================
+#
+# This requirements file contains all dependencies for the ET GenAI pipeline:
+# - Data fetching from NSE, BSE, SEBI, news sources
+# - Signal analysis and decision-making agents
+# - RAG (Retrieval-Augmented Generation) system
+# - FastAPI backend for serving opportunities
+# - LLM integrations (Groq, Anthropic, Google Gemini)
+# - Testing and validation suite
+#
+# Last Updated: pip freeze on 2026-03-27
+# ============================================================================
+
+# Web Framework & API
 fastapi==0.111.0
 uvicorn==0.29.0
+starlette==0.37.2
+python-multipart==0.0.22
+
+# HTTP & Data Fetching
 requests==2.31.0
-feedparser==6.0.11
-pdfplumber==0.11.0
-yfinance==0.2.40
+yfinance==1.2.0
+curl-cffi==0.7.0
+multitasking==0.0.12
+
+# Data Processing & Parsing
 pandas==2.2.2
 numpy==1.26.4
+feedparser==6.0.11
+pdfplumber==0.11.0
+lxml==6.0.2
+beautifulsoup4==4.14.3
+html5lib==1.1
+pdfminer.six==20231228
+pypdfium2==5.6.0
+
+# Natural Language Processing & Sentiment Analysis
 textblob==0.18.0
+nltk==3.9.4
+regex==2026.2.28
+
+# Machine Learning & RAG (Retrieval-Augmented Generation)
 sentence-transformers==3.0.1
 faiss-cpu==1.8.0
+scikit-learn==1.8.0
+scipy==1.17.1
+joblib==1.5.3
+transformers==4.57.6
+torch==2.11.0
+tokenizers==0.22.2
+safetensors==0.7.0
+
+# LLM Provider APIs
 anthropic==0.28.0
 groq==0.9.0
 google-generativeai==0.7.2
+google-auth==2.49.1
+google-api-core==2.30.0
+grpcio==1.78.0
+protobuf==4.25.9
+
+# Configuration Management
 python-dotenv==1.0.1
+pydantic==2.12.5
+pydantic-core==2.41.5
+
+# Task Scheduling & Background Jobs
 apscheduler==3.10.4
+pytz==2026.1.post1
+
+# Database (async SQLite support)
 aiosqlite==0.20.0
+peewee==4.0.3
+
+# Utilities & Helpers
+python-dateutil==2.9.0.post0
+filelock==3.25.2
+packaging==26.0
+platformdirs==4.9.4
+setuptools==81.0.0
+tqdm==4.67.3
+rich==14.3.3
+typer==0.24.1
+click==8.3.1
+
+# Testing & Validation
 pytest==8.3.5
+pluggy==1.6.0
+iniconfig==2.3.0
