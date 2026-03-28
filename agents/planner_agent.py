@@ -10,17 +10,19 @@ logger = logging.getLogger(__name__)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 try:
-    import data_flow
-    import analysis_agent
-    import decision_agent
-    import explanation_agent
-except Exception as e:
-    logger.error(f"Failed to statically import an agent package: {e}")
-    # Initialize empty mocks just so the script can still run gracefully 
-    data_flow = type('Mock', (object,), {})
+    from . import analysis_agent
+    from . import decision_agent
+    from . import explanation_agent
+except ImportError as e:
+    logger.warning(f"Note: Could not import some agents: {e}")
     analysis_agent = type('Mock', (object,), {})
     decision_agent = type('Mock', (object,), {})
     explanation_agent = type('Mock', (object,), {})
+
+try:
+    from . import data_flow
+except ImportError:
+    data_flow = type('Mock', (object,), {})
 
 def run_pipeline():
     logger.info("Initializing Agentic Intelligence Pipeline Orchestrator...")

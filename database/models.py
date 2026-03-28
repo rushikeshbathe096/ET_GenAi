@@ -29,4 +29,7 @@ class Opportunity(Base):
     company = Column(String)
     decision = Column(String)
     confidence = Column(Float)
+    why_now = Column(String)
+    risks = Column(String)
+    signals = Column(String)
     date = Column(String)
