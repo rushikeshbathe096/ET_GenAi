@@ -39,13 +39,8 @@ def _fetch_from_nse(ticker: str) -> dict | None:
             return None
 
         volume = None
-        market_book = data.get("marketDeptOrderBook", {})
-        if isinstance(market_book, dict):
-            trade_info = market_book.get("tradeInfo", {})
-            if isinstance(trade_info, dict):
-                volume = _to_float(trade_info.get("totalTradedVolume"))
-        if volume is None:
-            volume = _to_float(price_info.get("totalTradedVolume"))
+        if isinstance(data.get("preOpenMarket"), dict):
+            volume = _to_float(data["preOpenMarket"].get("totalTradedVolume"))
 
         company = None
         info = data.get("info", {})

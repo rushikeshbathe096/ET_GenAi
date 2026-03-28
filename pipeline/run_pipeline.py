@@ -82,10 +82,10 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "decision": decision,
         "confidence": confidence,
         "why_now": str(payload.get("why_now") or payload.get("why") or ""),
-        "why": str(payload.get("why_now") or payload.get("why") or ""),
         "risks": risks,
         "signals": signals,
         "news": payload.get("news", {}),
+        "news_headlines": payload.get("news_headlines", []),
         "price_data": payload.get("price_data", {}),
         "price": price_data.get("price"),
         "change_pct": price_data.get("change_pct"),
@@ -95,6 +95,8 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "disclaimer": payload.get("disclaimer"),
         "actionability": payload.get("actionability", {}),
         "confidence_breakdown": payload.get("confidence_breakdown", []),
+        "similar_events": payload.get("similar_events", []),
+        "historical_base_rate": str(payload.get("historical_base_rate", "")),
     }
 
 
@@ -221,21 +223,26 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
     except (TypeError, ValueError):
         computed_confidence = 0
 
+    enriched = enrich_signal(payload)
+
     output = {
         "symbol": payload["symbol"],
         "company": payload["company"],
         "price_data": payload["price_data"],
         "decision": computed_decision,
         "confidence": computed_confidence,
-        "why": explanation.get("why_now", decision.get("why_now", "")),
+        "why_now": explanation.get("why_now", decision.get("why_now", "")),
         "risks": explanation.get("risks", decision.get("risks", [])),
         "signals": signals,
         "news": payload["news"],
+        "news_headlines": payload["news"].get("headlines", []) if isinstance(payload.get("news"), dict) else [],
         "current_price": payload["price_data"].get("price"),
         "date": date.today().strftime("%Y-%m-%d"),
         "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
         "actionability": _build_actionability(computed_decision, computed_confidence),
         "confidence_breakdown": _build_confidence_breakdown(signals),
+        "similar_events": enriched.get("similar_events", []),
+        "historical_base_rate": enriched.get("historical_base_rate", ""),
     }
 
     return _sanitize_output(output)
