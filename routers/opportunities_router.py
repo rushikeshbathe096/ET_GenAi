@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+import os
+import json
+from datetime import datetime
+from fastapi import APIRouter, Query
 from agents.analysis_agent import compute_signals
 from agents.utils.data_loader import load_latest_data
 from agents.decision_agent import enrich_signal
@@ -65,15 +68,31 @@ def _build_clean_opportunity(signal: dict, rank: int) -> dict:
     }
 
 @router.get("/opportunities")
-def get_opportunities():
+def get_opportunities(force: bool = Query(default=False)):
+    cache_dir = "data/signals"
+    cache_path = os.path.join(cache_dir, "today.json")
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+    # 1. Attempt to serve from today's cache if not forced
+    if not force and os.path.exists(cache_path):
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                cached_data = json.load(f)
+                
+            # Verify cache is actually from today
+            if cached_data.get("generated_date") == today_str:
+                return cached_data
+        except Exception as ce:
+            print(f"Cache Read Failure: {ce}")
+
+    # 2. Re-run pipeline if cache is missing, stale, or bypass is forced
     data = load_latest_data()
     if not data:
         return {
             "status": "success",
             "count": 0,
-            "top_opportunity": {},
-            "decision": "No data available",
-            "explanation": "No data available for analysis.",
+            "generated_at": datetime.now().isoformat(),
+            "generated_date": today_str,
             "opportunities": []
         }
 
@@ -88,7 +107,6 @@ def get_opportunities():
             enriched = enrich_signal(sig)
             enriched_row = dict(enriched)
         except Exception as e:
-            # Fallback silently on RAG or agent failure
             print(f"Decision agent failed for {sig.get('ticker')}: {e}")
             enriched_row = dict(sig)
 
@@ -96,10 +114,10 @@ def get_opportunities():
         enriched_row["confidence_label"] = _confidence_label(enriched_row.get("confluence_score", 0.0))
         enriched_signals.append(enriched_row)
 
-    # Keep detailed rows internally; expose only clean projected fields.
     explained_signals = []
     for row in enriched_signals:
         try:
+            # Note: explanation agent takes list form
             explained_row = enrich_explanations([row])[0]
             explained_signals.append(dict(explained_row))
         except Exception as e:
@@ -112,14 +130,29 @@ def get_opportunities():
     ]
 
     top_clean = clean_opportunities[0] if clean_opportunities else {}
-    decision_str = top_clean.get("decision", "No data available")
-    explanation_str = top_clean.get("explanation", "No data available for analysis.")
-
-    return {
+    
+    response = {
         "status": "success",
         "count": len(signals),
+        "generated_at": datetime.now().isoformat(),
+        "generated_date": today_str,
         "top_opportunity": top_clean,
-        "decision": decision_str,
-        "explanation": explanation_str,
+        "decision": top_clean.get("decision", "No data available"),
+        "explanation": top_clean.get("explanation", "No data available for analysis."),
         "opportunities": clean_opportunities
     }
+
+    # 3. Persist the fresh analysis to cache
+    try:
+        os.makedirs(cache_dir, exist_ok=True)
+        with open(cache_path, "w", encoding="utf-8") as f:
+            json.dump(response, f, indent=2)
+            
+        # Also archive by date for historical persistence
+        archive_path = os.path.join(cache_dir, f"{today_str}.json")
+        with open(archive_path, "w", encoding="utf-8") as f:
+            json.dump(response, f, indent=2)
+    except Exception as se:
+        print(f"Cache Write Failure: {se}")
+
+    return response

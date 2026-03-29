@@ -2,12 +2,12 @@
 
 import { useState, useMemo, useEffect } from "react";
 import SignalCard from "../../../components/SignalCard";
+import SignalCardSkeleton from "../../../components/SignalCardSkeleton";
 import TopMovers from "../../../components/TopMovers";
-import StockDetailDrawer from "../../../components/StockDetailDrawer";
 import LoadingSpinner from "../../../components/LoadingSpinner";
 import { getDashboardData, runPipeline } from "../../../utils/api";
 import { Signal } from "../../../data/mockSignals";
-import { AlertCircle, ArrowRight, Zap, Target, Activity, Play, Loader2 } from "lucide-react";
+import { AlertCircle, ArrowRight, Zap, Target, Activity, Play, Loader2, Clock } from "lucide-react";
 import Link from "next/link";
 import { detectCircuit } from "../../../utils/signalUtils";
 import { toast } from "react-hot-toast";
@@ -18,14 +18,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  const { generateAlertsFromSignals, addAlert } = useAlerts();
+  const { generateAlertsFromSignals } = useAlerts();
 
-  const fetchData = async () => {
+  const fetchData = async (force: boolean = false) => {
     try {
-      const data = await getDashboardData();
+      if (force) setLoading(true); // Re-show loading for forced refreshes if desired
+      const { signals: data, generatedAt } = await getDashboardData(force);
       setSignals(data);
+      setLastUpdated(generatedAt);
       // Step 2 — Generate Alerts from Signals
       await generateAlertsFromSignals(data);
       setError(null);
@@ -51,37 +53,29 @@ export default function DashboardPage() {
       
       if (result.status === "success") {
         toast.success("Intelligence updated successfully.", { id: toastId });
-        addAlert({
-          symbol: "SYS",
-          type: "PIPELINE",
-          message: "Intelligence pipeline executed successfully. All telemetry updated."
-        });
-        await fetchData();
+        await fetchData(true);
       } else {
-        throw new Error("Pipeline returned non-success status");
+        toast.error("Pipeline execution failed.", { id: toastId });
       }
     } catch (err) {
-      toast.error("Pipeline failure: Connection lost.");
+      toast.error("Critical communication error with Alpha Node.");
     } finally {
       setIsPipelineRunning(false);
     }
   };
 
-  const circuitBreakers = useMemo(() => 
-    signals.filter(s => detectCircuit(s.priceChangePercent)), 
-  [signals]);
-
-  if (loading) return <LoadingSpinner />;
+  const highConfluenceCount = useMemo(() => {
+    return signals.filter(s => s.confidence === "HIGH").length;
+  }, [signals]);
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 rounded-3xl border border-rose-500/20 bg-rose-500/5 backdrop-blur-xl animate-in zoom-in-95 duration-500">
-        <AlertCircle className="w-12 h-12 text-rose-500 mb-6" />
-        <h2 className="text-xl font-black text-rose-300 uppercase tracking-widest italic">{error}</h2>
-        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mt-2">Checking Backend Telemetry...</p>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <AlertCircle className="w-16 h-16 text-rose-500 opacity-50" />
+        <h2 className="text-xl font-bold text-white tracking-widest uppercase">{error}</h2>
         <button 
-          onClick={() => window.location.reload()}
-          className="mt-8 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
+          onClick={() => fetchData()}
+          className="px-8 py-3 bg-white/5 border border-white/10 text-[10px] font-black uppercase text-white rounded-2xl hover:bg-white/10 transition-colors"
         >
           Retry Connection
         </button>
@@ -90,133 +84,111 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-      {/* Circuit Alert Banners */}
-      {circuitBreakers.length > 0 && (
-        <div className="space-y-3">
-          {circuitBreakers.map((signal) => (
-             <div key={`circuit-${signal.symbol}`} className="relative overflow-hidden group">
-               <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent animate-shimmer" />
-               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-xl group-hover:border-amber-500/40 transition-all duration-300">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400 shadow-[0_0_20px_-5px_rgba(245,158,11,0.4)] animate-pulse">
-                      <Zap size={20} fill="currentColor" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-black text-amber-300 uppercase tracking-widest flex items-center gap-2">
-                        Circuit Alert Detected
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-ping" />
-                      </h3>
-                      <p className="text-white font-bold italic text-lg leading-none mt-1">
-                        {signal.symbol} ({signal.company}) hit {Math.abs(signal.priceChangePercent).toFixed(1)}% price limit
-                      </p>
-                    </div>
-                  </div>
-                  <button 
-                    onClick={() => setSelectedSignal(signal)}
-                    className="group-hover:translate-x-1 flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500 text-black font-black uppercase tracking-widest text-[10px] transition-all hover:bg-amber-400 active:scale-95"
-                  >
-                    Investigate Node
-                    <ArrowRight size={14} />
-                  </button>
-               </div>
-             </div>
-          ))}
-        </div>
-      )}
-
-      {/* Main Stats Header */}
-      <section className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        <div className="xl:col-span-8">
-           <div className="flex items-center justify-between mb-8 px-2">
-            <div>
-              <h2 className="text-xl font-black text-white italic tracking-[0.2em] uppercase">Market Pulse Summary</h2>
-              <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.4em] mt-1">Cross-Sector Liquidity Engine</p>
+    <div className="space-y-8 pb-12">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20">
+              <Zap className="w-5 h-5 text-indigo-400" />
             </div>
-            <Link href="/market" className="flex items-center gap-2 text-[10px] text-indigo-400 hover:text-indigo-300 font-black uppercase tracking-[0.2em] transition-colors group">
-              Full Pulse Radar
-              <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <h1 className="text-3xl font-black text-white tracking-tight italic uppercase underline decoration-indigo-500 decoration-4 underline-offset-8">Alpha Node</h1>
           </div>
-          <TopMovers signals={signals} />
-        </div>
-
-        <aside className="xl:col-span-4 flex flex-col justify-end">
-           <div className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-[2rem] p-8 backdrop-blur-xl relative overflow-hidden group">
-              <div className="absolute right-[-10%] top-[-10%] w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full" />
-              <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
-                <Target size={18} />
-                Global Alpha State
-              </div>
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active Signals</span>
-                  <span className="text-xl font-black text-white">{signals.length}</span>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">High Confidence</span>
-                  <span className="text-xl font-black text-white">{signals.filter(s => s.confidence === "HIGH").length}</span>
-                </div>
-                
-                <button
-                  onClick={handleRunPipeline}
-                  disabled={isPipelineRunning}
-                  className={`mt-4 w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 overflow-hidden relative group ${
-                    isPipelineRunning 
-                      ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
-                      : "bg-gradient-to-r from-indigo-500 to-cyan-500 text-white hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.5)] active:scale-[0.98]"
-                  }`}
-                >
-                  <div className={`absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500`} />
-                  <span className="relative flex items-center gap-2">
-                    {isPipelineRunning ? (
-                      <Loader2 size={16} className="animate-spin" />
-                    ) : (
-                      <Play size={14} fill="currentColor" />
-                    )}
-                    {isPipelineRunning ? "Node Busy..." : "Execute Pipeline"}
-                  </span>
-                </button>
-              </div>
-           </div>
-        </aside>
-      </section>
-
-      {/* Grid Summary */}
-      <section className="relative">
-        <div className="flex items-center justify-between mb-8 px-2">
-          <div>
-            <h2 className="text-xl font-black text-white italic tracking-[0.2em] uppercase">Active Intelligence Radar</h2>
-            <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.4em] mt-1">Real-Time Signal Convergence</p>
-          </div>
-          <Link href="/signal-radar" className="flex items-center gap-2 text-[10px] text-indigo-400 hover:text-indigo-300 font-black uppercase tracking-[0.2em] transition-colors group">
-            Full Sentinel Feed
-            <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <p className="text-slate-400 text-sm max-w-md">
+            Real-time autonomous market scanning and signal detection engine.
+          </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-           {signals.length === 0 ? (
-             <div className="col-span-full py-12 text-center border border-dashed border-indigo-500/20 rounded-[2rem] bg-[#0c1532]/30">
-               <Activity className="w-10 h-10 text-slate-600 mx-auto mb-4 animate-pulse" />
-               <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-xs">No signals available</p>
-               <p className="text-[10px] text-slate-600 mt-2 font-bold uppercase tracking-widest">Awaiting sector convergence...</p>
-             </div>
-           ) : (
-             signals.slice(0, 8).map((signal) => (
-               <div key={signal.symbol} onClick={() => setSelectedSignal(signal)}>
-                 <SignalCard signal={signal} />
-               </div>
-             ))
-           )}
-        </div>
-      </section>
+        <button 
+          onClick={handleRunPipeline}
+          disabled={isPipelineRunning}
+          className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] disabled:opacity-50 disabled:cursor-not-allowed group"
+        >
+          {isPipelineRunning ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Orchestrating...</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
+              <span>Force Signal Refresh</span>
+            </>
+          )}
+        </button>
+      </div>
 
-      <StockDetailDrawer 
-        signal={selectedSignal} 
-        isOpen={!!selectedSignal} 
-        onClose={() => setSelectedSignal(null)} 
-      />
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-8">
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-widest italic">Top Confluence Signals</h2>
+              </div>
+              <Link href="/signal-radar" className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
+                View Radar <ArrowRight size={14} />
+              </Link>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {loading ? (
+                 [...Array(4)].map((_, i) => <SignalCardSkeleton key={i} />)
+              ) : (
+                signals.slice(0, 4).map((signal) => (
+                  <SignalCard key={signal.symbol} signal={signal} />
+                ))
+              )}
+            </div>
+
+            {/* Last Updated Timestamp - Under the cards as requested */}
+            {!loading && lastUpdated && (
+              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] border-t border-white/5 pt-4">
+                <Clock size={12} />
+                Alpha Node Last Transmitted: {new Date(lastUpdated).toLocaleTimeString()}
+              </div>
+            )}
+          </section>
+
+          <section>
+            <div className="flex items-center gap-2 mb-6">
+              <Activity className="w-5 h-5 text-indigo-400" />
+              <h2 className="text-xl font-bold text-white uppercase tracking-widest italic">Movement Analytics</h2>
+            </div>
+            {loading ? (
+                <div className="h-48 rounded-3xl bg-white/5 animate-pulse" />
+            ) : (
+                <TopMovers signals={signals} />
+            )}
+          </section>
+        </div>
+
+        <div className="lg:col-span-1 space-y-8">
+          <section className="sticky top-24">
+             <div className="bg-indigo-600/5 border border-indigo-500/10 rounded-3xl p-6 relative overflow-hidden">
+                <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-indigo-500/5 blur-2xl rounded-full" />
+                <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-widest italic border-b border-white/10 pb-2">Telemetry</h3>
+                <div className="space-y-4">
+                   <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Scanned</span>
+                      <span className="text-sm font-black text-white">{loading ? '...' : signals.length} Stocks</span>
+                   </div>
+                   <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">High Alpha</span>
+                      <span className="text-sm font-black text-emerald-400">{loading ? '...' : highConfluenceCount}</span>
+                   </div>
+                   <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Circuit Alert</span>
+                      <span className={`text-sm font-black ${!loading && signals.some(s => detectCircuit(s.priceChangePercent)) ? 'text-amber-400' : 'text-slate-500'}`}>
+                        {loading ? '...' : signals.filter(s => detectCircuit(s.priceChangePercent)).length} Detected
+                      </span>
+                   </div>
+                </div>
+             </div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

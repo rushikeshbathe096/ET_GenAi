@@ -1,0 +1,130 @@
+{
+  "status": "success",
+  "count": 5,
+  "generated_at": "2026-03-29T23:14:41.125328",
+  "generated_date": "2026-03-29",
+  "top_opportunity": {
+    "symbol": "TITAN",
+    "company": "Titan Company Ltd",
+    "rank": 1,
+    "score": 4.05,
+    "confidence": "MEDIUM",
+    "decision": "HOLD",
+    "explanation": "TITAN is showing a constructive and balanced setup, supported by institutional bulk activity, insider accumulation, technical confirmation. This matters now because Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+    "why_now": "Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction.",
+    "actionability": "HOLD",
+    "price": 3976.6,
+    "priceChangePercent": -1.5522491520808126,
+    "sector": "General",
+    "horizon": "1-2 Weeks",
+    "news": [
+      "Titan Company Ltd sees strong growth outlook",
+      "Titan Company Ltd faces regulatory pressure",
+      "Titan Company Ltd expands into new markets"
+    ]
+  },
+  "decision": "HOLD",
+  "explanation": "TITAN is showing a constructive and balanced setup, supported by institutional bulk activity, insider accumulation, technical confirmation. This matters now because Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+  "opportunities": [
+    {
+      "symbol": "TITAN",
+      "company": "Titan Company Ltd",
+      "rank": 1,
+      "score": 4.05,
+      "confidence": "MEDIUM",
+      "decision": "HOLD",
+      "explanation": "TITAN is showing a constructive and balanced setup, supported by institutional bulk activity, insider accumulation, technical confirmation. This matters now because Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+      "why_now": "Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction.",
+      "actionability": "HOLD",
+      "price": 3976.6,
+      "priceChangePercent": -1.5522491520808126,
+      "sector": "General",
+      "horizon": "1-2 Weeks",
+      "news": [
+        "Titan Company Ltd sees strong growth outlook",
+        "Titan Company Ltd faces regulatory pressure",
+        "Titan Company Ltd expands into new markets"
+      ]
+    },
+    {
+      "symbol": "TCS",
+      "company": "Tata Consultancy Services Ltd",
+      "rank": 2,
+      "score": 5.0,
+      "confidence": "MEDIUM",
+      "decision": "HOLD",
+      "explanation": "TCS is showing a constructive and balanced setup, supported by institutional bulk activity, technical confirmation. This matters now because Bulk Deal is the primary positive driver, while other signals remain limited.. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+      "why_now": "Bulk Deal is the primary positive driver, while other signals remain limited.",
+      "actionability": "HOLD",
+      "price": 2386.4,
+      "priceChangePercent": 0.3785648187095146,
+      "sector": "General",
+      "horizon": "1-2 Weeks",
+      "news": [
+        "Tata Consultancy Services Ltd sees strong growth outlook",
+        "Tata Consultancy Services Ltd faces regulatory pressure",
+        "Tata Consultancy Services Ltd expands into new markets"
+      ]
+    },
+    {
+      "symbol": "INFY",
+      "company": "Infosys Ltd",
+      "rank": 3,
+      "score": 1.57,
+      "confidence": "LOW",
+      "decision": "HOLD",
+      "explanation": "INFY is showing a early and balanced setup, supported by institutional bulk activity, technical confirmation. This matters now because Bulk Deal is supportive, but news sentiment is acting as a drag.. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+      "why_now": "Bulk Deal is supportive, but news sentiment is acting as a drag.",
+      "actionability": "HOLD",
+      "price": 1269.5,
+      "priceChangePercent": -0.7505277147994613,
+      "sector": "General",
+      "horizon": "1-2 Weeks",
+      "news": [
+        "Infosys Ltd sees strong growth outlook",
+        "Infosys Ltd faces regulatory pressure",
+        "Infosys Ltd expands into new markets"
+      ]
+    },
+    {
+      "symbol": "HDFCBANK",
+      "company": "HDFC Bank Ltd",
+      "rank": 4,
+      "score": 0.61,
+      "confidence": "LOW",
+      "decision": "SELL",
+      "explanation": "HDFCBANK is showing a early and bearish setup, supported by institutional bulk activity, technical confirmation. This matters now because Bulk Deal is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+      "why_now": "Bulk Deal is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction.",
+      "actionability": "SELL",
+      "price": 757.0,
+      "priceChangePercent": -3.234053432187135,
+      "sector": "General",
+      "horizon": "1-2 Weeks",
+      "news": [
+        "HDFC Bank Ltd sees strong growth outlook",
+        "HDFC Bank Ltd faces regulatory pressure",
+        "HDFC Bank Ltd expands into new markets"
+      ]
+    },
+    {
+      "symbol": "RELIANCE",
+      "company": "Reliance Industries Ltd",
+      "rank": 5,
+      "score": 2.38,
+      "confidence": "LOW",
+      "decision": "HOLD",
+      "explanation": "RELIANCE is showing a early and balanced setup, supported by institutional bulk activity, insider accumulation, technical confirmation. This matters now because Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered. Confidence is low, and historical support is weak (0/3 events gave >10% return), so confirmation remains important.",
+      "why_now": "Insider Trade is supportive, but price movement is acting as a drag. Mixed direction across signals reduces conviction.",
+      "actionability": "HOLD",
+      "price": 1346.3,
+      "priceChangePercent": -4.72719552756351,
+      "sector": "General",
+      "horizon": "1-2 Weeks",
+      "news": [
+        "Reliance Industries Ltd sees strong growth outlook",
+        "Reliance Industries Ltd faces regulatory pressure",
+        "Reliance Industries Ltd expands into new markets"
+      ]
+    }
+  ]
+}
