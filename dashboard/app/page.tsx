@@ -273,6 +273,12 @@ export default function LandingPage() {
               {isDarkMode ? "Light" : "Dark"}
             </button>
             <Link
+              href="/signin"
+              className={`hidden md:inline-flex rounded-xl px-4 py-2 text-sm font-semibold transition ${isDarkMode ? "text-slate-300 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              Sign In
+            </Link>
+            <Link
               href="/dashboard"
               onClick={handleGetStartedClick}
               className="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-400"

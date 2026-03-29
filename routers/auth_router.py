@@ -65,7 +65,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         raise credentials_exception
     return user
 
-@router.post("/signup", response_model=Token)
+@router.post("/register", response_model=Token)
 def signup(user: UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
     if db_user:
@@ -81,9 +81,9 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/login", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = crud.get_user_by_email(db, email=form_data.username)
-    if not user or not verify_password(form_data.password, user.password_hash):
+def login(user_data: UserCreate, db: Session = Depends(get_db)):
+    user = crud.get_user_by_email(db, email=user_data.email)
+    if not user or not verify_password(user_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
