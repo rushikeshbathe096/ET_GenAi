@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-full bg-[#030814] text-slate-100 flex overflow-hidden">
+      <body className="bg-[#030814] text-slate-100">
         <AlertProvider>
           {children}
           <Toaster

@@ -4,6 +4,7 @@ import { useEffect, useState, type MouseEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { BarChart3, ShieldCheck, Sparkles, Activity, ChevronRight, Sun, Moon } from "lucide-react"
+import Sidebar from "../components/Sidebar"
 import { AnimatePresence, motion } from "framer-motion"
 
 const features = [
@@ -149,8 +150,12 @@ export default function LandingPage() {
   }
 
   return (
-    <div className={`min-h-screen ${theme.pageBg} ${theme.textMain} font-sans transition-colors duration-300`}>
-      <AnimatePresence>
+    <div className="flex h-screen w-full bg-[#030814] overflow-hidden">
+      <div className="hidden lg:flex h-full shrink-0">
+        <Sidebar />
+      </div>
+      <div className={`flex-1 overflow-y-auto h-full ${theme.pageBg} ${theme.textMain} font-sans transition-colors duration-300 relative z-0`}>
+        <AnimatePresence>
         {showIntro && (
           <motion.div
             className={`fixed inset-0 z-[120] flex items-center justify-center ${isDarkMode ? "bg-[#030814]" : "bg-[#eef3ff]"}`}
@@ -555,6 +560,7 @@ export default function LandingPage() {
           </div>
         </motion.footer>
       </motion.div>
+      </div>
     </div>
   )
 }
