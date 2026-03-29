@@ -8,6 +8,7 @@ import { getWatchlist, addTicker, removeTicker, getSignals } from "../../utils/a
 import { Signal } from "../../data/mockSignals";
 import { Search, Plus, Trash2, LayoutList, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAlerts } from "../../context/AlertContext";
 
 export default function WatchlistPage() {
   const [watchlist, setWatchlist] = useState<string[]>([]);
@@ -15,14 +16,21 @@ export default function WatchlistPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  
   const [newTicker, setNewTicker] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
+  
+  const { addAlert } = useAlerts();
 
-  async function fetchWatchlistData() {
+  async function fetchWatchlistData(showLoading = true) {
     try {
-      const symbols = await getWatchlist();
-      const allSignals = await getSignals();
+      if (showLoading) setLoading(true);
+      const [symbols, allSignals] = await Promise.all([
+        getWatchlist(),
+        getSignals()
+      ]);
       setWatchlist(symbols);
       setSignals(allSignals);
     } catch (err) {
@@ -38,28 +46,50 @@ export default function WatchlistPage() {
 
   const handleAdd = async () => {
     const symbol = newTicker.trim().toUpperCase();
-    if (!symbol) return;
+    if (!symbol || isActionLoading) return;
+    
+    if (watchlist.includes(symbol)) {
+      toast.error("Symbol already monitored.");
+      return;
+    }
+
     try {
-      if (watchlist.includes(symbol)) {
-        toast.error("Symbol already monitored.");
-        return;
-      }
+      setIsActionLoading(true);
+      const toastId = toast.loading(`Linking ${symbol}...`);
+      
       await addTicker(symbol);
-      setWatchlist(prev => [...prev, symbol]);
+      await fetchWatchlistData(false);
+      
+      addAlert({
+        symbol,
+        type: "WATCHLIST",
+        message: `New target symbol ${symbol} linked to persistent monitoring terminal.`
+      });
+      
       setNewTicker("");
-      toast.success(`${symbol} linked to Mission Control.`);
+      toast.success(`${symbol} linked to Mission Control.`, { id: toastId });
     } catch (err) {
       toast.error("Failed to link node.");
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
   const handleRemove = async (symbol: string) => {
+    if (isActionLoading) return;
+    
     try {
+      setIsActionLoading(true);
+      const toastId = toast.loading(`Delinking ${symbol}...`);
+      
       await removeTicker(symbol);
-      setWatchlist(prev => prev.filter(s => s !== symbol));
-      toast.success(`${symbol} delinked.`);
+      await fetchWatchlistData(false);
+      
+      toast.success(`${symbol} delinked.`, { id: toastId });
     } catch (err) {
       toast.error("De-linkage failed.");
+    } finally {
+      setIsActionLoading(false);
     }
   };
 
@@ -108,7 +138,10 @@ export default function WatchlistPage() {
               />
               <button 
                 onClick={handleAdd}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white transition-all shadow-[0_4px_10px_-4px_rgba(99,102,241,0.5)]"
+                disabled={isActionLoading}
+                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all shadow-[0_4px_10px_-4px_rgba(99,102,241,0.5)] ${
+                  isActionLoading ? "bg-slate-700 text-slate-500 cursor-not-allowed" : "bg-indigo-500 hover:bg-indigo-400 text-white"
+                }`}
               >
                 <Plus size={16} />
               </button>
@@ -147,7 +180,8 @@ export default function WatchlistPage() {
                     e.stopPropagation();
                     handleRemove(signal.symbol);
                   }}
-                  className="absolute top-4 right-4 p-2 rounded-xl bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all duration-200 border border-rose-500/20 hover:bg-rose-500 hover:text-white z-10"
+                  disabled={isActionLoading}
+                  className="absolute top-4 right-4 p-2 rounded-xl bg-rose-500/10 text-rose-500 opacity-0 group-hover:opacity-100 transition-all duration-200 border border-rose-500/20 hover:bg-rose-500 hover:text-white z-10 disabled:cursor-not-allowed"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -162,7 +196,8 @@ export default function WatchlistPage() {
                     <span className="text-xl font-black text-slate-400 italic">{symbol}</span>
                     <button 
                       onClick={() => handleRemove(symbol)}
-                      className="p-2 rounded-xl text-slate-600 hover:text-rose-500 hover:bg-white/5"
+                      disabled={isActionLoading}
+                      className="p-2 rounded-xl text-slate-600 hover:text-rose-500 hover:bg-white/5 disabled:cursor-not-allowed"
                     >
                       <Trash2 size={14} />
                     </button>

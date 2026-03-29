@@ -16,9 +16,15 @@ from routers import auth_router, stock_router, market_router, wishlist_router
 models.Base.metadata.create_all(bind=db.engine)
 
 app = FastAPI(
+<<<<<<< HEAD
     title="ET GenAI Stock Platform",
     description="Backend API for AI-powered stock analysis platform",
     version="2.0.0"
+=======
+    title="ET GenAI Dynamic API",
+    description="Request-driven stock analysis backend",
+    version="2.0.0",
+>>>>>>> 199e1ff0adcd621ea164db127ce2e01f8ec2652c
 )
 
 # Setup CORS
@@ -34,8 +40,8 @@ app.add_middleware(
 app.include_router(auth_router.router)
 app.include_router(stock_router.router)
 app.include_router(market_router.router)
-app.include_router(wishlist_router.router)
-app.include_router(wishlist_router.dashboard_router)
+# dashboard_router removed to prioritize open /dashboard
+# wishlist_router removed to prioritize open /wishlist logic below
 
 @app.get("/")
 def read_root():
@@ -104,6 +110,19 @@ def get_dashboard(user_id: int = Query(default=1)) -> Dict[str, Any]:
             "stocks": analyzed,
         }
     )
+
+@app.post("/pipeline/run")
+def trigger_pipeline():
+    from pipeline.run_pipeline import run_market_pipeline
+    try:
+        # Run market-wide analysis
+        run_market_pipeline()
+        return {
+            "status": "success", 
+            "message": "Intelligence pipeline executed successfully"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/wishlist/add")

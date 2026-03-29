@@ -2,9 +2,8 @@
 
 import { usePathname } from "next/navigation";
 import { Search, Moon, Sun } from "lucide-react";
+import { useAlerts } from "../context/AlertContext";
 import AlertBell from "./AlertBell";
-
-import { mockAlerts } from "../data/mockAlerts";
 
 const routeTitles: { [key: string]: string } = {
   "/dashboard": "Market Dashboard",
@@ -18,7 +17,7 @@ const routeTitles: { [key: string]: string } = {
 export default function Header() {
   const pathname = usePathname();
   const title = routeTitles[pathname] || "Opportunity Radar";
-  const unreadCount = mockAlerts.filter(a => !a.read).length;
+  const { unreadCount } = useAlerts();
 
   return (
     <header className="h-16 flex items-center justify-between px-8 border-b border-indigo-500/10 bg-[#030814]/85 backdrop-blur-md sticky top-0 z-[100]">

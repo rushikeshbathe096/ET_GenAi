@@ -1,4 +1,5 @@
 "use client";
+
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Signal } from "../data/mockSignals";
@@ -23,7 +24,7 @@ export default function TopMovers({ signals }: TopMoversProps) {
           <h2 className="text-sm font-black text-white uppercase tracking-widest">Market Gainers</h2>
         </div>
         <div className="space-y-4">
-          {topGainers.map((signal: Signal) => (
+          {topGainers.map((signal) => (
             <div key={signal.symbol} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-all duration-200">
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white">{signal.symbol}</span>
@@ -43,7 +44,7 @@ export default function TopMovers({ signals }: TopMoversProps) {
           <h2 className="text-sm font-black text-white uppercase tracking-widest">Market Losers</h2>
         </div>
         <div className="space-y-4">
-          {topLosers.map((signal: Signal) => (
+          {topLosers.map((signal) => (
             <div key={signal.symbol} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-rose-500/30 transition-all duration-200">
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white">{signal.symbol}</span>

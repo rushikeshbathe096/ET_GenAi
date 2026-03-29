@@ -9,7 +9,9 @@ from database.db import SessionLocal
 from database.models import Opportunity
 # Remove shadowing import so pipeline.run_pipeline.run_pipeline takes precedence
 # from agents.planner_agent import run_pipeline
+from routers import opportunities_router
 app = FastAPI()
+app.include_router(opportunities_router.router)
 
 # Enable robust CORS exactly allowing the frontend Next.js dev server on :3000 to trigger the engine
 app.add_middleware(
@@ -96,4 +98,3 @@ def get_signals_today():
 if __name__ == "__main__":
     # uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
-
