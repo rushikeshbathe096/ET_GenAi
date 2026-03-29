@@ -28,17 +28,40 @@ def _build_clean_opportunity(signal: dict, rank: int) -> dict:
         explanation = "Analysis complete; key signals are being monitored."
 
     actionability = str(signal.get("actionability", "Monitoring setup"))
+    
+    # Extract price and change from events
+    price = 0.0
+    price_change = 0.0
+    for event in signal.get("events", []):
+        if event.get("deal_type") == "price_movement":
+            price = float(event.get("price", 0.0))
+            price_change = float(event.get("change_pct", 0.0))
+            break
+            
+    # Map confidence label to frontend format
+    conf_raw = _confidence_label(signal.get("confluence_score", 0.0))
+    conf_map = {
+        "Low": "LOW",
+        "Moderate": "MEDIUM",
+        "Strong": "HIGH"
+    }
+    confidence = conf_map.get(conf_raw, "MEDIUM")
 
     return {
-        "ticker": str(signal.get("ticker", "")),
+        "symbol": str(signal.get("ticker", "")),
         "company": str(signal.get("company", "")),
         "rank": rank,
-        "confluence_score": float(signal.get("confluence_score", 0.0)),
-        "confidence_label": _confidence_label(signal.get("confluence_score", 0.0)),
+        "score": float(signal.get("confluence_score", 0.0)),
+        "confidence": confidence,
         "decision": actionability,
         "explanation": explanation,
         "why_now": str(signal.get("why_now", "No recent catalyst summary available.")),
         "actionability": actionability,
+        "price": price,
+        "priceChangePercent": price_change,
+        "sector": "General", # Fallback for now
+        "horizon": "1-2 Weeks", # Fallback for now
+        "news": signal.get("news", {}).get("headlines", []) if isinstance(signal.get("news"), dict) else []
     }
 
 @router.get("/opportunities")

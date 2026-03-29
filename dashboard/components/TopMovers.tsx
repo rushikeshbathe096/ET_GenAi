@@ -2,13 +2,17 @@
 
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { mockSignals } from "../data/mockSignals";
+import { Signal } from "../data/mockSignals";
 import { getTopGainers, getTopLosers } from "../utils/signalUtils";
 import { formatPercent } from "../utils/formatUtils";
 
-export default function TopMovers() {
-  const topGainers = useMemo(() => getTopGainers(mockSignals), []);
-  const topLosers = useMemo(() => getTopLosers(mockSignals), []);
+interface TopMoversProps {
+  signals: Signal[];
+}
+
+export default function TopMovers({ signals }: TopMoversProps) {
+  const topGainers = useMemo(() => getTopGainers(signals), [signals]);
+  const topLosers = useMemo(() => getTopLosers(signals), [signals]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

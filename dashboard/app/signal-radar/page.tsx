@@ -7,6 +7,7 @@ import LoadingSpinner from "../../components/LoadingSpinner";
 import { getSignals } from "../../utils/api";
 import { Signal } from "../../data/mockSignals";
 import { Search, SlidersHorizontal, ListFilter, Activity, ShieldCheck, AlertCircle } from "lucide-react";
+import { useAlerts } from "../../context/AlertContext";
 
 export default function SignalRadarPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -18,6 +19,8 @@ export default function SignalRadarPage() {
   const [filterSector, setFilterSector] = useState("All");
   const [filterConfidence, setFilterConfidence] = useState("All");
   const [sortBy, setSortBy] = useState("score");
+  
+  const { generateAlertsFromSignals } = useAlerts();
 
   useEffect(() => {
     async function fetchData() {
@@ -25,6 +28,7 @@ export default function SignalRadarPage() {
         setLoading(true);
         const data = await getSignals();
         setSignals(data);
+        generateAlertsFromSignals(data);
       } catch (err) {
         setError("Failed to synchronize Sentinel stream.");
       } finally {

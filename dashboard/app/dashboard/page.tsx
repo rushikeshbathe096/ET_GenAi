@@ -5,32 +5,67 @@ import SignalCard from "../../components/SignalCard";
 import TopMovers from "../../components/TopMovers";
 import StockDetailDrawer from "../../components/StockDetailDrawer";
 import LoadingSpinner from "../../components/LoadingSpinner";
-import { getDashboardData } from "../../utils/api";
+import { getDashboardData, runPipeline } from "../../utils/api";
 import { Signal } from "../../data/mockSignals";
-import { AlertCircle, ArrowRight, Zap, Target } from "lucide-react";
+import { AlertCircle, ArrowRight, Zap, Target, Activity, Play, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { detectCircuit } from "../../utils/signalUtils";
+import { toast } from "react-hot-toast";
+import { useAlerts } from "../../context/AlertContext";
 
 export default function DashboardPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSignal, setSelectedSignal] = useState<Signal | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const data = await getDashboardData();
-        setSignals(data);
-      } catch (err) {
-        setError("Failed to synchronize with Alpha Node.");
-      } finally {
-        setLoading(false);
-      }
+  const { generateAlertsFromSignals, addAlert } = useAlerts();
+
+  const fetchData = async () => {
+    try {
+      const data = await getDashboardData();
+      setSignals(data);
+      // Step 2 — Generate Alerts from Signals
+      await generateAlertsFromSignals(data);
+      setError(null);
+    } catch (err) {
+      setError("Failed to synchronize with Alpha Node.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const handleRunPipeline = async () => {
+    if (isPipelineRunning) return;
+
+    try {
+      setIsPipelineRunning(true);
+      const toastId = toast.loading("Executing Intelligence Pipeline...");
+      
+      const result = await runPipeline();
+      
+      if (result.status === "success") {
+        toast.success("Intelligence updated successfully.", { id: toastId });
+        addAlert({
+          symbol: "SYS",
+          type: "PIPELINE",
+          message: "Intelligence pipeline executed successfully. All telemetry updated."
+        });
+        await fetchData();
+      } else {
+        throw new Error("Pipeline returned non-success status");
+      }
+    } catch (err) {
+      toast.error("Pipeline failure: Connection lost.");
+    } finally {
+      setIsPipelineRunning(false);
+    }
+  };
 
   const circuitBreakers = useMemo(() => 
     signals.filter(s => detectCircuit(s.priceChangePercent)), 
@@ -103,7 +138,7 @@ export default function DashboardPage() {
               <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          <TopMovers />
+          <TopMovers signals={signals} />
         </div>
 
         <aside className="xl:col-span-4 flex flex-col justify-end">
@@ -122,6 +157,26 @@ export default function DashboardPage() {
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">High Confidence</span>
                   <span className="text-xl font-black text-white">{signals.filter(s => s.confidence === "HIGH").length}</span>
                 </div>
+                
+                <button
+                  onClick={handleRunPipeline}
+                  disabled={isPipelineRunning}
+                  className={`mt-4 w-full py-4 rounded-2xl flex items-center justify-center gap-3 font-black uppercase tracking-[0.2em] text-[10px] transition-all duration-500 overflow-hidden relative group ${
+                    isPipelineRunning 
+                      ? "bg-slate-800 text-slate-500 cursor-not-allowed" 
+                      : "bg-gradient-to-r from-indigo-500 to-cyan-500 text-white hover:shadow-[0_0_30px_-5px_rgba(99,102,241,0.5)] active:scale-[0.98]"
+                  }`}
+                >
+                  <div className={`absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500`} />
+                  <span className="relative flex items-center gap-2">
+                    {isPipelineRunning ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Play size={14} fill="currentColor" />
+                    )}
+                    {isPipelineRunning ? "Node Busy..." : "Execute Pipeline"}
+                  </span>
+                </button>
               </div>
            </div>
         </aside>
@@ -141,11 +196,19 @@ export default function DashboardPage() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-           {signals.slice(0, 8).map((signal) => (
-            <div key={signal.symbol} onClick={() => setSelectedSignal(signal)}>
-              <SignalCard signal={signal} />
-            </div>
-           ))}
+           {signals.length === 0 ? (
+             <div className="col-span-full py-12 text-center border border-dashed border-indigo-500/20 rounded-[2rem] bg-[#0c1532]/30">
+               <Activity className="w-10 h-10 text-slate-600 mx-auto mb-4 animate-pulse" />
+               <p className="text-slate-500 font-bold uppercase tracking-[0.3em] text-xs">No signals available</p>
+               <p className="text-[10px] text-slate-600 mt-2 font-bold uppercase tracking-widest">Awaiting sector convergence...</p>
+             </div>
+           ) : (
+             signals.slice(0, 8).map((signal) => (
+               <div key={signal.symbol} onClick={() => setSelectedSignal(signal)}>
+                 <SignalCard signal={signal} />
+               </div>
+             ))
+           )}
         </div>
       </section>
 

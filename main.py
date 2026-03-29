@@ -9,7 +9,9 @@ from database.db import SessionLocal
 from database.models import Opportunity
 # Remove shadowing import so pipeline.run_pipeline.run_pipeline takes precedence
 # from agents.planner_agent import run_pipeline
+from routers import opportunities_router
 app = FastAPI()
+app.include_router(opportunities_router.router)
 
 # Enable robust CORS exactly allowing the frontend Next.js dev server on :3000 to trigger the engine
 app.add_middleware(
