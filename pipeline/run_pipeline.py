@@ -97,7 +97,6 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "actionability": payload.get("actionability", {}),
         "confidence_breakdown": payload.get("confidence_breakdown", []),
         "similar_events": payload.get("similar_events", []),
-        "historical_base_rate": str(payload.get("historical_base_rate", "")),
         "technical_patterns": payload.get("technical_patterns", []),
     }
 
@@ -254,10 +253,21 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
 
     enriched = enrich_signal(payload)
 
+    current_similar_events = enriched.get("similar_events", [])
+    cleaned_similar_events = []
+    for event in current_similar_events:
+        if isinstance(event, dict):
+            cleaned_similar_events.append({
+                "id": event.get("id"),
+                "ticker": event.get("ticker"),
+                "company": event.get("company"),
+                "event_description": event.get("event_description"),
+                "outcome_pct_30d": event.get("outcome_pct_30d")
+            })
+
     output = {
         "symbol": payload["symbol"],
         "company": payload["company"],
-        "price_data": payload["price_data"],
         "volume": payload.get("price_data", {}).get("volume"),
         "decision": computed_decision,
         "confidence": computed_confidence,
@@ -271,8 +281,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
         "actionability": _build_actionability(computed_decision, computed_confidence),
         "confidence_breakdown": _build_confidence_breakdown(signals),
-        "similar_events": enriched.get("similar_events", []),
-        "historical_base_rate": enriched.get("historical_base_rate", ""),
+        "similar_events": cleaned_similar_events,
         "technical_patterns": tech_patterns,
         "sector": payload["news"].get("sector", ""),
     }

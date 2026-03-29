@@ -1,11 +1,15 @@
 from __future__ import annotations
+import os
+import re
+from groq import Groq
 
 import json
 import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
-
+from dotenv import load_dotenv
+load_dotenv()
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
 	sys.path.insert(0, str(PROJECT_ROOT))
@@ -18,8 +22,30 @@ OUTPUT_PATH = PROJECT_ROOT / "data" / "cache" / "today.json"
 
 
 def call_llm(prompt: str) -> str:
-	# Mock only: replace with real LLM call in a later phase.
-	return f"Mock explanation generated for: {prompt[:140]}"
+    try:
+        api_key = os.getenv("GROQ_API_KEY")
+        if not api_key:
+            return ""
+        client = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a senior equity analyst at a top Indian brokerage. Write concise, plain-English stock analysis for retail investors. Never use jargon. Always mention what smart money (insiders, institutions) is doing. End with a disclaimer that this is not SEBI-registered investment advice."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            max_tokens=300,
+            temperature=0.3
+        )
+        return response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Groq LLM failed: {e}")
+        return ""
 
 
 def _historical_strength(historical_base_rate: str) -> str:
@@ -226,86 +252,135 @@ def test_explanation_agent() -> None:
 
 
 def generate_explanation(decision: Dict[str, Any], signals: List[Dict[str, Any]]) -> Dict[str, Any]:
-	signal_rows = signals if isinstance(signals, list) else []
+    # 1. Rule-based explanation generation (as fallback/base)
+    signal_rows = signals if isinstance(signals, list) else []
+    positives: List[Dict[str, Any]] = []
+    negatives: List[Dict[str, Any]] = []
 
-	positives: List[Dict[str, Any]] = []
-	negatives: List[Dict[str, Any]] = []
+    for item in signal_rows:
+        if not isinstance(item, dict):
+            continue
+        try:
+            score = float(item.get("score", 0.0))
+        except (TypeError, ValueError):
+            score = 0.0
+        reason = str(item.get("reason") or "").strip()
+        if not reason:
+            continue
+        entry = {
+            "type": str(item.get("type", "signal")).replace("_", " ").title(),
+            "reason": reason,
+            "strength": abs(score),
+        }
+        if score > 0:
+            positives.append(entry)
+        elif score < 0:
+            negatives.append(entry)
 
-	for item in signal_rows:
-		if not isinstance(item, dict):
-			continue
+    positives.sort(key=lambda x: x["strength"], reverse=True)
+    negatives.sort(key=lambda x: x["strength"], reverse=True)
+    
+    # Meaningful drivers for fallback
+    p_drivers = [r for r in positives if r["strength"] >= 0.25 and len(r["reason"].strip()) >= 10]
+    n_drivers = [r for r in negatives if r["strength"] >= 0.25 and len(r["reason"].strip()) >= 10]
 
-		try:
-			score = float(item.get("score", 0.0))
-		except (TypeError, ValueError):
-			score = 0.0
+    dec_label = str(decision.get("decision", "HOLD")).upper()
+    rule_lines: List[str] = []
+    
+    if p_drivers:
+        lead = p_drivers[0]
+        if len(p_drivers) > 1:
+            rule_lines.append(f"{dec_label} is driven by {lead['type']} and {p_drivers[1]['type']} ({lead['reason']}).")
+        else:
+            rule_lines.append(f"{dec_label} is mainly supported by {lead['type']} ({lead['reason']}).")
+    if n_drivers:
+        rule_lines.append(f"Key downside driver is {n_drivers[0]['type']} ({n_drivers[0]['reason']}).")
+    
+    fallback_why_now = "\n".join(rule_lines[:3]) if rule_lines else f"{dec_label} setup based on technical and filing signals."
+    
+    risks: List[str] = []
+    seen = set()
+    for item in n_drivers:
+        reason = item["reason"]
+        if reason not in seen:
+            risks.append(reason)
+            seen.add(reason)
 
-		reason = str(item.get("reason") or "").strip()
-		if not reason:
-			continue
+    # 2. LLM-based explanation generation
+    company = "this stock"
+    symbol = ""
+    price = "current market price"
+    change_pct = "N/A"
+    
+    # Try to extract metadata from symbols if possible
+    # In run_pipeline, price_movement signal has change_pct in its reason
+    for s in signals:
+        if s.get("type") == "price_movement":
+            reason_text = s.get("reason", "")
+            match = re.search(r"(-?\d+\.?\d*)%", reason_text)
+            if match:
+                change_pct = match.group(1)
 
-		entry = {
-			"type": str(item.get("type", "signal")).replace("_", " ").title(),
-			"reason": reason,
-			"strength": abs(score),
-		}
+    signals_text = "\n".join([f"- {s.get('type', 'Signal').replace('_', ' ').title()}: {s.get('reason', 'N/A')}" for s in signals])
+    
+    prompt = f"""
+Analyze {company} {symbol}. 
+Decision: {dec_label} with {decision.get('confidence', 0)}% confidence.
 
-		if score > 0:
-			positives.append(entry)
-		elif score < 0:
-			negatives.append(entry)
+Signals detected:
+{signals_text}
 
-	positives.sort(key=lambda x: x["strength"], reverse=True)
-	negatives.sort(key=lambda x: x["strength"], reverse=True)
+Current price: Rs {price}, change: {change_pct}%
 
-	# Keep only meaningful driver rows.
-	positives = [row for row in positives if row["strength"] >= 0.25 and len(row["reason"].strip()) >= 10]
-	negatives = [row for row in negatives if row["strength"] >= 0.25 and len(row["reason"].strip()) >= 10]
+Write 3-4 sentences explaining WHY this is a {dec_label} 
+right now. Focus on what the data shows, not generic advice.
+Then list 2-3 specific risks as bullet points.
+"""
 
-	decision_label = str(decision.get("decision", "HOLD")).upper()
-	lines: List[str] = []
-	strength = str(decision.get("reasoning_summary") or "")
+    llm_output = call_llm(prompt)
+    if llm_output:
+        try:
+            lines = llm_output.split('\n')
+            why_lines = []
+            risk_lines = []
+            in_risks = False
 
-	if positives:
-		lead = positives[0]
-		if len(positives) > 1:
-			second = positives[1]
-			lines.append(
-				f"{decision_label} is driven by {lead['type']} and {second['type']} ({lead['reason']})."
-			)
-		else:
-			lines.append(f"{decision_label} is mainly supported by {lead['type']} ({lead['reason']}).")
+            for line in lines:
+                line_text = line.strip()
+                if not line_text:
+                    continue
+                
+                # Check for risk/disclaimer transition
+                if any(keyword in line_text.lower() for keyword in ['risk', 'disclaimer']):
+                    in_risks = True
+                    continue # Skip the header line itself
+                
+                if in_risks:
+                    # Capture bullet points (supporting * or -)
+                    if line_text.startswith('*') or line_text.startswith('-'):
+                        risk = line_text.lstrip('* -').strip()
+                        if risk:
+                            risk_lines.append(risk)
+                else:
+                    why_lines.append(line_text)
 
-	if negatives:
-		lead_neg = negatives[0]
-		lines.append(f"Key downside driver is {lead_neg['type']} ({lead_neg['reason']}).")
+            if why_lines:
+                return {
+                    "why_now": ' '.join(why_lines),
+                    "risks": risk_lines if risk_lines else risks # Use parsed risks if any, else rule-based
+                }
+        except Exception:
+            pass
+            
+        return {
+            "why_now": llm_output,
+            "risks": risks,
+        }
 
-	if positives and negatives:
-		lines.append("Conflicting signals detected, so conviction depends on confirmation in upcoming sessions.")
-	elif positives:
-		lines.append("Signals are aligned on the upside, supporting a clearer directional setup.")
-	elif negatives:
-		lines.append("Signals are aligned on the downside, indicating a pressure-heavy setup.")
-	else:
-		if strength:
-			lines.append(f"Low conviction setup: {strength}")
-		else:
-			lines.append("Low conviction setup with no strong directional driver.")
-
-	why_now = "\n".join(lines[:3])
-
-	risks: List[str] = []
-	seen = set()
-	for item in negatives:
-		reason = item["reason"]
-		if reason not in seen:
-			risks.append(reason)
-			seen.add(reason)
-
-	return {
-		"why_now": why_now,
-		"risks": risks,
-	}
+    return {
+        "why_now": fallback_why_now,
+        "risks": risks,
+    }
 
 
 if __name__ == "__main__":
