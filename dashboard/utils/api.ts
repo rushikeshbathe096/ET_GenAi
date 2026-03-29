@@ -6,29 +6,28 @@ import { mockAnalytics } from "../data/mockAnalytics";
 export const USE_API = true;
 const BASE_URL = "http://localhost:8000";
 
-const simulateDelay = () => new Promise(resolve => setTimeout(resolve, 800));
-
 function transformStock(stock: any, defaultSymbol?: string): Signal | null {
   const confidence = stock.confidence || 0;
   if (!stock.symbol && !defaultSymbol) return null;
 
+  // Use priceChangePercent from the stock if available, or compute from signals
   let priceChangePercent = 0;
-  const signals = stock.signals || [];
-
-  const priceMovementSignal = signals.find((s: any) => s.type === "price_movement");
-
-  if (priceMovementSignal) {
-    const baseValue = (priceMovementSignal.score || 0) * 2;
-    priceChangePercent = priceMovementSignal.direction === "negative" ? -baseValue : baseValue;
+  if (stock.priceChangePercent !== undefined) {
+    priceChangePercent = Number(stock.priceChangePercent);
   } else if (stock.change_pct !== undefined) {
     priceChangePercent = Number(stock.change_pct);
   } else {
-    priceChangePercent = confidence / 20;
+    // If no direct percentage, attempt to find a price_movement signal
+    const signals = stock.signals || [];
+    const pm = signals.find((s: any) => s.type === "price_movement");
+    if (pm) {
+      priceChangePercent = pm.direction === "positive" ? (pm.score || 0) * 2 : -(pm.score || 0) * 2;
+    }
   }
 
+  // Fallback for visual data
   if (priceChangePercent === 0) {
-    const offset = (stock.symbol?.charCodeAt(0) || 0) % 5 / 10;
-    priceChangePercent = (confidence > 0 ? confidence / 25 : 0.1) + offset;
+    priceChangePercent = (confidence > 80 ? 2.5 : confidence > 50 ? 0.8 : -0.5);
   }
 
   return {
@@ -53,12 +52,12 @@ function transformStock(stock: any, defaultSymbol?: string): Signal | null {
 
 export async function getDashboardData(): Promise<Signal[]> {
   try {
-    const res = await fetch(`${BASE_URL}/dashboard?user_id=1`);
+    const res = await fetch(`${BASE_URL}/opportunities`);
     if (!res.ok) throw new Error("Synchronization with Alpha Node failed.");
 
     const response = await res.json();
-    const rawStocks = response?.data?.stocks || [];
-
+    const rawStocks = response?.opportunities || [];
+    
     return rawStocks
       .map((stock: any) => transformStock(stock))
       .filter((s: any): s is Signal => s !== null);
@@ -69,14 +68,13 @@ export async function getDashboardData(): Promise<Signal[]> {
 }
 
 export async function getSignals(): Promise<Signal[]> {
-  // Use dashboard as proxy for all signals for now, or use specific market/signals if it exists
   try {
-    const res = await fetch(`${BASE_URL}/dashboard?user_id=1`);
+    const res = await fetch(`${BASE_URL}/market/signals`);
     if (!res.ok) throw new Error("Signal synchronization stream failed.");
 
     const response = await res.json();
-    const rawStocks = response?.data?.stocks || [];
-
+    const rawStocks = response?.stocks || [];
+    
     return rawStocks
       .map((stock: any) => transformStock(stock))
       .filter((s: any): s is Signal => s !== null);
@@ -143,12 +141,25 @@ export async function removeTicker(symbol: string, user_id: number = 1): Promise
 }
 
 export async function getMarket(): Promise<SectorData[]> {
-  // For now return mock or try to transform from dashboard if available
-  return mockMarket;
+  try {
+    const res = await fetch(`${BASE_URL}/market/overview`);
+    if (!res.ok) return mockMarket;
+    return await res.json();
+  } catch (err) {
+    console.error("Market overview failed:", err);
+    return mockMarket;
+  }
 }
 
 export async function getAnalytics(): Promise<any> {
-  return mockAnalytics;
+    try {
+        const res = await fetch(`${BASE_URL}/market/analytics`);
+        if (!res.ok) return mockAnalytics;
+        return await res.json();
+    } catch (err) {
+        console.error("Analytics fetch failed:", err);
+        return mockAnalytics;
+    }
 }
 
 export async function getAlerts(): Promise<Alert[]> {
