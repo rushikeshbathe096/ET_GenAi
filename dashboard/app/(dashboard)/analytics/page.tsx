@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
         setLoading(true);
         const [aData, mData] = await Promise.all([getAnalytics(), getMarket()]);
         setAnalytics(aData);
-        setMarket(mData || []);
+        setMarket(mData.sectors || []);
       } catch (err) {
         setError("Analytics Node offline.");
       } finally {

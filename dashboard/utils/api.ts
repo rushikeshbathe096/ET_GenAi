@@ -140,7 +140,7 @@ export async function removeTicker(symbol: string, user_id: number = 1): Promise
   }
 }
 
-export async function getMarket(): Promise<SectorData[]> {
+export async function getMarket(): Promise<any> {
   try {
     const res = await fetch(`${BASE_URL}/market/overview`);
     if (!res.ok) return mockMarket;
