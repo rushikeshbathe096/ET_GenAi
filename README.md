@@ -42,7 +42,7 @@ The system follows a structured pipeline to process data and generate insights:
 *   **Frontend**: Next.js 16, React 19, Tailwind CSS 4, Framer Motion.
 *   **AI/ML**: Groq (LLM Inference), Sentence-Transformers (Embeddings), FAISS (Vector Retrieval).
 *   **Data Ingestion**: nsepython, yfinance, bsedata
-*   **News**:Google News RSS,ET News,MoneyControl,Mint,CNBC TV -18, MINT.
+*   **News**:Google News RSS,ET News,MoneyControl,Mint,CNBC TV-18.
 *   **Database**: SQLite (Local) / MySQL (Cloud-ready).
 
 ---
