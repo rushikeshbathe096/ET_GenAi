@@ -94,22 +94,5 @@ The pipeline is designed to run once per day to pre-compute market opportunities
   POST http://localhost:8000/pipeline/run
   ```
 
----
 
-## 📂 Project Structure
 
-```text
-.
-├── api/                # FastAPI Application Core
-├── agents/             # M1-M3 Intelligence Agents
-├── dashboard/          # Next.js 16 Sentinel Interface
-├── database/           # SQLAlchemy Models & CRUD
-├── routers/            # API Route Definitions
-├── data/               # Persistent Signal Cache (JSON)
-└── requirements.txt    # Backend Dependencies
-```
-
----
-
-## ⚖️ License
-Internal Use Only - Proprietary Intelligence Core.
