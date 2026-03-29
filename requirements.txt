@@ -13,7 +13,9 @@ pydantic==2.12.5
 groq==0.9.0
 nsepython==2.97
 yfinance==1.2.0
+bsedata==0.6.0                # ADDED: BSE library for high-fidelity quotes
 Requests==2.31.0
+
 pandas==2.2.2
 numpy==1.26.4
 textblob==0.18.0              

@@ -9,6 +9,22 @@ HEADERS = {
     "Referer": "https://www.bseindia.com/"
 }
 
+from bsedata.bse import BSE
+
+def fetch_bse_quote(scrip_code: str):
+    """
+    Fetches real-time stock quotes using the bsedata library.
+    Requires the 6-digit BSE Scrip Code (e.g., '532540' for TCS).
+    """
+    b = BSE()
+    try:
+        # We don't call updateScripCodes here to keep it fast, 
+        # but the library handles the underlying API call to getQuote.
+        return b.getQuote(scrip_code)
+    except Exception as e:
+        print(f"BSEDATA_FETCH_ERROR for {scrip_code}: {e}")
+        return None
+
 def fetch_bulk_deals(symbol: str | None = None):
     try:
         resp = requests.get(BSE_BULK_URL, headers=HEADERS, timeout=5)
@@ -72,11 +88,19 @@ def fetch_bulk_deals(symbol: str | None = None):
 
 if __name__ == "__main__":
     try:
+        # 1. Bulk Deals Test (Original Logic)
         data = fetch_bulk_deals()
-        print("\nAlpha Radar Sample Output (BSE):")
-        for item in data[:3]:
-            print(f"Ticker: {item.get('ticker')} | Price: {item.get('price')} | Quantity: {item.get('quantity')}")
-            print(f"Buyer: {item.get('buyer')}")
-            print("-" * 30)
+        print("\n[M1] BSE Bulk Deal Node Status: ACTIVE")
+        for item in data[:2]:
+            print(f"Scrip: {item.get('ticker')} | Action: {item.get('deal_type')}")
+        
+        # 2. bsedata Quote Test (New Integrated Library)
+        print("\n[M2] BSE Quote Node Status: ACTIVE (using bsedata)")
+        tcs_code = "532540" 
+        quote = fetch_bse_quote(tcs_code)
+        if quote:
+            print(f"Company: {quote.get('companyName')}")
+            print(f"Current Value: {quote.get('currentValue')} | Day High: {quote.get('dayHigh')}")
+            
     except Exception as exc:
         print(f"BSE signal ingestion diagnostics failed: {exc}")
