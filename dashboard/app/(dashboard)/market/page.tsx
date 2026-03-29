@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Activity, LayoutGrid, Target, AlertCircle } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getMarket } from "../../utils/api";
-import { SectorData } from "../../data/mockMarket";
-import { formatPercent } from "../../utils/formatUtils";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import { getMarket } from "../../../utils/api";
+import { SectorData } from "../../../data/mockMarket";
+import { formatPercent } from "../../../utils/formatUtils";
 
 export default function MarketPulsePage() {
   const [summary, setSummary] = useState<any>(null);

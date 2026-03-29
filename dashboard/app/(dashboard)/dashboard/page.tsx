@@ -1,17 +1,17 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import SignalCard from "../../components/SignalCard";
-import TopMovers from "../../components/TopMovers";
-import StockDetailDrawer from "../../components/StockDetailDrawer";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getDashboardData, runPipeline } from "../../utils/api";
-import { Signal } from "../../data/mockSignals";
+import SignalCard from "../../../components/SignalCard";
+import TopMovers from "../../../components/TopMovers";
+import StockDetailDrawer from "../../../components/StockDetailDrawer";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import { getDashboardData, runPipeline } from "../../../utils/api";
+import { Signal } from "../../../data/mockSignals";
 import { AlertCircle, ArrowRight, Zap, Target, Activity, Play, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { detectCircuit } from "../../utils/signalUtils";
+import { detectCircuit } from "../../../utils/signalUtils";
 import { toast } from "react-hot-toast";
-import { useAlerts } from "../../context/AlertContext";
+import { useAlerts } from "../../../context/AlertContext";
 
 export default function DashboardPage() {
   const [signals, setSignals] = useState<Signal[]>([]);

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { Activity, BarChart3, Target, ShieldCheck, AlertCircle } from "lucide-react";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getAnalytics, getMarket } from "../../utils/api";
-import { SectorData } from "../../data/mockMarket";
-import { formatPercent } from "../../utils/formatUtils";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import { getAnalytics, getMarket } from "../../../utils/api";
+import { SectorData } from "../../../data/mockMarket";
+import { formatPercent } from "../../../utils/formatUtils";
 
 export default function AnalyticsPage() {
   const [analytics, setAnalytics] = useState<any>(null);
@@ -19,7 +19,7 @@ export default function AnalyticsPage() {
         setLoading(true);
         const [aData, mData] = await Promise.all([getAnalytics(), getMarket()]);
         setAnalytics(aData);
-        setMarket(mData.sectors || []);
+        setMarket(mData || []);
       } catch (err) {
         setError("Analytics Node offline.");
       } finally {

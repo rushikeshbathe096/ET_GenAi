@@ -13,11 +13,11 @@ import {
   ShieldCheck,
   AlertCircle
 } from "lucide-react";
-import LoadingSpinner from "../../../components/LoadingSpinner";
-import { getStock } from "../../../utils/api";
-import { Signal } from "../../../data/mockSignals";
-import { formatPrice, formatPercent } from "../../../utils/formatUtils";
-import { normalizeScore } from "../../../utils/signalUtils";
+import LoadingSpinner from "../../../../components/LoadingSpinner";
+import { getStock } from "../../../../utils/api";
+import { Signal } from "../../../../data/mockSignals";
+import { formatPrice, formatPercent } from "../../../../utils/formatUtils";
+import { normalizeScore } from "../../../../utils/signalUtils";
 
 export default function StockDetailPage() {
   const { symbol } = useParams();
