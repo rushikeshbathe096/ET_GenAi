@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { X, Target, ShieldCheck, Newspaper, Info, Activity, TrendingUp, TrendingDown } from "lucide-react";
 import { Signal } from "../data/mockSignals";
@@ -127,6 +128,17 @@ export default function StockDetailDrawer({ signal, isOpen, onClose }: StockDeta
                 ))}
               </div>
             </section>
+
+            <div className="mt-4 pt-10 border-t border-white/10">
+              <Link 
+                href={`/stock/${signal.symbol}`}
+                onClick={onClose}
+                className="w-full flex items-center justify-center gap-3 py-5 rounded-2xl bg-indigo-500 hover:bg-indigo-400 text-white font-black uppercase tracking-widest text-[11px] transition-all duration-300 shadow-[0_15px_30px_-5px_rgba(99,102,241,0.4)] hover:shadow-[0_20px_40px_-5px_rgba(99,102,241,0.5)] active:scale-95 group"
+              >
+                View Full Sentinel Report
+                <TrendingUp size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -1,14 +1,17 @@
 "use client";
-
 import { useMemo } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { mockSignals } from "../data/mockSignals";
+import { Signal } from "../data/mockSignals";
 import { getTopGainers, getTopLosers } from "../utils/signalUtils";
 import { formatPercent } from "../utils/formatUtils";
 
-export default function TopMovers() {
-  const topGainers = useMemo(() => getTopGainers(mockSignals), []);
-  const topLosers = useMemo(() => getTopLosers(mockSignals), []);
+interface TopMoversProps {
+  signals: Signal[];
+}
+
+export default function TopMovers({ signals }: TopMoversProps) {
+  const topGainers = useMemo(() => getTopGainers(signals), [signals]);
+  const topLosers = useMemo(() => getTopLosers(signals), [signals]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -20,7 +23,7 @@ export default function TopMovers() {
           <h2 className="text-sm font-black text-white uppercase tracking-widest">Market Gainers</h2>
         </div>
         <div className="space-y-4">
-          {topGainers.map((signal) => (
+          {topGainers.map((signal: Signal) => (
             <div key={signal.symbol} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-all duration-200">
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white">{signal.symbol}</span>
@@ -40,7 +43,7 @@ export default function TopMovers() {
           <h2 className="text-sm font-black text-white uppercase tracking-widest">Market Losers</h2>
         </div>
         <div className="space-y-4">
-          {topLosers.map((signal) => (
+          {topLosers.map((signal: Signal) => (
             <div key={signal.symbol} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 hover:border-rose-500/30 transition-all duration-200">
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white">{signal.symbol}</span>

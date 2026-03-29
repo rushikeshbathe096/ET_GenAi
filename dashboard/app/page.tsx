@@ -50,21 +50,27 @@ const testimonials = [
 
 export default function LandingPage() {
   const router = useRouter()
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window === "undefined") {
-      return true
-    }
-
-    const savedTheme = window.localStorage.getItem("landing-theme")
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-    return savedTheme ? savedTheme === "dark" : prefersDark
-  })
+  const [isDarkMode, setIsDarkMode] = useState(true)
+  const [mounted, setMounted] = useState(false)
   const [showIntro, setShowIntro] = useState(true)
   const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
-    window.localStorage.setItem("landing-theme", isDarkMode ? "dark" : "light")
-  }, [isDarkMode])
+    setMounted(true)
+    const savedTheme = window.localStorage.getItem("landing-theme")
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    if (savedTheme) {
+      setIsDarkMode(savedTheme === "dark")
+    } else {
+      setIsDarkMode(prefersDark)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mounted) {
+      window.localStorage.setItem("landing-theme", isDarkMode ? "dark" : "light")
+    }
+  }, [isDarkMode, mounted])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

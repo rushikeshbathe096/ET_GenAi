@@ -61,7 +61,7 @@ export default function DashboardPage() {
         <div className="space-y-3">
           {circuitBreakers.map((signal) => (
              <div key={`circuit-${signal.symbol}`} className="relative overflow-hidden group">
-               <div className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent animate-shimmer" />
+               <div className="absolute inset-x-0 bottom-0 h-[2px] bg-linear-to-r from-transparent via-amber-500 to-transparent animate-shimmer" />
                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-3xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-xl group-hover:border-amber-500/40 transition-all duration-300">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400 shadow-[0_0_20px_-5px_rgba(245,158,11,0.4)] animate-pulse">
@@ -103,11 +103,11 @@ export default function DashboardPage() {
               <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          <TopMovers />
+          <TopMovers signals={signals} />
         </div>
 
         <aside className="xl:col-span-4 flex flex-col justify-end">
-           <div className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-[2rem] p-8 backdrop-blur-xl relative overflow-hidden group">
+           <div className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-4xl p-8 backdrop-blur-xl relative overflow-hidden group">
               <div className="absolute right-[-10%] top-[-10%] w-32 h-32 bg-indigo-500/5 blur-3xl rounded-full" />
               <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
                 <Target size={18} />

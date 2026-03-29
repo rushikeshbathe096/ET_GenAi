@@ -18,7 +18,7 @@ models.Base.metadata.create_all(bind=db.engine)
 app = FastAPI(
     title="ET GenAI Stock Platform",
     description="Backend API for AI-powered stock analysis platform",
-    version="1.0.0"
+    version="2.0.0"
 )
 
 # Setup CORS
@@ -40,12 +40,6 @@ app.include_router(wishlist_router.dashboard_router)
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the ET GenAI Stock Platform API"}
-
-app = FastAPI(
-    title="ET GenAI Dynamic API",
-    description="Request-driven stock analysis backend",
-    version="2.0.0",
-)
 
 
 DEFAULT_UNIVERSE = [
@@ -88,12 +82,6 @@ def get_stock_analysis(symbol: str) -> Dict[str, Any]:
     from pipeline.run_pipeline import analyze_stock
     result = analyze_stock(symbol)
     return result
-
-@app.get("/market")
-def market():
-    from pipeline.run_pipeline import run_market_pipeline
-    results = run_market_pipeline()
-    return {"stocks": results}
 
 
 @app.get("/dashboard")

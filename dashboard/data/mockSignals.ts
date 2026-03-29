@@ -10,6 +10,9 @@ export interface Signal {
   why_now: string;
   news: string[];
   explanation: string;
+  signals: any[];
+  technical_patterns: any[];
+  similar_events: any[];
 }
 
 export const mockSignals: Signal[] = [
@@ -24,7 +27,10 @@ export const mockSignals: Signal[] = [
     horizon: "2-4 Weeks",
     why_now: "Promoter buying despite temporary pullback; institutional accumulation remains visible.",
     explanation: "Promoter buying despite temporary pullback; institutional accumulation remains visible.",
-    news: ["Titan sees strong premium segment demand recovery.", "Brokerages maintain positive outlook after management commentary."]
+    news: ["Titan sees strong premium segment demand recovery.", "Brokerages maintain positive outlook after management commentary."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "INFY",
@@ -37,7 +43,10 @@ export const mockSignals: Signal[] = [
     horizon: "1-3 Weeks",
     why_now: "Strong delivery pipeline and resilient earnings trend with improved technical momentum.",
     explanation: "Strong delivery pipeline and resilient earnings trend with improved technical momentum.",
-    news: ["Infosys wins strategic transformation contract.", "Deal pipeline guidance revised upward for next quarter."]
+    news: ["Infosys wins strategic transformation contract.", "Deal pipeline guidance revised upward for next quarter."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "HDFC",
@@ -50,7 +59,10 @@ export const mockSignals: Signal[] = [
     horizon: "2-6 Weeks",
     why_now: "Steady accumulation and improving breadth suggest a favorable risk-reward setup.",
     explanation: "Steady accumulation and improving breadth suggest a favorable risk-reward setup.",
-    news: ["HDFC Bank reports stable credit growth trajectory.", "Deposit growth trends remain healthy in monthly update."]
+    news: ["HDFC Bank reports stable credit growth trajectory.", "Deposit growth trends remain healthy in monthly update."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "RELIANCE",
@@ -63,7 +75,10 @@ export const mockSignals: Signal[] = [
     horizon: "1-2 Weeks",
     why_now: "Distribution pressure and weak follow-through suggest caution in near-term positioning.",
     explanation: "Distribution pressure and weak follow-through suggest caution in near-term positioning.",
-    news: ["Reliance trades weaker as energy segment underperforms.", "Mixed outlook from recent management commentary."]
+    news: ["Reliance trades weaker as energy segment underperforms.", "Mixed outlook from recent management commentary."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "TCS",
@@ -76,7 +91,10 @@ export const mockSignals: Signal[] = [
     horizon: "4-8 Weeks",
     why_now: "Steady order book execution and margin maintenance provide safety.",
     explanation: "Steady order book execution and margin maintenance provide safety.",
-    news: ["TCS reports positive hiring trend.", "New deal signed with European bank."]
+    news: ["TCS reports positive hiring trend.", "New deal signed with European bank."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "SBIN",
@@ -89,7 +107,10 @@ export const mockSignals: Signal[] = [
     horizon: "1-2 Weeks",
     why_now: "Massive institutional accumulation as price hits upper circuit.",
     explanation: "Massive institutional accumulation as price hits upper circuit.",
-    news: ["SBI reports record quarterly profit.", "Asset quality improves significantly."]
+    news: ["SBI reports record quarterly profit.", "Asset quality improves significantly."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "ICICIBANK",
@@ -102,7 +123,10 @@ export const mockSignals: Signal[] = [
     horizon: "2-4 Weeks",
     why_now: "Market leading credit growth and superior ROE profile driving fresh alpha.",
     explanation: "Market leading credit growth and superior ROE profile driving fresh alpha.",
-    news: ["ICICI Bank increases deposit rates.", "Analyst upgrade following strong Q3 numbers."]
+    news: ["ICICI Bank increases deposit rates.", "Analyst upgrade following strong Q3 numbers."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "BHARTIARTL",
@@ -115,7 +139,10 @@ export const mockSignals: Signal[] = [
     horizon: "3-6 Weeks",
     why_now: "Consolidating near all-time highs with relative strength index holding steady.",
     explanation: "Consolidating near all-time highs with relative strength index holding steady.",
-    news: ["Airtel expands 5G coverage to 500 cities.", "Tariff hike expected in next few months."]
+    news: ["Airtel expands 5G coverage to 500 cities.", "Tariff hike expected in next few months."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "MARUTI",
@@ -128,7 +155,10 @@ export const mockSignals: Signal[] = [
     horizon: "2-4 Weeks",
     why_now: "Strong SUV order book and margin expansion potentially offsetting rural slowdown.",
     explanation: "Strong SUV order book and margin expansion potentially offsetting rural slowdown.",
-    news: ["Maruti sees record bookings for new SUV models.", "Raw material costs easing, helping margins."]
+    news: ["Maruti sees record bookings for new SUV models.", "Raw material costs easing, helping margins."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "LT",
@@ -141,7 +171,10 @@ export const mockSignals: Signal[] = [
     horizon: "6-12 Months",
     why_now: "Record order inflow guidance and infrastructure push in national budget.",
     explanation: "Record order inflow guidance and infrastructure push in national budget.",
-    news: ["L&T wins mega order from Middle East.", "Project execution speeds up in Q4."]
+    news: ["L&T wins mega order from Middle East.", "Project execution speeds up in Q4."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "ITC",
@@ -154,7 +187,10 @@ export const mockSignals: Signal[] = [
     horizon: "1-2 Weeks",
     why_now: "Short-term profit booking after dividend payout; technical support near 420.",
     explanation: "Short-term profit booking after dividend payout; technical support near 420.",
-    news: ["ITC hotel business demerger update.", "Cigarette volume growth stays resilient."]
+    news: ["ITC hotel business demerger update.", "Cigarette volume growth stays resilient."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   },
   {
     symbol: "SUNPHARMA",
@@ -167,6 +203,9 @@ export const mockSignals: Signal[] = [
     horizon: "4-8 Weeks",
     why_now: "Product approval pipeline looks strong for US market entry.",
     explanation: "Product approval pipeline looks strong for US market entry.",
-    news: ["Sun Pharma gets FDA approval for specialty drug.", "Research spending increases in biosimilars."]
+    news: ["Sun Pharma gets FDA approval for specialty drug.", "Research spending increases in biosimilars."],
+    signals: [],
+    technical_patterns: [],
+    similar_events: []
   }
 ];

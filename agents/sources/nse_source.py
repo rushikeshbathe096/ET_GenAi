@@ -176,3 +176,28 @@ def fetch_insider_trades(ticker: str) -> list[dict]:
     # returning empty list — will integrate SEBI source when available
     return []
 
+
+def fetch_indices() -> list[dict]:
+    """Fetch major NSE indices performance."""
+    indices = {
+        "Nifty 50": "^NSEI",
+        "Nifty Bank": "^NSEBANK",
+        "Nifty IT": "^CNXIT",
+        "Nifty Auto": "^CNXAUTO",
+        "Nifty Pharma": "^CNXPHARMA",
+        "Nifty Energy": "^CNXENERGY",
+    }
+    results = []
+    for name, ticker in indices.items():
+        try:
+            temp = _fetch_from_yfinance(ticker.replace(".NS", ""))
+            if temp:
+                results.append({
+                    "name": name,
+                    "price": temp.get("price"),
+                    "change": temp.get("change_pct")
+                })
+        except Exception:
+            continue
+    return results
+
