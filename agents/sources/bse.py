@@ -71,20 +71,12 @@ def fetch_bulk_deals(symbol: str | None = None):
     return results
 
 if __name__ == "__main__":
-    data = fetch_bulk_deals()
-    print("\nSample output:")
-    for item in data[:3]:
-        print(item) []
-        for entry in feed.entries[:20]:
-            title = str(entry.get("title", "")).lower()
-            if any(alias in title for alias in aliases) or "result" in title or "quarterly" in title:
-                results.append({
-                    "deal_type": "announcement",
-                    "title": entry.get("title", ""),
-                    "date": entry.get("published", ""),
-                    "is_fallback": False
-                })
-        return results[:3]
+    try:
+        data = fetch_bulk_deals()
+        print("\nAlpha Radar Sample Output (BSE):")
+        for item in data[:3]:
+            print(f"Ticker: {item.get('ticker')} | Price: {item.get('price')} | Quantity: {item.get('quantity')}")
+            print(f"Buyer: {item.get('buyer')}")
+            print("-" * 30)
     except Exception as exc:
-        print(f"BSE announcements failed for {ticker}: {exc}")
-        return []
+        print(f"BSE signal ingestion diagnostics failed: {exc}")
