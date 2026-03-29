@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import SignalCard from "../../components/SignalCard";
-import StockDetailDrawer from "../../components/StockDetailDrawer";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getSignals } from "../../utils/api";
-import { Signal } from "../../data/mockSignals";
-<<<<<<< HEAD
+import SignalCard from "../../../components/SignalCard";
+import StockDetailDrawer from "../../../components/StockDetailDrawer";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import { getSignals } from "../../../utils/api";
+import { Signal } from "../../../data/mockSignals";
+
 import { 
   Search, 
   SlidersHorizontal, 
@@ -20,10 +20,8 @@ import {
   BarChart4,
   Clock
 } from "lucide-react";
-=======
-import { Search, SlidersHorizontal, ListFilter, Activity, ShieldCheck, AlertCircle } from "lucide-react";
-import { useAlerts } from "../../context/AlertContext";
->>>>>>> 199e1ff0adcd621ea164db127ce2e01f8ec2652c
+import { useAlerts } from "../../../context/AlertContext";
+
 
 export default function SignalRadarPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -36,45 +34,27 @@ export default function SignalRadarPage() {
   const [filterConfidence, setFilterConfidence] = useState("All");
   const [filterScore, setFilterScore] = useState("0");
   const [sortBy, setSortBy] = useState("score");
-<<<<<<< HEAD
-  const [viewType, setViewType] = useState<"grid" | "table">("table");
+const [viewType, setViewType] = useState<"grid" | "table">("table");
+const { generateAlertsFromSignals } = useAlerts();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getSignals();
-      setSignals(data);
-    } catch (err) {
-      console.error("Signal Radar Error:", err);
-      setError("Failed to synchronize Sentinel stream.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchData = async () => {
+  try {
+    setLoading(true);
+    setError(null);
+    const data = await getSignals();
+    setSignals(data);
+    generateAlertsFromSignals(data);
+  } catch (err) {
+    console.error("Signal Radar Error:", err);
+    setError("Failed to synchronize Sentinel stream.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-  useEffect(() => {
-=======
-  
-  const { generateAlertsFromSignals } = useAlerts();
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        const data = await getSignals();
-        setSignals(data);
-        generateAlertsFromSignals(data);
-      } catch (err) {
-        setError("Failed to synchronize Sentinel stream.");
-      } finally {
-        setLoading(false);
-      }
-    }
->>>>>>> 199e1ff0adcd621ea164db127ce2e01f8ec2652c
-    fetchData();
-  }, []);
-
+useEffect(() => {
+  fetchData();
+}, []);
   const sectors = useMemo(() => ["All", ...new Set(signals.map(s => s.sector))].sort(), [signals]);
   const confidences = ["All", "HIGH", "MEDIUM", "LOW"];
   const scoreThresholds = [

@@ -1,7 +1,7 @@
 "use client";
 
 import { Bell, Clock, ShieldCheck, Zap, XCircle } from "lucide-react";
-import { useAlerts, Alert } from "../../context/AlertContext";
+import { useAlerts, Alert } from "../../../context/AlertContext";
 
 export default function AlertsPage() {
   const { alerts, markAsRead, markAllAsRead, clearAll } = useAlerts();

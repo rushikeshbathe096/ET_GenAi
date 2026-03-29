@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import SignalCard from "../../components/SignalCard";
-import StockDetailDrawer from "../../components/StockDetailDrawer";
-import LoadingSpinner from "../../components/LoadingSpinner";
-import { getWatchlist, addTicker, removeTicker, getSignals } from "../../utils/api";
-import { Signal } from "../../data/mockSignals";
+import SignalCard from "../../../components/SignalCard";
+import StockDetailDrawer from "../../../components/StockDetailDrawer";
+import LoadingSpinner from "../../../components/LoadingSpinner";
+import { getWatchlist, addTicker, removeTicker, getSignals } from "../../../utils/api";
+import { Signal } from "../../../data/mockSignals";
 import { Search, Plus, Trash2, LayoutList, AlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { useAlerts } from "../../context/AlertContext";
+import { useAlerts } from "../../../context/AlertContext";
 
 export default function WatchlistPage() {
   const [watchlist, setWatchlist] = useState<string[]>([]);
