@@ -1,4 +1,4 @@
-# AI-Powered Stock Investment System
+# AI-Driven Stock Analysis & Recommendation System
 
 > **Automated stock signal detection and decision support for the Indian equity markets.**
 
