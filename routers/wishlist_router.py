@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+from typing import Optional
 
 from database import crud
 from database.db import get_db
@@ -11,34 +12,52 @@ from pipeline.run_pipeline import analyze_stock
 router = APIRouter(prefix="/wishlist", tags=["wishlist"])
 
 class WishlistItemBase(BaseModel):
+    user_id: Optional[int] = 1
     symbol: str
 
 @router.post("/add")
-def add_to_wishlist(item: WishlistItemBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    db_item = crud.add_to_wishlist(db=db, user_id=current_user.id, symbol=item.symbol)
-    return {"symbol": db_item.symbol}
+def add_to_wishlist(item: WishlistItemBase, db: Session = Depends(get_db)):
+    # Simple mode for demo compatibility
+    symbol = item.symbol.upper().strip()
+    db_item = crud.add_to_wishlist(db=db, user_id=item.user_id, symbol=symbol)
+    return {"status": "success", "symbol": db_item.symbol, "user_id": db_item.user_id}
 
 @router.get("")
-def get_user_wishlist(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    items = crud.get_wishlist(db=db, user_id=current_user.id)
-    return [{"symbol": item.symbol} for item in items]
+def get_user_wishlist(user_id: int = Query(default=1), db: Session = Depends(get_db)):
+    items = crud.get_wishlist(db=db, user_id=user_id)
+    return {"status": "success", "data": {"symbols": [item.symbol for item in items]}}
 
 @router.delete("/remove")
-def remove_from_wishlist(item: WishlistItemBase, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    success = crud.remove_from_wishlist(db=db, user_id=current_user.id, symbol=item.symbol)
+def remove_from_watchlist(user_id: int = Query(default=1), symbol: str = Query(...), db: Session = Depends(get_db)):
+    symbol = symbol.upper().strip()
+    success = crud.remove_from_wishlist(db=db, user_id=user_id, symbol=symbol)
     if not success:
-        raise HTTPException(status_code=404, detail="Item not found or not in your wishlist")
-    return {"message": "Item removed"}
+        return {"status": "error", "message": "Target not found"}
+    return {"status": "success", "message": f"{symbol} delinked"}
 
-# Dashboard API
-dashboard_router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+# Dashboard API Integration
+router_dashboard = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
-@dashboard_router.get("")
-def get_dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    items = crud.get_wishlist(db=db, user_id=current_user.id)
-    signals = []
-    for item in items:
-        res = analyze_stock(item.symbol)
-        signals.append(res)
+@router_dashboard.get("")
+def get_dashboard_summary(user_id: int = Query(default=1), db: Session = Depends(get_db)):
+    items = crud.get_wishlist(db=db, user_id=user_id)
+    symbols = [item.symbol for item in items]
+    
+    if not symbols:
+        symbols = ["TCS", "INFY", "RELIANCE"]
         
-    return {"watchlist_signals": signals}
+    signals = []
+    for s in symbols:
+        try:
+            res = analyze_stock(s)
+            signals.append(res)
+        except:
+            continue
+            
+    return {
+        "status": "success",
+        "data": {
+            "user_id": user_id,
+            "stocks": sorted(signals, key=lambda x: int(x.get("confidence", 0)), reverse=True)
+        }
+    }

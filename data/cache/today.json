@@ -1,998 +1,323 @@
 [
   {
-    "symbol": "OFSS",
-    "company": "Oracle Financial Services Software Limited",
-    "decision": "BUY",
-    "confidence": 75,
-    "why_now": "BUY is driven by Price Movement and Volume Spike (Strong positive move of 5.30%).",
-    "risks": [],
-    "signals": [
+    "ticker": "TITAN",
+    "company": "Titan Company Ltd",
+    "confluence_score": 5.0,
+    "why_now": "Insider Trade and bulk deal both point to positive momentum in this setup.",
+    "current_price": 3420,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123456",
+    "filing_signals": [
       {
-        "type": "price_movement",
-        "score": 2.0,
-        "weight": 1.0,
-        "direction": "positive",
-        "reason": "Strong positive move of 5.30%"
-      },
-      {
-        "type": "volume_spike",
-        "score": 1.0,
-        "weight": 0.9,
-        "direction": "positive",
-        "reason": "Volume 5.1x above 20-day average"
-      }
-    ],
-    "news": {
-      "score": 0.07,
-      "sentiment_label": "neutral",
-      "signal": null,
-      "headlines": [
-        "Oracle Financial shares jump 7% on $100 million deal with US bank - CNBC TV18",
-        "Deal boost lifts Oracle Financial Services shares 7% in weak markets - Business Standard",
-        "Oracle Financial Services shares rise 7% on Rs 940-crore deal; more details - businesstoday.in",
-        "Top 10 IT Stocks In India March 2026: A Comprehensive Guide For Investors - Samco",
-        "India's outsourcing industry is worth $300bn. Can it survive AI? - BBC",
-        "Oracle Financial Services Software Ltd is Rated Sell - Markets Mojo",
-        "Oracle Financial Services Software Limited Just Missed EPS By 7.3%: Here's What Analysts Think Will Happen Next - simplywall.st"
-      ],
-      "company_headlines": [
-        "Oracle Financial shares jump 7% on $100 million deal with US bank - CNBC TV18",
-        "Deal boost lifts Oracle Financial Services shares 7% in weak markets - Business Standard",
-        "Oracle Financial Services shares rise 7% on Rs 940-crore deal; more details - businesstoday.in"
-      ],
-      "sector_headlines": [
-        "Top 10 IT Stocks In India March 2026: A Comprehensive Guide For Investors - Samco",
-        "India's outsourcing industry is worth $300bn. Can it survive AI? - BBC"
-      ],
-      "global_headlines": [
-        "Oracle Financial Services Software Ltd is Rated Sell - Markets Mojo",
-        "Oracle Financial Services Software Limited Just Missed EPS By 7.3%: Here's What Analysts Think Will Happen Next - simplywall.st"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "Oracle Financial Services Software Limited",
-      "sector": "IT",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "Oracle Financial shares jump 7% on $100 million deal with US bank - CNBC TV18",
-      "Deal boost lifts Oracle Financial Services shares 7% in weak markets - Business Standard",
-      "Oracle Financial Services shares rise 7% on Rs 940-crore deal; more details - businesstoday.in",
-      "Top 10 IT Stocks In India March 2026: A Comprehensive Guide For Investors - Samco",
-      "India's outsourcing industry is worth $300bn. Can it survive AI? - BBC",
-      "Oracle Financial Services Software Ltd is Rated Sell - Markets Mojo",
-      "Oracle Financial Services Software Limited Just Missed EPS By 7.3%: Here's What Analysts Think Will Happen Next - simplywall.st"
-    ],
-    "sector": "IT",
-    "price": null,
-    "change_pct": null,
-    "volume": 7495.0,
-    "current_price": 6949.0,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "75%",
-      "risk_level": "Low",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "green"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong positive move of 5.30%",
-        "contribution_pct": 69
-      },
-      {
-        "label": "Volume 5.1x above 20-day average",
-        "contribution_pct": 31
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "volume_spike",
-        "score_add": 1.0,
-        "reason": "Volume 5.1x above 20-day average"
-      }
-    ]
-  },
-  {
-    "symbol": "ONGC",
-    "company": "Oil & Natural Gas Corporation Limited",
-    "decision": "BUY",
-    "confidence": 90,
-    "why_now": "BUY is driven by Price Movement and Volume Spike (Strong positive move of 4.03%).",
-    "risks": [],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": 2.0,
-        "weight": 1.0,
-        "direction": "positive",
-        "reason": "Strong positive move of 4.03%"
-      },
-      {
-        "type": "news_sentiment",
-        "score": 0.17,
-        "weight": 0.6,
-        "direction": "positive",
-        "reason": "News sentiment score: 0.17"
-      },
-      {
-        "type": "volume_spike",
-        "score": 1.0,
-        "weight": 0.9,
-        "direction": "positive",
-        "reason": "Volume 2.1x above 20-day average"
-      }
-    ],
-    "news": {
-      "score": 0.17,
-      "sentiment_label": "positive",
-      "signal": "positive",
-      "headlines": [
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-        "Is Oil and Natural Gas Corporation Limited's (NSE:ONGC) Recent Stock Performance Influenced By Its Fundamentals In Any Way? - simplywall.st",
-        "This is a key re-rating trigger for ONGC as per Macquarie, and its not higher oil prices - CNBC TV18",
-        "Centre assures \u2018adequate energy stocks\u2019 amid supply concerns over Iran-US war | India News - Hindustan Times",
-        "Energy Stocks Require Subsector Selection Rather Than Broad Exposure - Investing.com India",
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Surge Amid Sector Weakness - Markets Mojo"
-      ],
-      "company_headlines": [
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-        "Is Oil and Natural Gas Corporation Limited's (NSE:ONGC) Recent Stock Performance Influenced By Its Fundamentals In Any Way? - simplywall.st",
-        "This is a key re-rating trigger for ONGC as per Macquarie, and its not higher oil prices - CNBC TV18"
-      ],
-      "sector_headlines": [
-        "Centre assures \u2018adequate energy stocks\u2019 amid supply concerns over Iran-US war | India News - Hindustan Times",
-        "Energy Stocks Require Subsector Selection Rather Than Broad Exposure - Investing.com India"
-      ],
-      "global_headlines": [
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-        "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Surge Amid Sector Weakness - Markets Mojo"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "Oil & Natural Gas Corporation Limited",
-      "sector": "ENERGY",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-      "Is Oil and Natural Gas Corporation Limited's (NSE:ONGC) Recent Stock Performance Influenced By Its Fundamentals In Any Way? - simplywall.st",
-      "This is a key re-rating trigger for ONGC as per Macquarie, and its not higher oil prices - CNBC TV18",
-      "Centre assures \u2018adequate energy stocks\u2019 amid supply concerns over Iran-US war | India News - Hindustan Times",
-      "Energy Stocks Require Subsector Selection Rather Than Broad Exposure - Investing.com India",
-      "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Amid Mixed Price Movement - Markets Mojo",
-      "Oil & Natural Gas Corporation Ltd. Sees Exceptional Volume Surge Amid Sector Weakness - Markets Mojo"
-    ],
-    "sector": "ENERGY",
-    "price": null,
-    "change_pct": null,
-    "volume": 62758.0,
-    "current_price": 281.1,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "90%",
-      "risk_level": "Low",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "green"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong positive move of 4.03%",
-        "contribution_pct": 67
-      },
-      {
-        "label": "News sentiment score: 0.17",
-        "contribution_pct": 3
-      },
-      {
-        "label": "Volume 2.1x above 20-day average",
+        "deal_type": "insider_trade",
+        "score": 3.0,
+        "score_reason": "Promoter bought \u2014 Rs 3.4Cr personal funds",
         "contribution_pct": 30
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
+      },
       {
-        "type": "volume_spike",
-        "score_add": 1.0,
-        "reason": "Volume 2.1x above 20-day average"
-      }
-    ]
-  },
-  {
-    "symbol": "LICHSGFIN",
-    "company": "LIC Housing Finance Limited",
-    "decision": "BUY",
-    "confidence": 90,
-    "why_now": "BUY is driven by Price Movement and Volume Spike (Strong positive move of 2.09%).",
-    "risks": [],
-    "signals": [
-      {
-        "type": "price_movement",
+        "deal_type": "bulk_deal",
         "score": 2.0,
-        "weight": 1.0,
-        "direction": "positive",
-        "reason": "Strong positive move of 2.09%"
+        "score_reason": "Institutional bulk deal \u2014 5,00,000 shares",
+        "contribution_pct": 20
       },
       {
-        "type": "news_sentiment",
-        "score": 0.2,
-        "weight": 0.6,
-        "direction": "positive",
-        "reason": "News sentiment score: 0.2"
+        "deal_type": "news_sentiment",
+        "score": 1.0,
+        "score_reason": "Positive news sentiment",
+        "contribution_pct": 10
+      }
+    ],
+    "technical_patterns": [
+      {
+        "type": "ma_breakout",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Price crossed 200-day MA today"
       },
       {
         "type": "volume_spike",
+        "detected": true,
+        "score_add": 1.0,
+        "reason": "Volume 3.2x above 20-day average"
+      }
+    ],
+    "total_score": 8.0,
+    "decision": "STRONG_BUY",
+    "confidence": "HIGH",
+    "signals": [
+      {
+        "type": "insider_trade",
+        "score": 3.0,
+        "weight": 1.6,
+        "direction": "positive",
+        "reason": "Promoter bought \u2014 Rs 3.4Cr personal funds"
+      },
+      {
+        "type": "bulk_deal",
+        "score": 2.0,
+        "weight": 1.1,
+        "direction": "positive",
+        "reason": "Institutional bulk deal \u2014 5,00,000 shares"
+      },
+      {
+        "type": "news_sentiment",
+        "score": 1.0,
+        "weight": 0.6,
+        "direction": "positive",
+        "reason": "Positive news sentiment"
+      },
+      {
+        "type": "technical_pattern",
         "score": 1.0,
         "weight": 0.9,
         "direction": "positive",
-        "reason": "Volume 2.5x above 20-day average"
-      }
-    ],
-    "news": {
-      "score": 0.2,
-      "sentiment_label": "positive",
-      "signal": "positive",
-      "headlines": [
-        "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-        "LIC Housing Finance Ltd Stock: Key Insights into India's Leading Housing Lender for North American I - AD HOC NEWS",
-        "LIC Housing Finance Ltd rises for third straight session - Business Standard",
-        "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-        "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline",
-        "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-        "Can LIC Housing Finance\u2019s strong Q4 loan growth signal better days ahead? - Trade Brains"
-      ],
-      "company_headlines": [
-        "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-        "LIC Housing Finance Ltd Stock: Key Insights into India's Leading Housing Lender for North American I - AD HOC NEWS",
-        "LIC Housing Finance Ltd rises for third straight session - Business Standard"
-      ],
-      "sector_headlines": [
-        "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-        "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline"
-      ],
-      "global_headlines": [
-        "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-        "Can LIC Housing Finance\u2019s strong Q4 loan growth signal better days ahead? - Trade Brains"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "LIC Housing Finance Limited",
-      "sector": "BANKING",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-      "LIC Housing Finance Ltd Stock: Key Insights into India's Leading Housing Lender for North American I - AD HOC NEWS",
-      "LIC Housing Finance Ltd rises for third straight session - Business Standard",
-      "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-      "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline",
-      "LIC Housing Finance Ltd is Rated Sell - Markets Mojo",
-      "Can LIC Housing Finance\u2019s strong Q4 loan growth signal better days ahead? - Trade Brains"
-    ],
-    "sector": "BANKING",
-    "price": null,
-    "change_pct": null,
-    "volume": 17502.0,
-    "current_price": 506.65,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "90%",
-      "risk_level": "Low",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "green"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong positive move of 2.09%",
-        "contribution_pct": 66
+        "reason": "Price crossed 200-day MA today"
       },
       {
-        "label": "News sentiment score: 0.2",
-        "contribution_pct": 4
-      },
-      {
-        "label": "Volume 2.5x above 20-day average",
-        "contribution_pct": 30
+        "type": "technical_pattern",
+        "score": 1.0,
+        "weight": 0.9,
+        "direction": "positive",
+        "reason": "Volume 3.2x above 20-day average"
       }
     ],
-    "similar_events": [],
+    "signal_conflict": false,
+    "similar_events": [
+      {
+        "rank": 1,
+        "score": 0.3145604133605957,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
+      },
+      {
+        "rank": 2,
+        "score": 0.30401811003685,
+        "id": 18,
+        "ticker": "POWERGRID",
+        "company": "Power Grid Corporation of India Ltd",
+        "event_description": "New transmission project awards and stable regulated returns sustained defensive buying interest.",
+        "outcome_pct_30d": 2.7
+      },
+      {
+        "rank": 3,
+        "score": 0.26792752742767334,
+        "id": 12,
+        "ticker": "TATAMOTORS",
+        "company": "Tata Motors Ltd",
+        "event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+        "outcome_pct_30d": 11.6
+      }
+    ],
+    "historical_base_rate": "1/3 events gave >10% return",
+    "actionability": "STRONG_BUY",
+    "reasoning_card": [
+      "TITAN is showing a constructive and bullish setup, supported by institutional bulk activity, positive sentiment, technical confirmation.",
+      "This matters now because Insider Trade and bulk deal both point to positive momentum in this setup..",
+      "Confidence is high, and historical support is weak (1/3 events gave >10% return), so confirmation remains important."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 5.0,
+      "actionability": "STRONG_BUY",
+      "decision": "STRONG_BUY",
+      "confidence": "HIGH",
+      "historical_base_rate": "1/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 1
+    }
+  },
+  {
+    "ticker": "INFY",
+    "company": "Infosys Ltd",
+    "confluence_score": 5.0,
+    "why_now": "Bulk Deal and technical pattern both point to positive momentum in this setup.",
+    "current_price": 1820,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123457",
+    "filing_signals": [
+      {
+        "deal_type": "bulk_deal",
+        "score": 2.0,
+        "score_reason": "SBI MF bulk deal \u2014 8,00,000 shares",
+        "contribution_pct": 35
+      },
+      {
+        "deal_type": "regulatory_change",
+        "score": 1.0,
+        "score_reason": "SEBI new IT sector disclosure norms",
+        "contribution_pct": 17
+      }
+    ],
     "technical_patterns": [
       {
         "type": "volume_spike",
+        "detected": true,
         "score_add": 1.0,
-        "reason": "Volume 2.5x above 20-day average"
-      }
-    ]
-  },
-  {
-    "symbol": "PPLPHARMA",
-    "company": "Piramal Pharma Limited",
-    "decision": "BUY",
-    "confidence": 90,
-    "why_now": "BUY is driven by Price Movement and Volume Spike (Moderate positive move of 1.98%).",
-    "risks": [],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": 1.0,
-        "weight": 1.0,
-        "direction": "positive",
-        "reason": "Moderate positive move of 1.98%"
-      },
-      {
-        "type": "news_sentiment",
-        "score": 0.17,
-        "weight": 0.6,
-        "direction": "positive",
-        "reason": "News sentiment score: 0.17"
-      },
-      {
-        "type": "volume_spike",
-        "score": 1.0,
-        "weight": 0.9,
-        "direction": "positive",
         "reason": "Volume 2.4x above 20-day average"
       }
     ],
-    "news": {
-      "score": 0.17,
-      "sentiment_label": "positive",
-      "signal": "positive",
-      "headlines": [
-        "Piramal Pharma Ltd Stock Falls to 52-Week Low of Rs.141.4 - Markets Mojo",
-        "Piramal Pharma Ltd spurts 1.31%, gains for third straight session - Business Standard",
-        "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st",
-        "4 Best Pharma Stocks to Watch in 2026 - Equitymaster",
-        "Weight is over! Pharma stocks jump up to 4% as patent for Ozempic's key ingredient expires; what lies ahea - The Economic Times",
-        "Piramal Pharma Ltd is Rated Strong Sell - Markets Mojo",
-        "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st"
-      ],
-      "company_headlines": [
-        "Piramal Pharma Ltd Stock Falls to 52-Week Low of Rs.141.4 - Markets Mojo",
-        "Piramal Pharma Ltd spurts 1.31%, gains for third straight session - Business Standard",
-        "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st"
-      ],
-      "sector_headlines": [
-        "4 Best Pharma Stocks to Watch in 2026 - Equitymaster",
-        "Weight is over! Pharma stocks jump up to 4% as patent for Ozempic's key ingredient expires; what lies ahea - The Economic Times"
-      ],
-      "global_headlines": [
-        "Piramal Pharma Ltd is Rated Strong Sell - Markets Mojo",
-        "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "Piramal Pharma Limited",
-      "sector": "PHARMA",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "Piramal Pharma Ltd Stock Falls to 52-Week Low of Rs.141.4 - Markets Mojo",
-      "Piramal Pharma Ltd spurts 1.31%, gains for third straight session - Business Standard",
-      "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st",
-      "4 Best Pharma Stocks to Watch in 2026 - Equitymaster",
-      "Weight is over! Pharma stocks jump up to 4% as patent for Ozempic's key ingredient expires; what lies ahea - The Economic Times",
-      "Piramal Pharma Ltd is Rated Strong Sell - Markets Mojo",
-      "Piramal Pharma Limited (NSE:PPLPHARMA) Just Reported Earnings, And Analysts Cut Their Target Price - simplywall.st"
-    ],
-    "sector": "PHARMA",
-    "price": null,
-    "change_pct": null,
-    "volume": 4642.0,
-    "current_price": 143.87,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "90%",
-      "risk_level": "Low",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "green"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Moderate positive move of 1.98%",
-        "contribution_pct": 50
-      },
-      {
-        "label": "News sentiment score: 0.17",
-        "contribution_pct": 5
-      },
-      {
-        "label": "Volume 2.4x above 20-day average",
-        "contribution_pct": 45
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "volume_spike",
-        "score_add": 1.0,
-        "reason": "Volume 2.4x above 20-day average"
-      }
-    ]
-  },
-  {
-    "symbol": "SAMMAANCAP",
-    "company": "Sammaan Capital Limited",
-    "decision": "BUY",
-    "confidence": 100,
-    "why_now": "BUY is driven by Bulk Deal and Price Movement (Bulk deal activity of 5,422,986 shares).",
-    "risks": [],
+    "total_score": 4.0,
+    "decision": "STRONG_BUY",
+    "confidence": "HIGH",
     "signals": [
       {
         "type": "bulk_deal",
         "score": 2.0,
         "weight": 1.1,
         "direction": "positive",
-        "reason": "Bulk deal activity of 5,422,986 shares"
+        "reason": "SBI MF bulk deal \u2014 8,00,000 shares"
       },
       {
-        "type": "price_movement",
+        "type": "regulatory_change",
         "score": 1.0,
-        "weight": 1.0,
+        "weight": 0.8,
         "direction": "positive",
-        "reason": "Moderate positive move of 1.68%"
+        "reason": "SEBI new IT sector disclosure norms"
       },
       {
-        "type": "news_sentiment",
-        "score": 0.14,
-        "weight": 0.6,
-        "direction": "positive",
-        "reason": "News sentiment score: 0.14"
-      },
-      {
-        "type": "volume_spike",
+        "type": "technical_pattern",
         "score": 1.0,
         "weight": 0.9,
         "direction": "positive",
-        "reason": "Volume 2.6x above 20-day average"
+        "reason": "Volume 2.4x above 20-day average"
       }
     ],
-    "news": {
-      "score": 0.14,
-      "sentiment_label": "positive",
-      "signal": "positive",
-      "headlines": [
-        "Sammaan Capital shares soar 8% after RBI approves acquisition by Abu Dhabi's IHC - The Economic Times",
-        "Sammaan Capital Ltd. Share Price Today - Sammaan Capital Ltd. Stock Price Live NSE/BSE - CNBC TV18",
-        "Sammaan Capital shares rise 11% after RBI approves stake sale purchase by Abu Dhabi's IHC - Moneycontrol.com",
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-        "Sammaan Capital Ltd Technical Momentum Shifts Signal Mild Bullish Outlook - Markets Mojo",
-        "Sammaan Capital Receives Moody's Rating Upgrade to B1 Following SEBI Approval for Preferential Issue - scanx.trade"
-      ],
-      "company_headlines": [
-        "Sammaan Capital shares soar 8% after RBI approves acquisition by Abu Dhabi's IHC - The Economic Times",
-        "Sammaan Capital Ltd. Share Price Today - Sammaan Capital Ltd. Stock Price Live NSE/BSE - CNBC TV18",
-        "Sammaan Capital shares rise 11% after RBI approves stake sale purchase by Abu Dhabi's IHC - Moneycontrol.com"
-      ],
-      "sector_headlines": [
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco"
-      ],
-      "global_headlines": [
-        "Sammaan Capital Ltd Technical Momentum Shifts Signal Mild Bullish Outlook - Markets Mojo",
-        "Sammaan Capital Receives Moody's Rating Upgrade to B1 Following SEBI Approval for Preferential Issue - scanx.trade"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "Sammaan Capital Limited",
-      "sector": "GENERAL",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "Sammaan Capital shares soar 8% after RBI approves acquisition by Abu Dhabi's IHC - The Economic Times",
-      "Sammaan Capital Ltd. Share Price Today - Sammaan Capital Ltd. Stock Price Live NSE/BSE - CNBC TV18",
-      "Sammaan Capital shares rise 11% after RBI approves stake sale purchase by Abu Dhabi's IHC - Moneycontrol.com",
-      "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-      "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-      "Sammaan Capital Ltd Technical Momentum Shifts Signal Mild Bullish Outlook - Markets Mojo",
-      "Sammaan Capital Receives Moody's Rating Upgrade to B1 Following SEBI Approval for Preferential Issue - scanx.trade"
-    ],
-    "sector": "GENERAL",
-    "price": null,
-    "change_pct": null,
-    "volume": 183127.0,
-    "current_price": 149.35,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "100%",
-      "risk_level": "Low",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "green"
-    },
-    "confidence_breakdown": [
+    "signal_conflict": false,
+    "similar_events": [
       {
-        "label": "Bulk deal activity of 5,422,986 shares",
-        "contribution_pct": 53
+        "rank": 1,
+        "score": 0.35711872577667236,
+        "id": 20,
+        "ticker": "INDUSINDBK",
+        "company": "IndusInd Bank Ltd",
+        "event_description": "Higher provisioning and slower retail disbursement trend created near-term earnings uncertainty.",
+        "outcome_pct_30d": -2.8
       },
       {
-        "label": "Moderate positive move of 1.68%",
-        "contribution_pct": 24
+        "rank": 2,
+        "score": 0.3303002715110779,
+        "id": 2,
+        "ticker": "INFY",
+        "company": "Infosys Ltd",
+        "event_description": "Company revised full-year revenue guidance upward after better-than-expected digital services demand.",
+        "outcome_pct_30d": 7.4
       },
       {
-        "label": "News sentiment score: 0.14",
-        "contribution_pct": 2
-      },
-      {
-        "label": "Volume 2.6x above 20-day average",
-        "contribution_pct": 22
+        "rank": 3,
+        "score": 0.31489503383636475,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
       }
     ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "volume_spike",
-        "score_add": 1.0,
-        "reason": "Volume 2.6x above 20-day average"
-      }
-    ]
+    "historical_base_rate": "0/3 events gave >10% return",
+    "actionability": "STRONG_BUY",
+    "reasoning_card": [
+      "INFY is showing a constructive and bullish setup, supported by institutional bulk activity, technical confirmation.",
+      "This matters now because Bulk Deal and technical pattern both point to positive momentum in this setup..",
+      "Confidence is high, and historical support is weak (0/3 events gave >10% return), so confirmation remains important."
+    ],
+    "confidence_breakdown": {
+      "confluence_score": 5.0,
+      "actionability": "STRONG_BUY",
+      "decision": "STRONG_BUY",
+      "confidence": "HIGH",
+      "historical_base_rate": "0/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 0
+    }
   },
   {
-    "symbol": "PGEL",
-    "company": "PG Electroplast Limited",
-    "decision": "SELL",
-    "confidence": 60,
-    "why_now": "Key downside driver is Price Movement (Strong negative move of 5.84%).",
-    "risks": [
-      "Strong negative move of 5.84%"
+    "ticker": "HDFCBANK",
+    "company": "HDFC Bank Ltd",
+    "confluence_score": 4.21,
+    "why_now": "Insider Trade is supportive, but news sentiment is acting as a drag. Mixed direction across signals reduces conviction.",
+    "current_price": 1640,
+    "date": "2024-03-12",
+    "source_url": "https://bseindia.com/filing/123458",
+    "filing_signals": [
+      {
+        "deal_type": "insider_trade",
+        "score": 2.0,
+        "score_reason": "Director bought \u2014 Rs 0.85Cr",
+        "contribution_pct": 40
+      },
+      {
+        "deal_type": "news_sentiment",
+        "score": -1.0,
+        "score_reason": "Negative news \u2014 proceed cautiously",
+        "contribution_pct": 0
+      }
     ],
+    "technical_patterns": [],
+    "total_score": 1.0,
+    "decision": "HOLD",
+    "confidence": "LOW",
     "signals": [
       {
-        "type": "price_movement",
-        "score": -2.0,
-        "weight": 1.0,
-        "direction": "negative",
-        "reason": "Strong negative move of 5.84%"
-      }
-    ],
-    "news": {
-      "score": 0.09,
-      "sentiment_label": "neutral",
-      "signal": null,
-      "headlines": [
-        "PG Electroplast shares rise for 3rd day; should you buy, hold or sell? - MSN",
-        "PG Electroplast shares up 9% as room AC production 'almost normalised' after LPG alternative found - upstox.com",
-        "PG Electroplast Shares Jump As AC Production Nears Normal After LPG Disruption - BW Businessworld",
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-        "Should Weakness in PG Electroplast Limited's (NSE:PGEL) Stock Be Seen As A Sign That Market Will Correct The Share Price Given Decent Financials? - simplywall.st",
-        "PG Electroplast Ltd Downgraded to Sell Amid Technical Weakness and Valuation Concerns - Markets Mojo"
-      ],
-      "company_headlines": [
-        "PG Electroplast shares rise for 3rd day; should you buy, hold or sell? - MSN",
-        "PG Electroplast shares up 9% as room AC production 'almost normalised' after LPG alternative found - upstox.com",
-        "PG Electroplast Shares Jump As AC Production Nears Normal After LPG Disruption - BW Businessworld"
-      ],
-      "sector_headlines": [
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco"
-      ],
-      "global_headlines": [
-        "Should Weakness in PG Electroplast Limited's (NSE:PGEL) Stock Be Seen As A Sign That Market Will Correct The Share Price Given Decent Financials? - simplywall.st",
-        "PG Electroplast Ltd Downgraded to Sell Amid Technical Weakness and Valuation Concerns - Markets Mojo"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "PG Electroplast Limited",
-      "sector": "GENERAL",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "PG Electroplast shares rise for 3rd day; should you buy, hold or sell? - MSN",
-      "PG Electroplast shares up 9% as room AC production 'almost normalised' after LPG alternative found - upstox.com",
-      "PG Electroplast Shares Jump As AC Production Nears Normal After LPG Disruption - BW Businessworld",
-      "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-      "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-      "Should Weakness in PG Electroplast Limited's (NSE:PGEL) Stock Be Seen As A Sign That Market Will Correct The Share Price Given Decent Financials? - simplywall.st",
-      "PG Electroplast Ltd Downgraded to Sell Amid Technical Weakness and Valuation Concerns - Markets Mojo"
-    ],
-    "sector": "GENERAL",
-    "price": null,
-    "change_pct": null,
-    "volume": 5633.0,
-    "current_price": 487.0,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "60%",
-      "risk_level": "Medium",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "red"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong negative move of 5.84%",
-        "contribution_pct": 100
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "technical_unavailable",
-        "reason": "Technical data not available, decision based on fundamentals and sentiment"
-      }
-    ]
-  },
-  {
-    "symbol": "SHRIRAMFIN",
-    "company": "Shriram Finance Limited",
-    "decision": "SELL",
-    "confidence": 35,
-    "why_now": "Key downside driver is Price Movement (Strong negative move of 5.54%).",
-    "risks": [
-      "Strong negative move of 5.54%"
-    ],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": -2.0,
-        "weight": 1.0,
-        "direction": "negative",
-        "reason": "Strong negative move of 5.54%"
+        "type": "insider_trade",
+        "score": 2.0,
+        "weight": 1.6,
+        "direction": "positive",
+        "reason": "Director bought \u2014 Rs 0.85Cr"
       },
       {
         "type": "news_sentiment",
-        "score": 0.11,
+        "score": -1.0,
         "weight": 0.6,
-        "direction": "positive",
-        "reason": "News sentiment score: 0.11"
+        "direction": "negative",
+        "reason": "Negative news \u2014 proceed cautiously"
       }
     ],
-    "news": {
-      "score": 0.11,
-      "sentiment_label": "positive",
-      "signal": "positive",
-      "headlines": [
-        "SHRIRAM FINANCE LIMITED Option Chain - Live SHRIRAM FINANCE LIMITED Option Chain Data, OI & Price - upstox.com",
-        "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-        "Shriram Finance Opens Special Window for Physical Share Transfer and Dematerialisation - scanx.trade",
-        "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-        "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline",
-        "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-        "Shriram Finance Ltd Rallies 4.22% and Approaches Key Moving Averages Amid Mixed Market Trends - Markets Mojo"
-      ],
-      "company_headlines": [
-        "SHRIRAM FINANCE LIMITED Option Chain - Live SHRIRAM FINANCE LIMITED Option Chain Data, OI & Price - upstox.com",
-        "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-        "Shriram Finance Opens Special Window for Physical Share Transfer and Dematerialisation - scanx.trade"
-      ],
-      "sector_headlines": [
-        "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-        "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline"
-      ],
-      "global_headlines": [
-        "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-        "Shriram Finance Ltd Rallies 4.22% and Approaches Key Moving Averages Amid Mixed Market Trends - Markets Mojo"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "Shriram Finance Limited",
-      "sector": "BANKING",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "SHRIRAM FINANCE LIMITED Option Chain - Live SHRIRAM FINANCE LIMITED Option Chain Data, OI & Price - upstox.com",
-      "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-      "Shriram Finance Opens Special Window for Physical Share Transfer and Dematerialisation - scanx.trade",
-      "Top 12 Bank Stocks To Buy In India March 2026 - Samco",
-      "Why Banking and Insurance Stocks Are Falling Today - March 06, 2026 - India Infoline",
-      "Shriram Finance Ltd is Rated Buy by MarketsMOJO - Markets Mojo",
-      "Shriram Finance Ltd Rallies 4.22% and Approaches Key Moving Averages Amid Mixed Market Trends - Markets Mojo"
-    ],
-    "sector": "BANKING",
-    "price": null,
-    "change_pct": null,
-    "volume": 50842.0,
-    "current_price": 903.0,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "35%",
-      "risk_level": "High",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "red"
-    },
-    "confidence_breakdown": [
+    "signal_conflict": true,
+    "similar_events": [
       {
-        "label": "Strong negative move of 5.54%",
-        "contribution_pct": 97
+        "rank": 1,
+        "score": 0.26232174038887024,
+        "id": 15,
+        "ticker": "WIPRO",
+        "company": "Wipro Ltd",
+        "event_description": "Weak large-deal conversion and cautious client spending commentary led to softer outlook.",
+        "outcome_pct_30d": -4.4
       },
       {
-        "label": "News sentiment score: 0.11",
-        "contribution_pct": 3
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
+        "rank": 2,
+        "score": 0.25567254424095154,
+        "id": 1,
+        "ticker": "TCS",
+        "company": "Tata Consultancy Services Ltd",
+        "event_description": "Large multi-year banking transformation deal win in Europe announced with strong order book commentary.",
+        "outcome_pct_30d": 6.8
+      },
       {
-        "type": "technical_unavailable",
-        "reason": "Technical data not available, decision based on fundamentals and sentiment"
-      }
-    ]
-  },
-  {
-    "symbol": "PAYTM",
-    "company": "One 97 Communications Limited",
-    "decision": "SELL",
-    "confidence": 60,
-    "why_now": "Key downside driver is Price Movement (Strong negative move of 5.26%).",
-    "risks": [
-      "Strong negative move of 5.26%"
-    ],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": -2.0,
-        "weight": 1.0,
-        "direction": "negative",
-        "reason": "Strong negative move of 5.26%"
+        "rank": 3,
+        "score": 0.21231944859027863,
+        "id": 12,
+        "ticker": "TATAMOTORS",
+        "company": "Tata Motors Ltd",
+        "event_description": "JLR margin recovery and domestic EV momentum drove earnings upgrade by brokerages.",
+        "outcome_pct_30d": 11.6
       }
     ],
-    "news": {
-      "score": 0.05,
-      "sentiment_label": "neutral",
-      "signal": null,
-      "headlines": [
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Mixed Market Signals - Markets Mojo",
-        "One 97 Communications Subsidiary Receives \u20b9142 Crore Loan Waiver from AGTech Media Holdings - scanx.trade",
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Price Weakness - Markets Mojo",
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-        "One 97 Communications Ltd Upgraded to Hold by MarketsMOJO Amid Strong Financials and Technical Shift - Markets Mojo"
-      ],
-      "company_headlines": [
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Mixed Market Signals - Markets Mojo",
-        "One 97 Communications Subsidiary Receives \u20b9142 Crore Loan Waiver from AGTech Media Holdings - scanx.trade",
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Price Weakness - Markets Mojo"
-      ],
-      "sector_headlines": [
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco"
-      ],
-      "global_headlines": [
-        "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-        "One 97 Communications Ltd Upgraded to Hold by MarketsMOJO Amid Strong Financials and Technical Shift - Markets Mojo"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "One 97 Communications Limited",
-      "sector": "GENERAL",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Mixed Market Signals - Markets Mojo",
-      "One 97 Communications Subsidiary Receives \u20b9142 Crore Loan Waiver from AGTech Media Holdings - scanx.trade",
-      "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Price Weakness - Markets Mojo",
-      "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-      "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-      "One 97 Communications Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-      "One 97 Communications Ltd Upgraded to Hold by MarketsMOJO Amid Strong Financials and Technical Shift - Markets Mojo"
+    "historical_base_rate": "1/3 events gave >10% return",
+    "actionability": "HOLD",
+    "reasoning_card": [
+      "HDFCBANK is showing a constructive and balanced setup, supported by mixed filing signals.",
+      "This matters now because Insider Trade is supportive, but news sentiment is acting as a drag. Mixed direction across signals reduces conviction. Signal directions are mixed, so conviction is tempered.",
+      "Confidence is low, and historical support is weak (1/3 events gave >10% return), so confirmation remains important."
     ],
-    "sector": "GENERAL",
-    "price": null,
-    "change_pct": null,
-    "volume": 2188.0,
-    "current_price": 1009.8,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "60%",
-      "risk_level": "Medium",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "red"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong negative move of 5.26%",
-        "contribution_pct": 100
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "technical_unavailable",
-        "reason": "Technical data not available, decision based on fundamentals and sentiment"
-      }
-    ]
-  },
-  {
-    "symbol": "PHOENIXLTD",
-    "company": "The Phoenix Mills Limited",
-    "decision": "SELL",
-    "confidence": 60,
-    "why_now": "Key downside driver is Price Movement (Strong negative move of 5.03%).",
-    "risks": [
-      "Strong negative move of 5.03%"
-    ],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": -2.0,
-        "weight": 1.0,
-        "direction": "negative",
-        "reason": "Strong negative move of 5.03%"
-      }
-    ],
-    "news": {
-      "score": 0.07,
-      "sentiment_label": "neutral",
-      "signal": null,
-      "headlines": [
-        "THE PHOENIX MILLS LTD Option Chain - Live THE PHOENIX MILLS LTD Option Chain Data, OI & Price - upstox.com",
-        "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS",
-        "Investor Optimism Abounds The Phoenix Mills Limited (NSE:PHOENIXLTD) But Growth Is Lacking - simplywall.st",
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-        "Phoenix Mills Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-        "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS"
-      ],
-      "company_headlines": [
-        "THE PHOENIX MILLS LTD Option Chain - Live THE PHOENIX MILLS LTD Option Chain Data, OI & Price - upstox.com",
-        "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS",
-        "Investor Optimism Abounds The Phoenix Mills Limited (NSE:PHOENIXLTD) But Growth Is Lacking - simplywall.st"
-      ],
-      "sector_headlines": [
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco"
-      ],
-      "global_headlines": [
-        "Phoenix Mills Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-        "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "The Phoenix Mills Limited",
-      "sector": "GENERAL",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "THE PHOENIX MILLS LTD Option Chain - Live THE PHOENIX MILLS LTD Option Chain Data, OI & Price - upstox.com",
-      "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS",
-      "Investor Optimism Abounds The Phoenix Mills Limited (NSE:PHOENIXLTD) But Growth Is Lacking - simplywall.st",
-      "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-      "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-      "Phoenix Mills Ltd Sees Sharp Open Interest Surge Amid Bearish Price Action - Markets Mojo",
-      "The Phoenix Mills Ltd stock eyes recovery amid India's retail boom and easing interest rates - AD HOC NEWS"
-    ],
-    "sector": "GENERAL",
-    "price": null,
-    "change_pct": null,
-    "volume": 478.0,
-    "current_price": 1493.0,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "60%",
-      "risk_level": "Medium",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "red"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong negative move of 5.03%",
-        "contribution_pct": 100
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "technical_unavailable",
-        "reason": "Technical data not available, decision based on fundamentals and sentiment"
-      }
-    ]
-  },
-  {
-    "symbol": "UPL",
-    "company": "UPL Limited",
-    "decision": "SELL",
-    "confidence": 60,
-    "why_now": "Key downside driver is Price Movement (Strong negative move of 4.97%).",
-    "risks": [
-      "Strong negative move of 4.97%"
-    ],
-    "signals": [
-      {
-        "type": "price_movement",
-        "score": -2.0,
-        "weight": 1.0,
-        "direction": "negative",
-        "reason": "Strong negative move of 4.97%"
-      }
-    ],
-    "news": {
-      "score": 0.07,
-      "sentiment_label": "neutral",
-      "signal": null,
-      "headlines": [
-        "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com",
-        "UPL Ltd. is Rated Sell by MarketsMOJO - Markets Mojo",
-        "UPL Share Price Cracks As Nuvama Downgrades Stock After Restructuring Proposal - NDTV Profit",
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-        "UPL Ltd. Technical Momentum Shifts Amid Mixed Indicator Signals - Markets Mojo",
-        "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com"
-      ],
-      "company_headlines": [
-        "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com",
-        "UPL Ltd. is Rated Sell by MarketsMOJO - Markets Mojo",
-        "UPL Share Price Cracks As Nuvama Downgrades Stock After Restructuring Proposal - NDTV Profit"
-      ],
-      "sector_headlines": [
-        "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-        "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco"
-      ],
-      "global_headlines": [
-        "UPL Ltd. Technical Momentum Shifts Amid Mixed Indicator Signals - Markets Mojo",
-        "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com"
-      ],
-      "deal_type": "news_sentiment",
-      "is_fallback": false,
-      "source_status": "live",
-      "company": "UPL Limited",
-      "sector": "GENERAL",
-      "country": "India",
-      "time_window": "24h"
-    },
-    "news_headlines": [
-      "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com",
-      "UPL Ltd. is Rated Sell by MarketsMOJO - Markets Mojo",
-      "UPL Share Price Cracks As Nuvama Downgrades Stock After Restructuring Proposal - NDTV Profit",
-      "ICICI Lombard General Insurance Stock: A Key Player in India's Expanding Insurance Market for Global - AD HOC NEWS",
-      "Top 6 Insurance Stocks To Buy In India In March 2026 - Samco",
-      "UPL Ltd. Technical Momentum Shifts Amid Mixed Indicator Signals - Markets Mojo",
-      "UPL share price tanks 14% following the company's reorganisation plan; finer details and what analysts said - upstox.com"
-    ],
-    "sector": "GENERAL",
-    "price": null,
-    "change_pct": null,
-    "volume": 6031.0,
-    "current_price": 594.2,
-    "date": "2026-03-29",
-    "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-    "actionability": {
-      "confidence_pct": "60%",
-      "risk_level": "Medium",
-      "time_horizon": "Short-term (2-4 weeks)",
-      "color": "red"
-    },
-    "confidence_breakdown": [
-      {
-        "label": "Strong negative move of 4.97%",
-        "contribution_pct": 100
-      }
-    ],
-    "similar_events": [],
-    "technical_patterns": [
-      {
-        "type": "technical_unavailable",
-        "reason": "Technical data not available, decision based on fundamentals and sentiment"
-      }
-    ]
+    "confidence_breakdown": {
+      "confluence_score": 4.21,
+      "actionability": "HOLD",
+      "decision": "HOLD",
+      "confidence": "LOW",
+      "historical_base_rate": "1/3 events gave >10% return",
+      "similar_events_count": 3,
+      "similar_events_above_10pct": 1
+    }
   }
 ]

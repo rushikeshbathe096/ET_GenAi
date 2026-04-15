@@ -11,14 +11,14 @@ from sqlalchemy.orm import Session
 
 from database import models, db, crud
 from routers import auth_router, stock_router, market_router, wishlist_router, opportunities_router
-from pipeline.run_pipeline import analyze_stock as run_pipeline_analyze_stock, run_market_pipeline
+from pipeline.run_pipeline import run_market_pipeline
 
 # Initialize database tables
 models.Base.metadata.create_all(bind=db.engine)
 
 app = FastAPI(
-    title="ET GenAI Stock Platform",
-    description="AI-powered autonomous stock signal generation and decision platform for Indian markets",
+    title="Alpha Node Terminal API",
+    description="Institutional-grade AI-powered stock intelligence engine",
     version="2.1.0"
 )
 
@@ -36,6 +36,8 @@ app.include_router(auth_router.router)
 app.include_router(stock_router.router)
 app.include_router(market_router.router)
 app.include_router(opportunities_router.router)
+app.include_router(wishlist_router.router)
+app.include_router(wishlist_router.router_dashboard)
 
 @app.get("/")
 def read_root():
@@ -47,37 +49,42 @@ def read_root():
             "Market": "/market/overview",
             "Signals": "/market/signals",
             "Analysis": "/stock/{ID}",
-            "Pipeline": "/pipeline/run"
+            "Pipeline": "/pipeline/run",
+            "Watchlist": "/wishlist",
+            "Dashboard": "/dashboard"
         }
     }
 
-class WishlistItem(BaseModel):
-    user_id: int = 1
-    symbol: str
-
 def save_output_cache(results: list):
-    """Refreshes the high-performance signal cache for fast delivery."""
+    """Refreshes the high-performance signal cache."""
     try:
-        cache_dir = "data/cache"
+        cache_dir = "data/signals"
         os.makedirs(cache_dir, exist_ok=True)
         
-        # Today's signal cache as defined in project summary 8.2
+        today_str = date_cls.today().strftime("%Y-%m-%d")
+        response = {
+            "status": "success",
+            "count": len(results),
+            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "generated_date": today_str,
+            "opportunities": results
+        }
+        
+        # Consistent with opportunities_router cache path
         cache_file = os.path.join(cache_dir, "today.json")
         with open(cache_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
+            json.dump(response, f, indent=2)
             
         # Historical archive
-        archive_dir = "data/signals"
-        os.makedirs(archive_dir, exist_ok=True)
-        archive_file = os.path.join(archive_dir, f"{date_cls.today().strftime('%Y-%m-%d')}.json")
+        archive_file = os.path.join(cache_dir, f"{today_str}.json")
         with open(archive_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
+            json.dump(response, f, indent=2)
             
     except Exception as ce:
         print(f"Cache Layer Failure: {ce}")
 
 def persist_to_db(results: list):
-    """Atomically commits pipeline results to the SQLite record store."""
+    """Atomically commits pipeline results to the SQLite store."""
     session = db.SessionLocal()
     try:
         today_str = date_cls.today().strftime("%Y-%m-%d")
@@ -106,7 +113,7 @@ def persist_to_db(results: list):
 
 @app.post("/pipeline/run")
 def trigger_pipeline():
-    """Manual trigger for the full Intelligence Orchestrator (M1 -> M2 -> M3)."""
+    """Manual trigger for the full Intelligence Orchestrator."""
     start_time = time.time()
     try:
         # Step 1: Execute market-wide signal detection logic
@@ -140,61 +147,3 @@ def get_latest_signals():
             pass
     raise HTTPException(status_code=404, detail="Signal Node offline")
 
-@app.get("/dashboard")
-def legacy_dashboard_proxy(user_id: int = Query(default=1)):
-    """Watchlist-driven analysis for personal dashboard sections."""
-    session = db.SessionLocal()
-    try:
-        items = crud.get_wishlist(session, user_id=user_id)
-        symbols = [item.symbol for item in items]
-    finally:
-        session.close()
-
-    # Fallback universe if list is empty
-    if not symbols:
-        symbols = ["TCS", "INFY", "RELIANCE"]
-
-    analyzed = []
-    for s in symbols:
-        try:
-            analyzed.append(run_pipeline_analyze_stock(s))
-        except:
-            continue
-
-    return {
-        "status": "success",
-        "data": {
-            "user_id": user_id,
-            "stocks": sorted(analyzed, key=lambda x: int(x.get("confidence", 0)), reverse=True)
-        }
-    }
-
-# Wishlist compatibility endpoints as per Phase 3 requirements
-@app.get("/wishlist")
-def get_watchlist(user_id: int = 1):
-    session = db.SessionLocal()
-    try:
-        items = crud.get_wishlist(session, user_id=user_id)
-        return {"status": "success", "data": {"symbols": [i.symbol for i in items]}}
-    finally:
-        session.close()
-
-@app.post("/wishlist/add")
-def add_to_watchlist(payload: WishlistItem):
-    session = db.SessionLocal()
-    try:
-        symbol = payload.symbol.upper().strip()
-        crud.add_to_wishlist(session, user_id=payload.user_id, symbol=symbol)
-        return {"status": "success", "message": f"{symbol} added to node"}
-    finally:
-        session.close()
-
-@app.delete("/wishlist/remove")
-def remove_from_watchlist(user_id: int = 1, symbol: str = Query(...)):
-    session = db.SessionLocal()
-    try:
-        symbol = symbol.upper().strip()
-        crud.remove_from_wishlist(session, user_id=user_id, symbol=symbol)
-        return {"status": "success", "message": f"{symbol} delinked"}
-    finally:
-        session.close()

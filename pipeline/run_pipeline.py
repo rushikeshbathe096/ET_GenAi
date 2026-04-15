@@ -1,15 +1,15 @@
 from datetime import date
 from typing import Any, Dict, List
+import time
+import json
+import os
 
 from agents.analysis_agent import compute_signals, check_technical_patterns
-from agents.decision_agent import enrich_signal
-from agents.utils.data_loader import load_parsed_data, load_latest_data
-from agents.decision_agent import generate_decision
+from agents.decision_agent import enrich_signal, generate_decision
 from agents.explanation_agent import generate_explanation
 from agents.sources.news import fetch_news_sentiment
-from agents.sources.nse_source import fetch_price_data, fetch_bulk_deals, fetch_insider_trades
+from agents.sources.nse_source import fetch_price_data, fetch_bulk_deals, fetch_insider_trades, fetch_indices, _fetch_from_yfinance
 from nsepython import nse_get_top_gainers, nse_get_top_losers
-
 
 def _normalize_symbol(symbol: str) -> str:
     normalized = str(symbol or "").strip().upper()
@@ -36,10 +36,9 @@ def get_market_tickers() -> list[str]:
         tickers = ["TCS", "INFY", "HDFCBANK", "RELIANCE", "ONGC"]
     return list(dict.fromkeys(tickers))
 
-
 def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
     decision = str(payload.get("decision") or "HOLD").upper()
-    if decision not in {"BUY", "SELL", "HOLD"}:
+    if decision not in {"BUY", "SELL", "HOLD", "STRONG_BUY", "STRONG_SELL"}:
         decision = "HOLD"
 
     try:
@@ -48,50 +47,20 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         confidence = 0
     confidence = max(0, min(100, confidence))
 
-    risks = payload.get("risks", [])
-    if not isinstance(risks, list):
-        risks = [str(risks)] if risks is not None else []
-
-    signals = payload.get("signals", [])
-    if not isinstance(signals, list):
-        signals = []
-
-    price = payload.get("price", None)
-    try:
-        price = float(price) if price is not None else None
-    except (TypeError, ValueError):
-        price = None
-
-    change_pct = payload.get("change_pct", None)
-    try:
-        change_pct = float(change_pct) if change_pct is not None else None
-    except (TypeError, ValueError):
-        change_pct = None
-
-    volume = payload.get("volume", None)
-    if volume is not None:
-        try:
-            volume = float(volume)
-        except (TypeError, ValueError):
-            volume = None
-
-    price_data = payload.get("price_data", {}) if isinstance(payload.get("price_data", {}), dict) else {}
-
     return {
         "symbol": str(payload.get("symbol") or ""),
         "company": str(payload.get("company") or ""),
         "decision": decision,
         "confidence": confidence,
         "why_now": str(payload.get("why_now") or payload.get("why") or ""),
-        "risks": risks,
-        "signals": signals,
+        "risks": payload.get("risks", []),
+        "signals": payload.get("signals", []),
         "news": payload.get("news", {}),
         "news_headlines": payload.get("news_headlines", []),
         "sector": str(payload.get("sector", "")),
-        "price": price_data.get("price"),
-        "change_pct": price_data.get("change_pct"),
-        "volume": volume,
-        "current_price": payload.get("current_price"),
+        "price": payload.get("current_price"),
+        "change_pct": payload.get("change_pct"),
+        "volume": payload.get("volume"),
         "date": payload.get("date"),
         "disclaimer": payload.get("disclaimer"),
         "actionability": payload.get("actionability", {}),
@@ -100,66 +69,6 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "technical_patterns": payload.get("technical_patterns", []),
     }
 
-
-def run_pipeline() -> Dict[str, Any]:
-    today = "2026-03-27"
-    parsed_data = load_parsed_data(today)
-def fetch_data(symbol: str) -> Dict[str, Any]:
-    normalized = _normalize_symbol(symbol)
-
-    price_data = fetch_price_data(normalized)
-    insider_data = fetch_insider_trades(normalized)
-    bulk_deals = fetch_bulk_deals(normalized)
-
-    company = str(price_data.get("company") or normalized)
-    news = fetch_news_sentiment(company)
-
-    return {
-        "symbol": normalized,
-        "company": company,
-        "price_data": price_data,
-        "insider_data": insider_data if isinstance(insider_data, list) else [],
-        "bulk_deals": bulk_deals if isinstance(bulk_deals, list) else [],
-        "news": news if isinstance(news, dict) else {},
-    }
-
-
-def analyze_stock(symbol: str) -> Dict[str, Any]:
-    parsed_data = load_latest_data()
-
-    target_stock = None
-    for stock in parsed_data:
-        if not isinstance(stock, dict):
-            continue
-        if str(stock.get("ticker", "")).upper() == symbol.upper():
-            target_stock = stock
-            break
-
-    if not target_stock:
-        return {
-            "symbol": symbol,
-            "decision": "HOLD",
-            "confidence": 0,
-            "why_now": f"No data available for symbol {symbol}.",
-            "risks": ["Symbol not found in latest parsed data"],
-            "signals": []
-        }
-
-    stock_signals = compute_signals([target_stock])
-    stock_decision = generate_decision(stock_signals)
-
-    return {
-        "symbol": str(target_stock.get("ticker", "")),
-        "company": str(target_stock.get("company", "")),
-        "decision": stock_decision["decision"],
-        "confidence": stock_decision["confidence"],
-        "why_now": stock_decision["why_now"],
-        "risks": stock_decision["risks"],
-        "signals": stock_decision["signals"],
-    }
-
-
-__all__ = ["run_pipeline", "generate_decision", "compute_signals", "load_parsed_data", "analyze_stock"]
 def _build_actionability(decision: str, confidence: int) -> dict:
     if decision in ("BUY", "STRONG_BUY"):
         color = "green"
@@ -181,7 +90,6 @@ def _build_actionability(decision: str, confidence: int) -> dict:
         "time_horizon": "Short-term (2-4 weeks)",
         "color": color
     }
-
 
 def _build_confidence_breakdown(signals: list) -> list:
     weighted_scores = [abs(float(s.get("score", 0)) * float(s.get("weight", 1.0))) for s in signals]
@@ -216,8 +124,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
 
     signals = compute_signals(payload)
     
-    # 2. News Signal Wiring (0.1 threshold, 0.6 weight)
-    # Remove any existing news_sentiment to avoid duplicates if compute_signals already added one
+    # News Signal Wiring
     signals = [s for s in signals if s.get("type") != "news_sentiment"]
     news_data = payload.get("news", {})
     news_score = news_data.get("score")
@@ -230,7 +137,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
             "reason": f"News sentiment score: {news_score}"
         })
 
-    # 1. Technical Patterns Wiring
+    # Technical Patterns Wiring
     tech_patterns = check_technical_patterns(normalized)
     for p in tech_patterns:
         if p.get("score_add", 0) > 0:
@@ -242,17 +149,16 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
                 "reason": p["reason"]
             })
 
-    decision = generate_decision(signals)
-    explanation = generate_explanation(decision, signals)
+    decision_obj = generate_decision(signals)
+    explanation = generate_explanation(decision_obj, signals)
 
-    computed_decision = str(decision.get("decision", "HOLD")).upper()
+    computed_decision = str(decision_obj.get("decision", "HOLD")).upper()
     try:
-        computed_confidence = int(decision.get("confidence", 0))
+        computed_confidence = int(decision_obj.get("confidence", 0))
     except (TypeError, ValueError):
         computed_confidence = 0
 
     enriched = enrich_signal(payload)
-
     current_similar_events = enriched.get("similar_events", [])
     cleaned_similar_events = []
     for event in current_similar_events:
@@ -271,12 +177,13 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "volume": payload.get("price_data", {}).get("volume"),
         "decision": computed_decision,
         "confidence": computed_confidence,
-        "why_now": explanation.get("why_now", decision.get("why_now", "")),
-        "risks": explanation.get("risks", decision.get("risks", [])),
+        "why_now": explanation.get("why_now", decision_obj.get("why_now", "")),
+        "risks": explanation.get("risks", decision_obj.get("risks", [])),
         "signals": signals,
         "news": payload["news"],
         "news_headlines": payload["news"].get("headlines", []) if isinstance(payload.get("news"), dict) else [],
         "current_price": payload["price_data"].get("price"),
+        "change_pct": payload["price_data"].get("change_pct"),
         "date": date.today().strftime("%Y-%m-%d"),
         "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
         "actionability": _build_actionability(computed_decision, computed_confidence),
@@ -288,7 +195,6 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
 
     return _sanitize_output(output)
 
-
 def run_pipeline(symbols: List[str]) -> List[Dict[str, Any]]:
     results = []
     for symbol in symbols:
@@ -298,7 +204,6 @@ def run_pipeline(symbols: List[str]) -> List[Dict[str, Any]]:
             continue
     return results
 
-
 def run_market_pipeline() -> list[dict]:
     tickers = get_market_tickers()
     results = []
@@ -306,18 +211,21 @@ def run_market_pipeline() -> list[dict]:
         try:
             result = analyze_stock(ticker)
             if result:
-                # Ensure disclaimer is present as requested for Phase 4
-                result["disclaimer"] = "Educational analysis only. Not SEBI-registered investment advice."
                 results.append(result)
         except Exception as e:
             print(f"Failed for {ticker}: {e}")
     return results
 
-
-__all__ = ["analyze_stock", "run_pipeline", "run_market_pipeline", "get_market_tickers"]
 def get_market_summary() -> dict:
-    from agents.sources.nse_source import fetch_indices, _fetch_from_yfinance
-    indices = fetch_indices()
+    from concurrent.futures import ThreadPoolExecutor
+    
+    # Parallel fetching of indices
+    with ThreadPoolExecutor(max_workers=6) as executor:
+        indices_future = executor.submit(fetch_indices)
+        vix_future = executor.submit(_fetch_from_yfinance, "^INDIAVIX")
+        
+        indices = indices_future.result() or []
+        vix = vix_future.result()
     
     sectors = []
     for idx in indices:
@@ -328,8 +236,9 @@ def get_market_summary() -> dict:
             "change": idx["change"]
         })
     
-    vix = _fetch_from_yfinance("^INDIAVIX")
-    vix_val = vix.get("price") if vix else 15.0
+    vix_val = 15.0
+    if vix and "events" in vix and len(vix["events"]) > 0:
+        vix_val = vix["events"][0].get("price", 15.0)
     
     volatility = "Low"
     if vix_val > 20: volatility = "High"
@@ -343,18 +252,38 @@ def get_market_summary() -> dict:
         "volume_depth": "1.2x 20-Day Avg"
     }
 
-__all__ = ["analyze_stock", "run_pipeline", "run_market_pipeline", "get_market_tickers", "get_market_summary"]
-
-def get_analytics_summary() -> dict:
-    from pipeline.run_pipeline import run_market_pipeline
-    signals = run_market_pipeline()
+def get_analytics_summary(signals: List[Dict[str, Any]] = None) -> dict:
+    # Use provided signals or run a quick scan
+    if signals is None:
+        signals = run_market_pipeline()
     
     wr = 72
     avg_s = 8.2
     if signals:
-        posists = [s for s in signals if float(s.get("change_pct", 0)) > 0]
-        wr = int((len(posists) / len(signals)) * 100)
-        avg_s = sum(float(s.get("score", 0)) for s in signals) / len(signals)
+        # Robust parsing of change_pct and confidence
+        valid_signals = []
+        for s in signals:
+            try:
+                change = float(s.get("change_pct") or 0)
+                conf_raw = s.get("confidence", 0)
+                
+                # Handle text labels from cache ("HIGH" -> 85, etc)
+                if isinstance(conf_raw, str):
+                    conf_map = {"HIGH": 85, "MEDIUM": 50, "LOW": 20, "STRONG": 90, "MODERATE": 50}
+                    conf = conf_map.get(conf_raw.upper(), 0)
+                else:
+                    conf = float(conf_raw or 0)
+                    
+                valid_signals.append({"change": change, "conf": conf})
+            except:
+                continue
+
+        if valid_signals:
+            positives = [s for s in valid_signals if s["change"] > 0]
+            wr = int((len(positives) / len(valid_signals)) * 100)
+            avg_s = sum(s["conf"] for s in valid_signals) / len(valid_signals) / 10
+        else:
+            wr, avg_s = 72, 8.2
     
     import random
     days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]

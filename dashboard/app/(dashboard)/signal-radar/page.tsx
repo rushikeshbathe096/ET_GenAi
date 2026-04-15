@@ -5,9 +5,7 @@ import SignalCard from "../../../components/SignalCard";
 import SignalCardSkeleton from "../../../components/SignalCardSkeleton";
 import StockDetailModal from "../../../components/StockDetailModal";
 import { getDashboardData } from "../../../utils/api";
-import { Signal } from "../../../data/mockSignals";
-import { normalizeScore } from "../../../utils/signalUtils";
-
+import { Signal } from "../data/mockSignals";
 import { 
   Search, 
   SlidersHorizontal, 
@@ -19,10 +17,14 @@ import {
   List as ListIcon,
   TrendingUp,
   Clock,
-  BarChart4
+  BarChart4,
+  Cpu,
+  Zap,
+  Radio,
+  Target
 } from "lucide-react";
 import { useAlerts } from "../../../context/AlertContext";
-
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function SignalRadarPage() {
   const [signals, setSignals] = useState<Signal[]>([]);
@@ -50,8 +52,7 @@ export default function SignalRadarPage() {
       setLastUpdated(generatedAt);
       generateAlertsFromSignals(data);
     } catch (err) {
-      console.error("Signal Radar Error:", err);
-      setError("Failed to synchronize Sentinel stream.");
+      setError("COMMUNICATION FAULT: SENTINEL STREAM REJECTED");
     } finally {
       setLoading(false);
     }
@@ -93,191 +94,243 @@ export default function SignalRadarPage() {
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 rounded-3xl border border-rose-500/20 bg-rose-500/5 backdrop-blur-xl animate-in zoom-in-95 duration-500">
-        <AlertCircle className="w-12 h-12 text-rose-500 mb-6" />
-        <h2 className="text-xl font-black text-rose-300 uppercase tracking-widest italic">{error}</h2>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+        <div className="w-24 h-24 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center animate-pulse">
+          <AlertCircle className="w-12 h-12 text-rose-500" />
+        </div>
+        <div className="text-center">
+           <h2 className="text-2xl font-black text-white tracking-[0.2em] uppercase italic mb-2">{error}</h2>
+           <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Verify network uplink or contact node administrator</p>
+        </div>
         <button 
           onClick={fetchData}
-          className="mt-8 px-8 py-3 rounded-2xl bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
+          className="px-12 py-4 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-white/10 transition-all shadow-2xl"
         >
-          Retry Connection
+          FORCE RE-SYNC
         </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 pb-32">
-       {/* Animated Header */}
-       <div className="relative p-12 rounded-[2.5rem] bg-[#071127]/80 border border-white/5 overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 blur-[100px] -mr-48 -mt-48" />
-          <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
-             <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                   <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_#34d399]" />
-                   <h1 className="text-4xl font-black text-white italic tracking-tighter uppercase underline decoration-4 underline-offset-8 decoration-indigo-500">Signal Radar</h1>
+    <div className="space-y-12 pb-32 pt-4">
+       {/* High-Fidelity Tactical Header */}
+       <div className="relative p-12 rounded-[3.5rem] bg-[#050b18] border border-white/5 overflow-hidden group">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] -mr-40 -mt-40 opacity-50 group-hover:opacity-100 transition-opacity duration-1000" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 blur-[100px] -ml-20 -mb-20" />
+          
+          <div className="relative flex flex-col lg:flex-row items-center justify-between gap-12">
+             <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                   <div className="p-4 rounded-3xl bg-indigo-600 shadow-[0_0_25px_rgba(79,70,229,0.5)] group-hover:scale-105 transition-transform">
+                      <Cpu className="w-8 h-8 text-white" />
+                   </div>
+                   <div>
+                      <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase leading-none">Signal Matrix</h1>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Radio size={14} className="text-emerald-400 animate-pulse" />
+                        <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em]">Institutional Feed Active</span>
+                      </div>
+                   </div>
                 </div>
-                <p className="text-slate-400 font-bold uppercase tracking-widest text-[11px] max-w-lg">
-                  Multi-agent confluence scoring environment tracking high-probability setups in Indian markets.
+                <p className="text-slate-400 font-black uppercase tracking-widest text-[11px] max-w-xl italic leading-loose opacity-80">
+                  Global autonomous scanning grid targeting alpha-rich setups. Processing <span className="text-white">multi-agent confluence</span> across 5,000+ data nodes per cycle.
                 </p>
                 {lastUpdated && (
-                    <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-500 tracking-[0.2em] pt-2">
-                        <Clock size={12} />
-                        Stream Sync: {new Date(lastUpdated).toLocaleTimeString()}
+                    <div className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/[0.03] border border-white/5 w-fit">
+                        <Clock size={12} className="text-indigo-400" />
+                        <span className="text-[9px] font-black uppercase text-slate-500 tracking-[0.2em]">Stream Ingest: <span className="text-indigo-300 italic">{new Date(lastUpdated).toLocaleTimeString()}</span></span>
                     </div>
                 )}
              </div>
 
-             <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
-                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
-                   <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Universe</div>
-                   <div className="text-2xl font-black text-white">{loading ? '...' : signals.length}</div>
+             <div className="flex flex-wrap gap-6 items-center">
+                <div className="flex flex-col gap-2">
+                   <span className="text-[8px] font-black text-slate-600 uppercase tracking-[0.3em] italic">Network Load</span>
+                   <div className="flex items-end gap-1 h-12">
+                      {[4, 7, 5, 9, 3, 6, 8, 4].map((h, i) => (
+                         <motion.div 
+                           key={i} 
+                           animate={{ height: [`${h*10}%`, `${(h+2)*10}%`, `${h*10}%`] }}
+                           transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                           className="w-1.5 bg-indigo-500/20 rounded-t-sm" 
+                         />
+                      ))}
+                   </div>
                 </div>
-                <div className="p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
-                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2">Radar Stream</div>
-                    <div className="text-sm font-black text-emerald-400 uppercase tracking-tighter flex items-center gap-2">
-                        <Activity className="w-4 h-4" /> Live
-                    </div>
+                <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 backdrop-blur-3xl min-w-[180px]">
+                   <div className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 mb-3 italic">Alpha Nodes Found</div>
+                   <div className="text-5xl font-black text-white italic tracking-tighter">{loading ? '...' : signals.length}</div>
                 </div>
              </div>
           </div>
        </div>
 
-       {/* Toolbar */}
-       <div className="sticky top-24 z-40 p-4 rounded-3xl bg-[#030814]/80 border border-white/5 backdrop-blur-2xl shadow-2xl space-y-4">
-          <div className="flex flex-col xl:flex-row gap-4">
-             <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input 
-                  type="text"
-                  placeholder="SEARCH ALPHA SOURCE (TICKER OR ENTITY)..."
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-6 py-4 text-xs font-black uppercase tracking-widest text-white focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+       {/* Matrix Toolbar */}
+       <div className="sticky top-24 z-40 p-2 rounded-[2.5rem] bg-[#030814]/90 border border-white/5 backdrop-blur-2xl shadow-2xl flex flex-col md:flex-row gap-2">
+          <div className="relative flex-1 group">
+             <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-indigo-400 transition-colors" />
+             <input 
+               type="text"
+               placeholder="ACCESS ALPHA SOURCE (SYMBOL / ENTITY)..."
+               className="w-full bg-white/[0.02] border border-transparent rounded-[2rem] pl-16 pr-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white focus:outline-none focus:bg-indigo-500/5 focus:border-indigo-500/20 transition-all placeholder:text-slate-700 italic"
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+             />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 px-6 py-2 bg-white/[0.02] rounded-[2rem] border border-white/5">
+             <div className="flex items-center gap-3 group">
+                <Target size={14} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+                <select 
+                   value={filterSector}
+                   onChange={(e) => setFilterSector(e.target.value)}
+                   className="bg-transparent text-[9px] font-black uppercase tracking-widest text-slate-500 outline-none hover:text-white cursor-pointer transition-colors"
+                >
+                  {sectors.map(s => <option key={s} value={s} className="bg-[#071127]">{s}</option>)}
+                </select>
+             </div>
+             <div className="w-px h-6 bg-white/5" />
+             <div className="flex items-center gap-3 group">
+                <ShieldCheck size={14} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+                <select 
+                   value={filterConfidence}
+                   onChange={(e) => setFilterConfidence(e.target.value)}
+                   className="bg-transparent text-[9px] font-black uppercase tracking-widest text-slate-500 outline-none hover:text-white cursor-pointer transition-colors"
+                >
+                  {confidences.map(c => <option key={c} value={c} className="bg-[#071127]">{c}</option>)}
+                </select>
+             </div>
+             <div className="w-px h-6 bg-white/5" />
+             <div className="flex items-center gap-3 group">
+                <SlidersHorizontal size={14} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+                <select 
+                   value={sortBy}
+                   onChange={(e) => setSortBy(e.target.value)}
+                   className="bg-transparent text-[9px] font-black uppercase tracking-widest text-slate-500 outline-none hover:text-white cursor-pointer transition-colors"
+                >
+                  <option value="score" className="bg-[#071127]">BY CONFLUENCE</option>
+                  <option value="priceChange" className="bg-[#071127]">BY VELOCITY</option>
+                </select>
              </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/5">
-             <div className="flex flex-wrap items-center gap-6">
-                <div className="flex items-center gap-3">
-                   <ListFilter size={14} className="text-indigo-400" />
-                   <select 
-                      value={filterSector}
-                      onChange={(e) => setFilterSector(e.target.value)}
-                      className="bg-transparent text-[10px] font-black uppercase tracking-widest text-slate-400 outline-none hover:text-white cursor-pointer"
-                   >
-                     {sectors.map(s => <option key={s} value={s} className="bg-[#071127]">{s}</option>)}
-                   </select>
-                </div>
-                <div className="flex items-center gap-3">
-                   <ShieldCheck size={14} className="text-indigo-400" />
-                   <select 
-                      value={filterConfidence}
-                      onChange={(e) => setFilterConfidence(e.target.value)}
-                      className="bg-transparent text-[10px] font-black uppercase tracking-widest text-slate-400 outline-none hover:text-white cursor-pointer"
-                   >
-                     {confidences.map(c => <option key={c} value={c} className="bg-[#071127]">{c}</option>)}
-                   </select>
-                </div>
-                <div className="flex items-center gap-3">
-                   <TrendingUp size={14} className="text-indigo-400" />
-                   <select 
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="bg-transparent text-[10px] font-black uppercase tracking-widest text-slate-400 outline-none hover:text-white cursor-pointer"
-                   >
-                     <option value="score" className="bg-[#071127]">SORT BY SCORE</option>
-                     <option value="priceChange" className="bg-[#071127]">SORT BY PERFORMANCE</option>
-                   </select>
-                </div>
-             </div>
-
-             <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5">
-                <button 
-                  onClick={() => setViewType("grid")}
-                  className={`p-2 rounded-lg transition-all ${viewType === "grid" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"}`}
-                >
-                   <LayoutGrid size={16} />
-                </button>
-                <button 
-                  onClick={() => setViewType("table")}
-                  className={`p-2 rounded-lg transition-all ${viewType === "table" ? "bg-indigo-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"}`}
-                >
-                   <ListIcon size={16} />
-                </button>
-             </div>
+          <div className="flex items-center gap-1 p-2 bg-white/[0.02] rounded-[2rem] border border-white/5">
+             <button 
+               onClick={() => setViewType("grid")}
+               className={`p-4 rounded-full transition-all ${viewType === "grid" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-900/20" : "text-slate-600 hover:text-slate-300"}`}
+             >
+                <LayoutGrid size={18} />
+             </button>
+             <button 
+               onClick={() => setViewType("table")}
+               className={`p-4 rounded-full transition-all ${viewType === "table" ? "bg-indigo-600 text-white shadow-xl shadow-indigo-900/20" : "text-slate-600 hover:text-slate-300"}`}
+             >
+                <ListIcon size={18} />
+             </button>
           </div>
        </div>
 
-       {/* Results Grid / Table */}
-       {viewType === "grid" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-             {loading ? (
-                [...Array(8)].map((_, i) => <SignalCardSkeleton key={i} />)
-             ) : (
-                filteredAndSortedSignals.map((signal) => (
-                   <SignalCard key={signal.symbol} signal={signal} />
-                ))
-             )}
-          </div>
-       ) : (
-          <div className="overflow-x-auto rounded-[2rem] border border-white/5 bg-[#071127]/50 backdrop-blur-xl">
-             <table className="w-full text-left border-collapse">
-                <thead>
-                   <tr className="border-b border-white/5 bg-white/[0.02]">
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500">Node</th>
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Momentum</th>
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Score</th>
-                      <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500 text-right">Confidence</th>
-                   </tr>
-                </thead>
-                <tbody>
-                   {loading ? (
-                       [...Array(6)].map((_, i) => (
-                           <tr key={i} className="animate-pulse">
-                               <td className="px-8 py-6"><div className="h-4 w-32 bg-white/5 rounded" /></td>
-                               <td className="px-8 py-6"><div className="h-4 w-16 bg-white/5 rounded ml-auto" /></td>
-                               <td className="px-8 py-6"><div className="h-4 w-12 bg-white/5 rounded ml-auto" /></td>
-                               <td className="px-8 py-6"><div className="h-4 w-20 bg-white/5 rounded ml-auto" /></td>
-                           </tr>
-                       ))
-                   ) : filteredAndSortedSignals.map((signal) => (
-                      <tr 
-                        key={signal.symbol} 
-                        className="border-b border-white/5 hover:bg-white/[0.03] transition-colors cursor-pointer"
-                        onClick={() => handleEntityClick(signal.symbol)}
-                      >
-                         <td className="px-8 py-6">
-                            <div className="flex items-center gap-3">
-                               <span className="text-sm font-black text-white italic underline decoration-indigo-500/30 underline-offset-4">{signal.symbol}</span>
-                               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{signal.sector}</span>
-                            </div>
-                         </td>
-                         <td className="px-8 py-6 text-right">
-                            <span className={`text-xs font-black italic ${signal.priceChangePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                               {signal.priceChangePercent >= 0 ? '+' : ''}{signal.priceChangePercent}%
-                            </span>
-                         </td>
-                         <td className="px-8 py-6 text-right">
-                            <span className="text-sm font-black text-indigo-300 italic">{signal.score.toFixed(1)}</span>
-                         </td>
-                         <td className="px-8 py-6 text-right">
-                             <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full italic ${signal.confidence === 'HIGH' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : signal.confidence === 'MEDIUM' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
-                                {signal.confidence}
-                             </span>
-                         </td>
-                      </tr>
-                   ))}
-                </tbody>
-             </table>
-          </div>
-       )}
+       {/* Matrix Results */}
+       <AnimatePresence mode="wait">
+         {viewType === "grid" ? (
+            <motion.div 
+               key="grid"
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+            >
+               {loading ? (
+                  [...Array(8)].map((_, i) => <SignalCardSkeleton key={i} />)
+               ) : (
+                  filteredAndSortedSignals.map((signal) => (
+                     <SignalCard key={signal.symbol} signal={signal} />
+                  ))
+               )}
+            </motion.div>
+         ) : (
+            <motion.div 
+               key="table"
+               initial={{ opacity: 0, x: 20 }}
+               animate={{ opacity: 1, x: 0 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="overflow-hidden rounded-[3rem] border border-white/5 bg-[#050b18] shadow-2xl"
+            >
+               <table className="w-full text-left border-collapse">
+                  <thead>
+                     <tr className="border-b border-white/5 bg-white/[0.01]">
+                        <th className="px-10 py-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 italic">Alpha Node ID</th>
+                        <th className="px-10 py-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 italic text-right">Momentum Vector</th>
+                        <th className="px-10 py-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 italic text-right">Confluence Score</th>
+                        <th className="px-10 py-8 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600 italic text-right">Security Protocol</th>
+                     </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                     {loading ? (
+                         [...Array(6)].map((_, i) => (
+                             <tr key={i} className="animate-pulse">
+                                 <td className="px-10 py-8"><div className="h-4 w-40 bg-white/5 rounded-lg" /></td>
+                                 <td className="px-10 py-8"><div className="h-4 w-20 bg-white/5 rounded-lg ml-auto" /></td>
+                                 <td className="px-10 py-8"><div className="h-4 w-12 bg-white/5 rounded-lg ml-auto" /></td>
+                                 <td className="px-10 py-8"><div className="h-4 w-24 bg-white/5 rounded-lg ml-auto" /></td>
+                             </tr>
+                         ))
+                     ) : (
+                        filteredAndSortedSignals.map((signal) => (
+                          <tr 
+                            key={signal.symbol} 
+                            className="hover:bg-indigo-500/[0.02] transition-colors cursor-pointer group"
+                            onClick={() => handleEntityClick(signal.symbol)}
+                          >
+                             <td className="px-10 py-8 relative">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="flex items-center gap-4">
+                                   <div className="flex flex-col">
+                                      <span className="text-lg font-black text-white italic uppercase tracking-tight group-hover:text-indigo-400 transition-colors leading-none mb-1">{signal.symbol}</span>
+                                      <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest">{signal.sector}</span>
+                                   </div>
+                                </div>
+                             </td>
+                             <td className="px-10 py-8 text-right">
+                                <div className="flex flex-col items-end">
+                                   <span className={`text-sm font-black italic tracking-tight ${signal.priceChangePercent >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                      {signal.priceChangePercent >= 0 ? '+' : ''}{signal.priceChangePercent}%
+                                   </span>
+                                   <div className="w-12 h-1 bg-white/5 rounded-full mt-2 overflow-hidden">
+                                      <motion.div 
+                                        initial={{ width: 0 }}
+                                        animate={{ width: '60%' }}
+                                        className={`h-full ${signal.priceChangePercent >= 0 ? 'bg-emerald-500' : 'bg-rose-500'}`} 
+                                      />
+                                   </div>
+                                </div>
+                             </td>
+                             <td className="px-10 py-8 text-right">
+                                <span className="text-xl font-black text-white italic tracking-tighter shadow-sm">{signal.score.toFixed(2)}</span>
+                             </td>
+                             <td className="px-10 py-8 text-right">
+                                 <div className="flex items-center justify-end gap-3">
+                                    <span className={`text-[9px] font-black uppercase px-4 py-1.5 rounded-xl italic tracking-widest ${signal.confidence === 'HIGH' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : signal.confidence === 'MEDIUM' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                                       {signal.confidence}
+                                    </span>
+                                 </div>
+                             </td>
+                          </tr>
+                        ))
+                     )}
+                  </tbody>
+               </table>
+            </motion.div>
+         )}
+       </AnimatePresence>
 
        {filteredAndSortedSignals.length === 0 && !loading && (
-          <div className="flex flex-col items-center justify-center py-20 opacity-30">
-             <BarChart4 size={48} className="text-slate-500 mb-4" />
-             <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No signals detected in this range.</p>
+          <div className="flex flex-col items-center justify-center py-32 opacity-20 group">
+             <div className="p-8 rounded-full bg-white/5 border border-white/5 mb-8 group-hover:scale-110 transition-transform">
+                <BarChart4 size={64} className="text-slate-500" />
+             </div>
+             <p className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-500 italic">No Alpha Detected in current matrix</p>
           </div>
        )}
 

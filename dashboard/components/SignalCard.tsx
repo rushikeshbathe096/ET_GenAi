@@ -11,7 +11,8 @@ import {
   ChevronUp, 
   Newspaper, 
   Zap,
-  Share2 
+  Target,
+  Maximize2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Signal } from "../data/mockSignals";
@@ -40,144 +41,140 @@ export default function SignalCard({ signal }: SignalCardProps) {
   const rank = signal?.rank;
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Don't open if clicking the share button specifically
-    if ((e.target as HTMLElement).closest('.share-btn')) return;
+    if ((e.target as HTMLElement).closest('.action-btn')) return;
     setModalOpen(true);
   };
 
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -4 }}
-        className="group cursor-pointer"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ y: -5 }}
+        className="group cursor-pointer perspective-1000"
         onClick={handleCardClick}
       >
-        <div className="relative rounded-2xl border border-indigo-500/20 bg-[#071127]/80 backdrop-blur-xl p-6 transition-all duration-300 group-hover:border-indigo-400/40 group-hover:shadow-[0_12px_24px_-10px_rgba(99,102,241,0.25)] overflow-hidden">
-          {/* Rank Badge */}
+        <div className="relative rounded-[2rem] border border-white/5 bg-[#050b18] p-6 transition-all duration-500 group-hover:bg-[#071127] group-hover:border-indigo-500/30 group-hover:shadow-[0_20px_40px_-15px_rgba(79,70,229,0.3)] overflow-hidden">
+          {/* Animated Scanning Beam */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-500/[0.03] to-transparent -translate-y-full group-hover:translate-y-full transition-transform duration-[2s] pointer-events-none" />
+          
+          {/* Rank Ribbon */}
           {rank && (
-            <div className="absolute top-0 left-0 bg-indigo-500 text-white text-[10px] font-black px-2 py-1 rounded-br-lg z-10">
+            <div className="absolute top-0 right-10 w-8 h-10 bg-indigo-600 flex items-center justify-center text-[10px] font-black italic rounded-b-lg shadow-lg">
               #{rank}
             </div>
           )}
 
-          {/* Share Button (Top Right) */}
+          {/* Action Button */}
           <button 
             onClick={(e) => {
               e.stopPropagation();
               setModalOpen(true);
             }}
-            className="share-btn absolute top-3 right-3 p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-indigo-400 hover:bg-white/10 transition-all z-20 group/share"
+            className="action-btn absolute top-4 right-4 p-2 rounded-xl bg-white/5 border border-white/5 text-slate-500 hover:text-white hover:bg-indigo-600 transition-all z-20"
           >
-            <Share2 size={16} className="group-hover/share:scale-110 transition-transform" />
+            <Maximize2 size={14} />
           </button>
 
-          {/* Glow effect */}
-          <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-indigo-500/5 blur-3xl group-hover:bg-indigo-500/10 transition-all duration-500" />
-          
-          <div className="block relative">
-            <div className="flex items-start justify-between mb-5 pr-8">
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <h3 className="text-xl font-black text-white tracking-tight italic underline decoration-indigo-500/30 underline-offset-4">{signal.symbol}</h3>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}`}>
-                    {formatPriceChange(signal.priceChangePercent)}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors line-clamp-1 font-medium">{signal.company}</p>
+          <header className="flex items-start justify-between mb-6">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="text-2xl font-black text-white italic tracking-tighter uppercase leading-none">{signal.symbol}</h3>
+                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest ${isPositive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+                  {formatPriceChange(signal.priceChangePercent)}
+                </span>
               </div>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all duration-300 ${isPositive ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 group-hover:border-emerald-500/40' : 'bg-rose-500/10 border-rose-500/20 text-rose-400 group-hover:border-rose-500/40'}`}>
-                {isPositive ? <TrendingUp size={18} /> : <TrendingDown size={18} />}
-              </div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic truncate max-w-[180px]">{signal.company}</span>
             </div>
+            <motion.div 
+              animate={{ rotate: isPositive ? 0 : 180 }}
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center border transition-all duration-500 ${isPositive ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/10 group-hover:border-emerald-400/40' : 'bg-rose-500/5 border-rose-500/20 text-rose-400 group-hover:bg-rose-500/10 group-hover:border-rose-400/40'}`}
+            >
+              {isPositive ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+            </motion.div>
+          </header>
 
-            <div className="flex items-center gap-6 mb-5">
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1 font-black">Price</span>
-                <span className="text-sm font-black text-white">{formatPrice(signal.price)}</span>
-              </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1 font-black">Horizon</span>
-                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black text-indigo-400 italic">
-                  <Clock size={12} className="text-indigo-400" />
-                  {horizon}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 group-hover:bg-white/[0.05] transition-colors">
+                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-[0.25em] mb-1">Execution Price</span>
+                <span className="text-lg font-black text-white italic">{formatPrice(signal.price)}</span>
+             </div>
+             <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 group-hover:bg-white/[0.05] transition-colors">
+                <span className="block text-[8px] font-black text-slate-500 uppercase tracking-[0.25em] mb-1">Strategic Horizon</span>
+                <div className="flex items-center gap-2 text-indigo-400 font-black italic">
+                   <Clock size={12} />
+                   <span className="text-xs uppercase">{horizon}</span>
                 </div>
-              </div>
-            </div>
+             </div>
+          </div>
 
-            {/* Explanation Section */}
-            <div className="mb-5 p-3 rounded-xl bg-white/5 border border-white/5 group-hover:bg-indigo-500/[0.03] transition-colors duration-300">
-              <div className="flex items-center gap-2 mb-2">
-                <Zap size={14} className="text-amber-400" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-amber-300 italic underline decoration-amber-500/30 underline-offset-2">Why Now</span>
-              </div>
-              <p className="text-[11px] leading-relaxed text-slate-300 font-medium">
+          <div className="mb-6 p-4 rounded-2xl bg-indigo-500/[0.03] border border-indigo-500/10 relative group-hover:border-indigo-500/30 transition-all">
+             <div className="flex items-center gap-2 mb-2">
+                <Zap size={14} className="text-indigo-400 fill-current" />
+                <span className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.3em] font-mono">ALPHA RATIONALE</span>
+             </div>
+             <p className="text-[11px] leading-relaxed text-slate-400 font-medium">
                 {whyNow}
-              </p>
-            </div>
+             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3 pb-4 border-b border-white/10">
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1 font-black">Confluence</span>
-                <div className="flex items-center gap-1.5 font-black text-indigo-300 uppercase italic">
-                  <Activity size={14} className="text-indigo-400" />
-                  {normalizeScore(signal.score)}
+          <footer className="pt-4 border-t border-white/5 space-y-4">
+             <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                   <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Alpha Confluence</span>
+                   <div className="flex items-center gap-2 text-white font-black italic">
+                      <Target size={14} className="text-indigo-400" />
+                      <span className="text-sm">{normalizeScore(signal.score)}</span>
+                   </div>
                 </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1 font-black">Confidence</span>
-                <div className={`flex items-center gap-1.5 font-black uppercase italic ${confidenceColor}`}>
-                  <ShieldCheck size={14} />
-                  {signal.confidence}
+                <div className="flex flex-col items-end">
+                   <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Security Conf.</span>
+                   <div className={`flex items-center gap-2 font-black italic uppercase ${confidenceColor}`}>
+                      <ShieldCheck size={14} />
+                      <span className="text-sm">{signal.confidence}</span>
+                   </div>
                 </div>
-              </div>
-            </div>
+             </div>
 
-            {/* News Section */}
-            {newsItems.length > 0 && (
-              <div className="pt-2">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowNews(!showNews);
-                  }}
-                  className="flex items-center justify-between w-full text-[10px] uppercase tracking-[0.2em] font-black text-slate-500 hover:text-indigo-400 transition-colors"
-                >
-                  <div className="flex items-center gap-2">
-                    <Newspaper size={12} />
-                    Latest Insights
-                  </div>
-                  {showNews ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-                </button>
-                
-                <AnimatePresence>
-                  {showNews && (
-                    <motion.ul
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="mt-3 space-y-2 overflow-hidden"
-                    >
-                      {newsItems.map((item, idx) => (
-                        <li key={idx} className="text-[10px] text-slate-400 leading-snug flex items-start gap-2 font-medium">
-                          <div className="w-1 h-1 rounded-full bg-indigo-500 mt-1.5 shrink-0" />
-                          {item}
-                        </li>
-                      ))}
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-          </div>
+             {newsItems.length > 0 && (
+               <div className="pt-2">
+                 <button 
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     setShowNews(!showNews);
+                   }}
+                   className="flex items-center justify-between w-full text-[8px] font-black uppercase text-slate-500 hover:text-indigo-400 transition-colors tracking-widest"
+                 >
+                   <div className="flex items-center gap-2">
+                     <Newspaper size={12} />
+                     Telemetry Insights
+                   </div>
+                   {showNews ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                 </button>
+                 
+                 <AnimatePresence>
+                   {showNews && (
+                     <motion.ul
+                       initial={{ height: 0, opacity: 0 }}
+                       animate={{ height: "auto", opacity: 1 }}
+                       exit={{ height: 0, opacity: 0 }}
+                       className="mt-3 space-y-2 overflow-hidden"
+                     >
+                       {newsItems.map((item, idx) => (
+                         <li key={idx} className="text-[10px] text-slate-400 leading-snug flex items-start gap-3 font-medium px-2 py-1.5 rounded-lg hover:bg-white/5 transition-colors">
+                           <div className="w-1 h-1 rounded-full bg-indigo-500 mt-1.5 shrink-0 shadow-[0_0_5px_rgba(79,70,229,0.8)]" />
+                           {item}
+                         </li>
+                       ))}
+                     </motion.ul>
+                   )}
+                 </AnimatePresence>
+               </div>
+             )}
+          </footer>
         </div>
       </motion.div>
 
-      {/* Per-card Modal Instance - Only passes symbol, isOpen, onClose */}
       <StockDetailModal 
         symbol={signal.symbol} 
         isOpen={modalOpen} 

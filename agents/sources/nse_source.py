@@ -56,10 +56,14 @@ def _fetch_from_nse(ticker: str) -> dict | None:
         print(f"NSE fetch failed for {ticker}: {exc}")
         return None
 
-
 def _fetch_from_yfinance(ticker: str) -> dict | None:
     try:
-        history = yf.Ticker(f"{ticker}.NS").history(period="5d")
+        # Indices (^) and special symbols shouldn't have .NS suffix
+        yf_ticker = ticker
+        if not ticker.startswith("^") and not ticker.endswith(".NS"):
+            yf_ticker = f"{ticker}.NS"
+            
+        history = yf.Ticker(yf_ticker).history(period="5d")
         if history is None or history.empty or "Close" not in history:
             return None
 
@@ -190,14 +194,17 @@ def fetch_indices() -> list[dict]:
     results = []
     for name, ticker in indices.items():
         try:
+            # Note: _fetch_from_yfinance returns a dict with 'events' list
             temp = _fetch_from_yfinance(ticker.replace(".NS", ""))
-            if temp:
+            if temp and "events" in temp and len(temp["events"]) > 0:
+                event = temp["events"][0]
                 results.append({
                     "name": name,
-                    "price": temp.get("price"),
-                    "change": temp.get("change_pct")
+                    "price": event.get("price"),
+                    "change": event.get("change_pct")
                 })
-        except Exception:
+        except Exception as e:
+            print(f"Index fetch failed for {name}: {e}")
             continue
     return results
 
