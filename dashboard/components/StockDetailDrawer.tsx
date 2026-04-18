@@ -34,6 +34,19 @@ export default function StockDetailDrawer({ signal, isOpen, onClose }: StockDeta
 
   const isPositive = signal.priceChangePercent >= 0;
 
+  const getSentiment = (decision: string) => {
+    const d = decision?.toString().toUpperCase();
+    if (d === "BUY" || d === "STRONG_BUY") return "BULLISH";
+    if (d === "SELL" || d === "STRONG_SELL") return "BEARISH";
+    return "SIDEWAYS";
+  };
+  
+  const currentDecision = signal.decision || "HOLD";
+  const sentimentColor =
+    currentDecision.includes("BUY") ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
+    currentDecision.includes("SELL") ? "bg-rose-500/10 text-rose-400 border-rose-500/20" :
+    "bg-amber-500/10 text-amber-400 border-amber-500/20";
+
   return (
     <>
       <div 
@@ -51,7 +64,12 @@ export default function StockDetailDrawer({ signal, isOpen, onClose }: StockDeta
                 {isPositive ? <TrendingUp size={24} /> : <TrendingDown size={24} />}
               </div>
               <div className="flex flex-col">
-                <h2 className="text-2xl font-black text-white leading-none mb-1">{signal.symbol}</h2>
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-black text-white leading-none mb-1">{signal.symbol}</h2>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border ${sentimentColor}`}>
+                    {getSentiment(signal.decision || "HOLD")}
+                  </span>
+                </div>
                 <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{signal.company}</span>
               </div>
             </div>

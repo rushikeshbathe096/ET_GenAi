@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import SignalCard from "../../../components/SignalCard";
 import SignalCardSkeleton from "../../../components/SignalCardSkeleton";
-import StockDetailModal from "../../../components/StockDetailModal";
-import { getDashboardData } from "../../../utils/api";
+import { getDashboardData, getStock } from "../../../utils/api";
 import { Signal } from "../data/mockSignals";
 import { 
   Search, 
@@ -31,8 +31,7 @@ export default function SignalRadarPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
-  const [modalOpen, setModalOpen] = useState(false);
+  const router = useRouter();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSector, setFilterSector] = useState("All");
@@ -41,6 +40,11 @@ export default function SignalRadarPage() {
   const [sortBy, setSortBy] = useState("score");
   const [viewType, setViewType] = useState<"grid" | "table">("grid"); 
   
+  const [searchSymbolValue, setSearchSymbolValue] = useState("");
+  const [searchedSignal, setSearchedSignal] = useState<Signal | null>(null);
+  const [searchError, setSearchError] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
   const { generateAlertsFromSignals } = useAlerts();
 
   const fetchData = async () => {
@@ -61,6 +65,27 @@ export default function SignalRadarPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleApiSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchSymbolValue.trim()) return;
+    
+    setIsSearching(true);
+    setSearchError(false);
+    try {
+      const result = await getStock(searchSymbolValue);
+      if (result) {
+        router.push(`/stock/${result.symbol}`);
+      } else {
+        setSearchError(true);
+      }
+    } catch (error) {
+      setSearchedSignal(null);
+      setSearchError(true);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
   const sectors = useMemo(() => ["All", ...new Set(signals.map(s => s.sector))].sort(), [signals]);
   const confidences = ["All", "HIGH", "MEDIUM", "LOW"];
@@ -88,8 +113,7 @@ export default function SignalRadarPage() {
   }, [signals, searchQuery, filterSector, filterConfidence, filterScore, sortBy]);
 
   const handleEntityClick = (symbol: string) => {
-    setSelectedSymbol(symbol);
-    setModalOpen(true);
+    router.push(`/stock/${symbol}`);
   };
 
   if (error) {
@@ -231,6 +255,47 @@ export default function SignalRadarPage() {
           </div>
        </div>
 
+       {/* Direct API Search Input */}
+       <div className="mb-8">
+           <form onSubmit={handleApiSearch} className="flex flex-col gap-2">
+              <div className="relative flex items-center group">
+                 <Search className="absolute left-6 text-slate-600 group-focus-within:text-indigo-400 w-5 h-5 transition-colors" />
+                 <input 
+                   type="text"
+                   placeholder="Search NSE symbol e.g. TITAN"
+                   className="w-full bg-[#050b18] border border-white/10 rounded-[2rem] pl-16 pr-32 py-5 text-sm font-black uppercase tracking-widest text-white focus:outline-none focus:border-indigo-500/50 shadow-inner transition-all"
+                   value={searchSymbolValue}
+                   onChange={(e) => setSearchSymbolValue(e.target.value.toUpperCase())}
+                   onKeyDown={(e) => {
+                     if (e.key === "Escape") {
+                       setSearchSymbolValue('');
+                       setSearchedSignal(null);
+                       setSearchError(false);
+                     }
+                   }}
+                 />
+                 <button 
+                   type="submit"
+                   disabled={isSearching || !searchSymbolValue.trim()}
+                   className="absolute right-3 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-colors disabled:opacity-50"
+                 >
+                    {isSearching ? "..." : "Search"}
+                 </button>
+              </div>
+              {searchError && (
+                 <span className="text-rose-500 text-xs font-bold ml-6 mt-1 uppercase tracking-widest">Stock not found</span>
+              )}
+           </form>
+           
+           {searchedSignal && (
+              <div className="mt-8 p-1 rounded-[2.1rem] bg-gradient-to-r from-indigo-500 via-indigo-400 to-indigo-500 shadow-[0_0_40px_rgba(99,102,241,0.3)]">
+                 <div className="bg-[#030814] rounded-[2rem] h-full w-full">
+                    <SignalCard signal={searchedSignal} />
+                 </div>
+              </div>
+           )}
+       </div>
+
        {/* Matrix Results */}
        <AnimatePresence mode="wait">
          {viewType === "grid" ? (
@@ -333,12 +398,6 @@ export default function SignalRadarPage() {
              <p className="text-[12px] font-black uppercase tracking-[0.4em] text-slate-500 italic">No Alpha Detected in current matrix</p>
           </div>
        )}
-
-       <StockDetailModal 
-         symbol={selectedSymbol} 
-         isOpen={modalOpen} 
-         onClose={() => setModalOpen(false)} 
-       />
     </div>
   );
 }

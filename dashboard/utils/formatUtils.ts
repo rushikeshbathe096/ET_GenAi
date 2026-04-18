@@ -33,3 +33,11 @@ export function formatConfidenceBg(confidence: string | undefined | null): strin
   if (c === "LOW") return "bg-yellow-500/20";
   return "bg-cyan-500/20"; // fallback
 }
+
+export function formatDecisionText(decision: string | undefined | null): string {
+  const d = (decision || "").toUpperCase();
+  if (d.includes("BUY")) return "BULLISH";
+  if (d.includes("SELL")) return "BEARISH";
+  if (d.includes("HOLD")) return "SIDEWAYS";
+  return d || "SIDEWAYS";
+}

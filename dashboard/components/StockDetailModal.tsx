@@ -26,7 +26,8 @@ import { toast } from "react-hot-toast";
 import { 
   formatPrice, 
   formatPriceChange, 
-  formatConfidenceColor 
+  formatConfidenceColor,
+  formatDecisionText
 } from "../utils/formatUtils";
 
 interface StockDetailModalProps {
@@ -71,9 +72,16 @@ export default function StockDetailModal({ symbol, isOpen, onClose }: StockDetai
     }
   }, [isOpen, symbol, fetchData]);
 
+  const getSentiment = (decision: string) => {
+    const d = decision?.toString().toUpperCase();
+    if (d === "BUY" || d === "STRONG_BUY") return "BULLISH";
+    if (d === "SELL" || d === "STRONG_SELL") return "BEARISH";
+    return "SIDEWAYS";
+  };
+
   const handleShare = async () => {
     if (!opportunity) return;
-    const shareText = `📊 Alpha Node: ${opportunity.symbol} - ${opportunity.decision} at ₹${opportunity.price}\nRationale: ${opportunity.why_now}`;
+    const shareText = `📊 Alpha Node: ${opportunity.symbol} - ${getSentiment(opportunity.decision || "")} at ₹${opportunity.price}\nRationale: ${opportunity.why_now}`;
     if (navigator.share) {
        try { await navigator.share({ title: `${opportunity.symbol} Intelligence`, text: shareText }); } catch { copyToClipboard(shareText); }
     } else { copyToClipboard(shareText); }
@@ -258,7 +266,7 @@ export default function StockDetailModal({ symbol, isOpen, onClose }: StockDetai
                               opportunity.news.map((item, i) => (
                                  <div key={i} className="flex gap-4 p-5 rounded-[1.5rem] bg-white/[0.02] border border-white/5 group hover:bg-white/5 transition-colors">
                                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 mt-1.5 shrink-0 shadow-[0_0_8px_rgba(79,70,229,0.5)]" />
-                                    <p className="text-xs font-bold text-slate-500 leading-normal italic">{item}</p>
+                                    <p className="text-xs font-bold text-slate-500 leading-normal italic">{item.title}</p>
                                  </div>
                               ))
                            ) : (

@@ -11,27 +11,37 @@ import {
   Info,
   ChevronRight,
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Zap,
+  Target,
+  BarChart3,
+  Calendar,
+  Layers,
+  Sparkles,
+  ExternalLink
 } from "lucide-react";
 import LoadingSpinner from "../../../../components/LoadingSpinner";
-import { getStock } from "../../../../utils/api";
-import { Signal } from "../../../../data/mockSignals";
+import { getStock, Signal } from "../../../../utils/api";
 import { formatPrice, formatPercent } from "../../../../utils/formatUtils";
 import { normalizeScore } from "../../../../utils/signalUtils";
+import CandlestickChart from "../../../../components/CandlestickChart";
 
 export default function StockDetailPage() {
-  const { symbol } = useParams();
+  const params = useParams();
+  const symbol = params?.symbol as string;
   const router = useRouter();
   const [signal, setSignal] = useState<Signal | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newsTab, setNewsTab] = useState<"company" | "sector" | "global">("company");
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchData() {
       if (!symbol) return;
       try {
         setLoading(true);
-        const data = await getStock(symbol as string);
+        const data = await getStock(symbol);
         setSignal(data);
       } catch (err) {
         setError("Node unavailable.");
@@ -42,6 +52,15 @@ export default function StockDetailPage() {
     fetchData();
   }, [symbol]);
 
+  useEffect(() => {
+    if (!symbol) return;
+    fetch(`http://localhost:8000/stock/${symbol}/history`)
+      .then(r => r.json())
+      .then(d => setHistory(d.history || []))
+      .catch(() => setHistory([]));
+  }, [symbol]);
+
+  if (!symbol) return null;
   if (loading) return <LoadingSpinner />;
 
   if (error || !signal) {
@@ -64,8 +83,8 @@ export default function StockDetailPage() {
   const isPositive = signal.priceChangePercent >= 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-indigo-500/10">
+    <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 pt-4">
+      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-white/5">
         <div className="flex flex-col gap-4">
           <button 
             onClick={() => router.back()}
@@ -82,7 +101,7 @@ export default function StockDetailPage() {
               <div className="flex items-baseline gap-3">
                 <h1 className="text-5xl font-black text-white italic tracking-tighter leading-none">{signal.symbol}</h1>
                 <span className={`text-xl font-bold ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {formatPercent(signal.priceChangePercent)}
+                   ₹{signal.price} ({formatPercent(signal.priceChangePercent)})
                 </span>
               </div>
               <p className="text-xl text-slate-400 font-bold uppercase tracking-[0.2em] mt-2">{signal.company}</p>
@@ -90,137 +109,264 @@ export default function StockDetailPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 h-full">
-          <div className="bg-indigo-500/5 border border-indigo-500/20 p-6 rounded-3xl flex flex-col justify-center min-w-[200px]">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Confluence Node</span>
-            <div className="flex items-center gap-2 text-4xl font-black text-indigo-300">
-              <Activity size={24} />
-              {normalizeScore(signal.score)}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 h-full">
+            <div className="bg-white/5 border border-white/10 p-4 rounded-3xl flex flex-col justify-center">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Signal</span>
+              <span className={`text-sm font-black italic uppercase ${signal.sentiment === 'BULLISH' ? 'text-emerald-400' : signal.sentiment === 'BEARISH' ? 'text-rose-400' : 'text-amber-400'}`}>{signal.sentiment}</span>
             </div>
-          </div>
-          <div className="bg-cyan-500/5 border border-cyan-500/20 p-6 rounded-3xl flex flex-col justify-center min-w-[200px]">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mb-1">Sector Depth</span>
-            <div className="flex items-center gap-2 text-xl font-black text-cyan-300 uppercase tracking-widest">
-              {signal.sector}
+            <div className="bg-white/5 border border-white/10 p-4 rounded-3xl flex flex-col justify-center">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Confidence</span>
+              <span className="text-sm font-black text-indigo-300 italic">{signal.confidence}</span>
             </div>
-          </div>
+            <div className="bg-white/5 border border-white/10 p-4 rounded-3xl flex flex-col justify-center">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Risk</span>
+              <span className="text-sm font-black text-rose-400 italic">{signal.actionability?.risk_level}</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-4 rounded-3xl flex flex-col justify-center">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-black mb-1">Confluence</span>
+              <span className="text-xl font-black text-cyan-300 italic">{normalizeScore(signal.score)}</span>
+            </div>
         </div>
       </header>
 
+      <section className="space-y-4">
+        <CandlestickChart symbol={symbol as string} data={history} />
+        
+        <div className="p-8 rounded-[2rem] bg-indigo-600/5 border border-indigo-500/10">
+           <div className="flex items-center gap-3 mb-6">
+              <Sparkles size={16} className="text-indigo-400" />
+              <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">AI detected key events on this chart</span>
+           </div>
+           
+           <div className="flex flex-wrap gap-6">
+              {signal.technical_patterns && signal.technical_patterns.length > 0 ? signal.technical_patterns.map((pattern, idx) => (
+                 <div key={idx} className="flex items-center gap-3 px-4 py-2 bg-white/[0.03] border border-white/5 rounded-2xl hover:bg-white/[0.05] transition-colors cursor-default group">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                    <div className="flex flex-col">
+                       <span className="text-[9px] font-black text-white uppercase tracking-widest">{pattern.type}</span>
+                       <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">DETECTED</span>
+                    </div>
+                 </div>
+              )) : (
+                 <span className="text-[10px] text-slate-600 font-black uppercase tracking-widest italic">No technical patterns detected.</span>
+              )}
+           </div>
+        </div>
+      </section>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
-          <section className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-3xl p-8 backdrop-blur-xl">
-             <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
-              <Info size={16} />
-              Analysis Explanation
-            </div>
-            <p className="text-slate-300 text-lg leading-relaxed italic border-l-4 border-indigo-500 pl-6 bg-indigo-500/5 py-4 rounded-r-xl">
-              &quot;{signal.explanation}&quot;
-            </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+             <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+                <div className="flex items-center gap-3 text-indigo-400 text-sm font-black uppercase tracking-widest mb-8">
+                  <Zap size={18} />
+                  Why Now?
+                </div>
+                <div className="space-y-6">
+                   <p className="text-xs text-white font-medium leading-relaxed italic mb-4">{signal.why_now}</p>
+                   {signal.signals && signal.signals.length > 0 && (
+                      <ul className="space-y-4 pt-4 border-t border-white/5">
+                         {signal.signals.map((s, i) => (
+                            <li key={i} className="flex gap-4">
+                               <div className="w-1 h-1 rounded-full bg-indigo-500 mt-2 shrink-0" />
+                               <div className="flex flex-col">
+                                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{s.type}</span>
+                                  <p className="text-[10px] text-white font-medium leading-relaxed italic">{s.reason}</p>
+                               </div>
+                            </li>
+                         ))}
+                      </ul>
+                   )}
+                </div>
+             </section>
+
+             <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+                <div className="flex items-center gap-3 text-cyan-400 text-sm font-black uppercase tracking-widest mb-8">
+                  <Layers size={18} />
+                  Risk Factors
+                </div>
+                <ul className="space-y-4">
+                   {signal.risks && signal.risks.length > 0 ? signal.risks.map((risk, i) => (
+                      <li key={i} className="flex gap-4 items-start">
+                         <div className="w-1 h-1 rounded-full bg-rose-500 mt-2 shrink-0" />
+                         <p className="text-[11px] text-slate-400 font-medium leading-relaxed italic">{risk}</p>
+                      </li>
+                   )) : (
+                      <li className="text-[10px] text-slate-600 font-black uppercase tracking-widest italic">No significant risks detected.</li>
+                   )}
+                </ul>
+             </section>
+          </div>
+
+          <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+             <div className="flex items-center gap-3 text-indigo-400 text-sm font-black uppercase tracking-widest mb-8">
+                <Calendar size={18} />
+                Intelligent Event Timeline
+             </div>
+             <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/5 before:to-transparent">
+                {signal.technical_patterns && signal.technical_patterns.length > 0 ? signal.technical_patterns.map((pattern, idx) => (
+                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-full border border-white/5 bg-[#030814] text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2">
+                       <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                    </div>
+                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:border-indigo-500/30 transition-all">
+                       <div className="flex items-center justify-between space-x-2 mb-1">
+                          <div className="font-bold text-white uppercase tracking-tight italic">{pattern.type}</div>
+                          <time className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">TELEMETRY</time>
+                       </div>
+                       <p className="text-xs text-slate-500 leading-relaxed italic">{pattern.reason}</p>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="text-center py-12 text-slate-600 font-black uppercase tracking-widest text-[10px] italic">No technical patterns detected.</div>
+                )}
+             </div>
           </section>
 
-          {signal.signals.length > 0 && (
-            <section className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-3xl p-8 backdrop-blur-xl animate-in fade-in slide-in-from-left-4 duration-500">
-              <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
-                <Activity size={16} />
-                Signal Convergence Factors
+          <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3 text-indigo-400 text-sm font-black uppercase tracking-widest">
+                <Newspaper size={18} />
+                News Sentinel
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {signal.signals.map((s, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-white/20 transition-all group">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{s.type?.replace(/_/g, ' ')}</span>
-                      <div className={`px-2 py-0.5 rounded-full flex items-center gap-1 ${s.direction === 'positive' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                        <div className={`w-1 h-1 rounded-full ${s.direction === 'positive' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                        <span className="text-[8px] font-black uppercase">{s.direction}</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-white font-bold leading-snug group-hover:text-indigo-300 transition-colors">{s.reason}</p>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {signal.technical_patterns.length > 0 && (
-            <section className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-3xl p-8 backdrop-blur-xl animate-in fade-in slide-in-from-right-4 duration-500">
-              <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
-                <TrendingUp size={16} />
-                Pattern Identifiers
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {signal.technical_patterns.map((p, idx) => (
-                  <div key={idx} className="px-4 py-2.5 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-[10px] font-black text-indigo-300 uppercase tracking-widest hover:border-indigo-400/50 transition-all cursor-default">
-                    {p.type?.replace(/_/g, ' ')}
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          <section className="bg-[#0c1532]/50 border border-indigo-500/10 rounded-3xl p-8 backdrop-blur-xl">
-            <div className="flex items-center gap-3 text-indigo-300 text-sm font-black uppercase tracking-[0.2em] mb-6">
-              <Newspaper size={16} />
-              News Sentinel Feed
+              {signal.news?.score !== undefined && (
+                <span className={`px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+                  signal.news.score > 0.1 
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                    : signal.news.score < -0.1 
+                    ? "bg-rose-500/10 text-rose-400 border-rose-500/20" 
+                    : "bg-white/5 text-slate-400 border-white/10"
+                }`}>
+                  {signal.news.score > 0.1 ? "POSITIVE" : signal.news.score < -0.1 ? "NEGATIVE" : "NEUTRAL"}
+                  {" "}{signal.news.score?.toFixed(2)}
+                </span>
+              )}
             </div>
-            <div className="space-y-4">
-              {signal.news.map((item, idx) => (
-                <div key={idx} className="flex gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/30 hover:bg-white/10 transition-all duration-300 group">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-slate-500 group-hover:text-indigo-400 transition-colors">
-                    <ChevronRight size={18} />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-white font-bold leading-tight">{item}</p>
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">2 Hours Ago</span>
-                  </div>
-                </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6">
+              {(["company", "sector", "global"] as const).map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setNewsTab(tab)}
+                  className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
+                    newsTab === tab 
+                      ? "bg-indigo-600 text-white" 
+                      : "bg-white/5 text-slate-500 hover:text-white hover:bg-white/10"
+                  }`}
+                >
+                  {tab}
+                </button>
               ))}
+            </div>
+
+            {/* Headlines */}
+            <div className="space-y-3">
+              {(() => {
+                const headlines = newsTab === "company" 
+                  ? (signal.news?.company_headlines || [])
+                  : newsTab === "sector"
+                  ? (signal.news?.sector_headlines || [])
+                  : (signal.news?.global_headlines || []);
+                
+                if (headlines.length === 0) {
+                  return (
+                    <div className="text-center py-8 text-slate-600 font-black uppercase tracking-widest text-[10px] italic">
+                      No {newsTab} headlines detected
+                    </div>
+                  );
+                }
+
+                return headlines.map((headline: string, idx: number) => {
+                  const parts = headline.split(" - ");
+                  const title = parts.slice(0, -1).join(" - ") || headline;
+                  const source = parts[parts.length - 1] || "";
+                  const searchUrl = `https://news.google.com/search?q=${encodeURIComponent(title)}`;
+                  
+                  return (
+                    <a
+                      key={idx}
+                      href={searchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-indigo-500/30 hover:bg-white/[0.04] transition-all group cursor-pointer"
+                    >
+                      <div className="flex flex-col gap-1 flex-1 mr-3">
+                        <p className="text-xs text-white font-bold group-hover:text-indigo-300 transition-colors leading-relaxed">
+                          {title}
+                        </p>
+                        <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                          {source}
+                        </span>
+                      </div>
+                      <span className="text-slate-600 group-hover:text-indigo-400 transition-colors shrink-0 mt-1">
+                        ↗
+                      </span>
+                    </a>
+                  );
+                });
+              })()}
             </div>
           </section>
         </div>
 
-        <aside className="space-y-6">
-          <div className="bg-indigo-500/10 border border-indigo-500/20 p-8 rounded-3xl backdrop-blur-xl">
-            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6">Execution Signal</h3>
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-                <span className="text-xs font-bold text-slate-400">Confidence</span>
-                <span className="text-sm font-black text-cyan-300 font-mono">{signal.confidence}</span>
+        <aside className="space-y-10">
+          <section className="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8">
+             <div className="flex items-center gap-3 text-rose-400 text-sm font-black uppercase tracking-widest mb-8">
+              <ShieldCheck size={18} />
+              Risk Sentinel Analysis
+            </div>
+            <div className="space-y-8">
+              <div>
+                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 font-mono">Volatility Level</span>
+                <span className="text-sm font-black text-white italic">{signal.actionability?.risk_level || "MODERATE"}</span>
               </div>
-              <div className="flex items-center justify-between p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-                <span className="text-xs font-bold text-slate-400">Price At Signal</span>
-                <span className="text-sm font-black text-white">{formatPrice(signal.price)}</span>
+              <div>
+                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 font-mono">Conflicting Signals</span>
+                <p className="text-[11px] font-bold text-slate-400 leading-relaxed italic">
+                  {signal.signals?.filter(s => s.direction !== signal.sentiment).length || 0} SIGNALS
+                </p>
               </div>
-              <div className="flex items-center justify-between p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/30">
-                <span className="text-xs font-bold text-slate-400">Timeframe</span>
-                <span className="text-sm font-black text-indigo-300 uppercase">{signal.horizon}</span>
+              <div>
+                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 font-mono">Uncertainty Notes</span>
+                <p className="text-[11px] font-bold text-slate-400 leading-relaxed italic">{signal.disclaimer || "NOMINAL"}</p>
               </div>
             </div>
+          </section>
 
-            <div className="mt-8 p-6 rounded-2xl bg-indigo-500/5 border border-indigo-500/10">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3 italic">Catalyst: Why Now?</h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-bold">
-                {signal.why_now}
+          <section className="bg-indigo-600/5 border border-indigo-500/20 rounded-[2.5rem] p-8">
+            <div className="flex items-center gap-3 text-indigo-400 text-sm font-black uppercase tracking-widest mb-8">
+              <BarChart3 size={18} />
+              Alpha Historical Match
+            </div>
+            <div className="space-y-6">
+              <p className="text-xs text-slate-400 leading-relaxed italic">
+                {signal.similar_events?.[0]?.event_description || "No direct historical match detected in the current lookback window."}
               </p>
+              {signal.similar_events?.[0] && (
+                <div className="p-6 rounded-3xl bg-indigo-500/10 border border-indigo-500/20">
+                  <span className="text-[8px] font-black text-indigo-300 uppercase tracking-[0.2em] block mb-2 font-mono">Signal Success Rate</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-4xl font-black text-white italic tracking-tighter">{signal.similar_events[0].outcome_pct_30d}%</span>
+                    <span className="text-[11px] font-black text-indigo-400/50 uppercase italic tracking-widest underline decoration-indigo-500/30">Historical Sets</span>
+                  </div>
+                </div>
+              )}
             </div>
+          </section>
 
-            <button className="w-full mt-6 py-4 rounded-2xl bg-indigo-500 hover:bg-indigo-400 text-white font-black uppercase tracking-widest text-xs transition-all duration-200 shadow-[0_10px_20px_-5px_rgba(99,102,241,0.5)] active:scale-95">
-              Add to Active Mission
-            </button>
-          </div>
-          
-          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-xl">
-            <h3 className="text-sm font-black text-white uppercase tracking-widest mb-6 italic">Risk Sentiment</h3>
-             <div className="flex flex-col gap-4">
-               <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                 <div 
-                   className="h-full bg-linear-to-r from-emerald-500 via-amber-500 to-rose-500 transition-all duration-1000 ease-out" 
-                   style={{ width: `${Math.max(20, Math.min(80, (signal.score / 10) * 100))}%` }}
-                 />
-               </div>
-               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center">Balanced Environment</p>
+          <footer className="space-y-4">
+             <button className="w-full py-5 rounded-[2rem] bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.2em] text-[10px] transition-all shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] active:scale-95 flex items-center justify-center gap-3">
+                <Target size={14} />
+                Synchronize Mission
+             </button>
+             <div className="flex justify-center items-center gap-4 opacity-30 group cursor-default">
+                <div className="w-12 h-px bg-slate-800 group-hover:bg-indigo-500 transition-colors" />
+                <span className="text-[8px] text-slate-500 font-black uppercase tracking-[0.3em] whitespace-nowrap">End Transmission</span>
+                <div className="w-12 h-px bg-slate-800 group-hover:bg-indigo-500 transition-colors" />
              </div>
-          </div>
+          </footer>
         </aside>
       </div>
     </div>

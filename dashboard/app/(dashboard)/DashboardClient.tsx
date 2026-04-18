@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 interface Signal {
-  ticker: string;
+  symbol: string;
   company: string;
   confluence_score: number;
   confidence: string;
@@ -33,10 +33,17 @@ interface Signal {
 }
 
 const decisionSummaryDummy = {
-  ticker: "TITAN",
+  symbol: "TITAN",
   action: "STRONG BUY",
   confidence: "HIGH",
   reason: "Promoter buying + institutional activity",
+};
+
+const getSentiment = (decision: string) => {
+  const d = decision?.toString().toUpperCase();
+  if (d === "BUY" || d === "STRONG_BUY") return "BULLISH";
+  if (d === "SELL" || d === "STRONG_SELL") return "BEARISH";
+  return "SIDEWAYS";
 };
 
 export default function DashboardClient({ 
@@ -115,7 +122,7 @@ export default function DashboardClient({
   const filteredSignals = signals.filter(
     (s) =>
       s.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.ticker.toLowerCase().includes(searchQuery.toLowerCase())
+      s.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const watchlistSignals = filteredSignals.slice(0, 4);
@@ -163,7 +170,7 @@ export default function DashboardClient({
   const sortedSignals = [...categoryFilteredSignals].sort((a, b) => {
     if (sortBy === "priceDesc") return b.price - a.price;
     if (sortBy === "priceAsc") return a.price - b.price;
-    if (sortBy === "tickerAsc") return a.ticker.localeCompare(b.ticker);
+    if (sortBy === "tickerAsc") return a.symbol.localeCompare(b.symbol);
     return b.confluence_score - a.confluence_score;
   });
 
@@ -326,7 +333,7 @@ export default function DashboardClient({
                     <span className="text-[11px] sm:text-xs text-cyan-300 font-semibold flex items-center gap-1"><Sparkles className="w-3 h-3" /> Decision Summary</span>
                   </div>
                   <h1 className="text-[clamp(1.6rem,4.3vw,3.1rem)] font-black leading-[1.05] mb-3 tracking-tight">
-                    Top Opportunity: <span className="text-indigo-400">{decisionSummaryDummy.ticker}</span> - {decisionSummaryDummy.action}
+                    Top Opportunity: <span className="text-indigo-400">{decisionSummaryDummy.symbol}</span> - {getSentiment(decisionSummaryDummy.action)}
                   </h1>
                   <p className={`${theme.textMuted} max-w-2xl text-[13px] sm:text-sm lg:text-[15px] leading-relaxed mb-5`}>
                     Temporary UI testing data only. Backend logic remains unchanged.
@@ -334,7 +341,7 @@ export default function DashboardClient({
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1">Action</p>
-                      <p className="text-base sm:text-lg font-bold text-emerald-400">{decisionSummaryDummy.action}</p>
+                      <p className="text-base sm:text-lg font-bold text-emerald-400">{getSentiment(decisionSummaryDummy.action)}</p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-1">Confidence</p>
@@ -370,9 +377,9 @@ export default function DashboardClient({
               <div className="flex items-center gap-2">
                 {[
                   { label: "All Signals", value: "ALL" as const },
-                  { label: "BUY", value: "BUY" as const },
-                  { label: "SELL", value: "SELL" as const },
-                  { label: "HOLD", value: "HOLD" as const },
+                  { label: "BULLISH", value: "BUY" as const },
+                  { label: "BEARISH", value: "SELL" as const },
+                  { label: "SIDEWAYS", value: "HOLD" as const },
                 ].map((tab) => (
                   <button
                     key={tab.label}
@@ -449,7 +456,7 @@ export default function DashboardClient({
                       const positive = !move.startsWith("-");
                       return (
                         <article
-                          key={signal.ticker}
+                          key={signal.symbol}
                           className={`${theme.cardBg} border ${theme.border} rounded-2xl p-4 cursor-pointer hover:border-indigo-400/40 transition-colors`}
                           role="button"
                           tabIndex={0}
@@ -464,9 +471,9 @@ export default function DashboardClient({
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <p className="font-bold text-[clamp(1rem,1.7vw,1.2rem)] leading-none">{signal.company.toUpperCase()}</p>
-                              <p className="text-[11px] uppercase tracking-wider text-slate-500">{signal.ticker}</p>
+                              <p className="text-[11px] uppercase tracking-wider text-slate-500">{signal.symbol}</p>
                             </div>
-                            <span className={`text-[10px] px-2 py-1 rounded-md border font-bold ${getActionColor(action)}`}>{action}</span>
+                            <span className={`text-[10px] px-2 py-1 rounded-md border font-bold ${getActionColor(action)}`}>{getSentiment(action)}</span>
                           </div>
 
                           <div className="flex items-end justify-between mb-3">
@@ -503,10 +510,10 @@ export default function DashboardClient({
                       <p className={`text-xs ${theme.textMuted}`}>No tracked symbols.</p>
                     ) : (
                       watchlistSignals.map((signal) => (
-                        <div key={signal.ticker} className="flex items-center justify-between text-sm">
-                          <span className="flex items-center gap-2 text-sm"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />{signal.ticker}</span>
+                        <div key={signal.symbol} className="flex items-center justify-between text-sm">
+                          <span className="flex items-center gap-2 text-sm"><span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" />{signal.symbol}</span>
                           <span className={`text-[10px] font-semibold ${getSignalAction(signal).includes("BUY") ? "text-emerald-400" : getSignalAction(signal).includes("SELL") ? "text-rose-400" : "text-amber-300"}`}>
-                            {getSignalAction(signal).replace("STRONG ", "")}
+                            {getSentiment(getSignalAction(signal))}
                           </span>
                         </div>
                       ))
@@ -543,12 +550,12 @@ export default function DashboardClient({
                     ) : (
                       leaderboardItems.map((signal) => (
                         <button
-                          key={signal.ticker}
+                          key={signal.symbol}
                           type="button"
-                          onClick={() => setSearchQuery(signal.ticker)}
+                          onClick={() => setSearchQuery(signal.symbol)}
                           className={`w-full flex items-center justify-between text-sm rounded-md px-2 py-1.5 border ${theme.border} hover:border-indigo-400/50 hover:bg-indigo-500/10 transition-colors text-left`}
                         >
-                          <span className="font-semibold text-sm">{signal.ticker}</span>
+                          <span className="font-semibold text-sm">{signal.symbol}</span>
                           <span className={`font-semibold ${leaderboardView === "gainers" ? "text-emerald-400" : "text-rose-400"}`}>
                             {getLeaderboardMove(signal, leaderboardView)}
                           </span>

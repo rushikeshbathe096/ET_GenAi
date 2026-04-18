@@ -40,7 +40,8 @@ export default function TopMovers({ signals }: TopMoversProps) {
             <motion.div 
               key={signal.symbol} 
               whileHover={{ x: 5 }}
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-emerald-500/[0.03] hover:border-emerald-500/20 transition-all cursor-default overflow-hidden relative"
+              onClick={() => window.location.href = `/stock/${signal.symbol}`}
+              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-emerald-500/[0.03] hover:border-emerald-500/20 transition-all cursor-pointer overflow-hidden relative"
             >
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white italic tracking-tight">{signal.symbol}</span>
@@ -82,7 +83,8 @@ export default function TopMovers({ signals }: TopMoversProps) {
             <motion.div 
               key={signal.symbol} 
               whileHover={{ x: -5 }}
-              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-rose-500/[0.03] hover:border-rose-500/20 transition-all cursor-default overflow-hidden relative"
+              onClick={() => window.location.href = `/stock/${signal.symbol}`}
+              className="flex items-center justify-between p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-rose-500/[0.03] hover:border-rose-500/20 transition-all cursor-pointer overflow-hidden relative"
             >
               <div className="flex flex-col">
                 <span className="text-sm font-black text-white italic tracking-tight">{signal.symbol}</span>
