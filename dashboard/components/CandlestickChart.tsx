@@ -14,16 +14,16 @@ interface Candle {
 function calculateRSI(closes: number[], period: number = 14): number[] {
   const rsi: number[] = new Array(period).fill(0);
   let gains = 0, losses = 0;
-  
+
   for (let i = 1; i <= period; i++) {
     const diff = closes[i] - closes[i - 1];
     if (diff >= 0) gains += diff;
     else losses -= diff;
   }
-  
+
   let avgGain = gains / period;
   let avgLoss = losses / period;
-  
+
   for (let i = period; i < closes.length; i++) {
     if (i > period) {
       const diff = closes[i] - closes[i - 1];
@@ -135,7 +135,7 @@ export default function CandlestickChart({ symbol, data }: { symbol: string; dat
     if (rsiRef.current && data.length > 14) {
       const closes = data.map(d => d.close);
       const rsiValues = calculateRSI(closes);
-      
+
       rsiChart = createChart(rsiRef.current, {
         layout: {
           background: { type: ColorType.Solid, color: "#050b18" },

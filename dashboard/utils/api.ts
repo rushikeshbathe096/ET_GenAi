@@ -4,6 +4,14 @@ export interface NewsItem {
   timestamp: string;
 }
 
+export interface NewsObject {
+  score: number;
+  sentiment_label: string;
+  company_headlines: string[];
+  sector_headlines: string[];
+  global_headlines: string[];
+}
+
 export interface ChartEvent {
   date: string;
   type: 'sentiment' | 'news' | 'risk' | 'volume';
@@ -21,7 +29,8 @@ export interface Signal {
   sector: string;
   horizon: string;
   why_now: string;
-  news: NewsItem[];
+  news: NewsObject;
+  risks: string[];
   explanation: string;
   signals: any[];
   technical_patterns: any[];
@@ -34,7 +43,7 @@ export interface Signal {
     volume: string;
     momentum: string;
   };
-  risk?: {
+  risk_meta?: {
     volatility: string;
     conflictingSignals: string;
     uncertainty: string;
@@ -49,6 +58,12 @@ export interface Signal {
     risk: { from: string; to: string };
   };
   chartEvents?: ChartEvent[];
+  actionability?: {
+    confidence_pct: string;
+    risk_level: string;
+    time_horizon: string;
+    color: string;
+  };
 }
 
 export interface Alert {
@@ -105,17 +120,13 @@ function transformStock(stock: any, defaultSymbol?: string): Signal | null {
     priceChangePercent = Number(stock.priceChangePercent);
   }
 
-  const rawNews = Array.isArray(stock.news) ? stock.news : (stock.news_headlines || stock.news?.headlines || []);
-  const newsHeadlines: NewsItem[] = rawNews.map((n: any) => {
-    if (typeof n === 'string') {
-      return { title: n, sentimentScore: 0.5, timestamp: "2 hours ago" };
-    }
-    return {
-      title: n.title || n.headline || "Neutral Signal",
-      sentimentScore: n.sentimentScore || 0.5,
-      timestamp: n.timestamp || "Recent"
-    };
-  });
+  const news: NewsObject = {
+    score: stock.news?.score || 0,
+    sentiment_label: stock.news?.sentiment_label || "neutral",
+    company_headlines: stock.news?.company_headlines || [],
+    sector_headlines: stock.news?.sector_headlines || [],
+    global_headlines: stock.news?.global_headlines || []
+  };
 
   return {
     symbol: stock.symbol || defaultSymbol || "UNKNOWN",
@@ -127,11 +138,13 @@ function transformStock(stock: any, defaultSymbol?: string): Signal | null {
     sector: stock.sector || "General",
     horizon: stock.horizon || "Short Term",
     why_now: stock.why_now || "Signal detection in progress.",
-    news: newsHeadlines,
+    news: news,
+    risks: stock.risks || [],
     explanation: stock.explanation || stock.why_now || "No detailed explanation available.",
     signals: stock.signals || [],
     technical_patterns: stock.technical_patterns || [],
     similar_events: stock.similar_events || [],
+    actionability: stock.actionability,
     rank: stock.rank,
     decision: stock.decision || "HOLD",
     sentiment: decisionToSentiment(stock.decision || "HOLD"),
@@ -140,7 +153,7 @@ function transformStock(stock: any, defaultSymbol?: string): Signal | null {
       volume: "Normal",
       momentum: "Stable"
     },
-    risk: stock.risk || {
+    risk_meta: stock.risk_meta || {
       volatility: "Moderate",
       conflictingSignals: "None detected",
       uncertainty: "Nominal"

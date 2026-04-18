@@ -32,7 +32,7 @@ def call_llm(prompt: str) -> str:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a senior equity analyst at a top Indian brokerage. Write concise, plain-English stock analysis for retail investors. Never use jargon. Always mention what smart money (insiders, institutions) is doing. End with a disclaimer that this is not SEBI-registered investment advice."
+                    "content": "You are a senior equity analyst at a top Indian brokerage. Analyze the stock signals and explain what the data shows. Do NOT use phrases like 'we recommend', 'we are recommending', 'I recommend', 'our recommendation', 'we suggest', or any first-person recommendation language. Instead describe what the signals indicate — for example: 'The data shows strong bullish momentum' or 'Price movement and volume spike indicate institutional interest'. Write 3-4 sentences maximum. Plain English. No jargon. Always mention what smart money (insiders, institutions) is doing based on the data. End with: Not SEBI-registered investment advice."
                 },
                 {
                     "role": "user",
@@ -238,17 +238,54 @@ def run() -> List[Dict[str, Any]]:
 
 
 def test_explanation_agent() -> None:
-	results = run()
-	for row in results:
-		ticker = row.get("ticker", "UNKNOWN")
-		print(f"Ticker: {ticker}")
-		for sentence in row.get("reasoning_card", []):
-			print(f"- {sentence}")
-		print()
+    results = run()
+    for row in results:
+        ticker = row.get("ticker", "UNKNOWN")
+        print(f"Ticker: {ticker}")
+        for sentence in row.get("reasoning_card", []):
+            print(f"- {sentence}")
+        print()
 
-	if results:
-		print("First object:")
-		print(json.dumps(results[0], indent=2))
+    if results:
+        print("First object:")
+        print(json.dumps(results[0], indent=2))
+
+
+def evaluate_risks_from_signals(signals: List[Dict[str, Any]]) -> List[str]:
+    """Dynamically evaluate risks based on incoming telemetry."""
+    eval_risks = []
+    
+    # 1. Volatility Risk
+    for s in signals:
+        if s.get("type") == "price_movement":
+            try:
+                score = abs(float(s.get("score", 0)))
+                if score >= 2.0:
+                    eval_risks.append("Extreme price volatility detected — risk of sharp correction.")
+            except: pass
+
+    # 2. Technical Gaps
+    has_tech = any(s.get("type") in ["ma_breakout", "volume_spike", "52w_high"] for s in signals)
+    if not has_tech:
+        eval_risks.append("Lack of technical pattern confirmation at current levels.")
+        
+    # 3. News/Info Gap
+    has_news = any(s.get("type") == "news_sentiment" for s in signals)
+    if not has_news:
+        eval_risks.append("Information lag due to limited recent news/filing flow.")
+
+    # 4. Conflict Risk
+    pos = sum(1 for s in signals if float(s.get("score", 0)) > 0)
+    neg = sum(1 for s in signals if float(s.get("score", 0)) < 0)
+    if pos > 0 and neg > 0:
+        eval_risks.append("Conflicting signals between technicals and market sentiment.")
+
+    # 5. Overbought check (if RSI were available, but we can infer from price move)
+    for s in signals:
+        if s.get("type") == "price_movement" and float(s.get("score", 0)) > 1.5:
+             eval_risks.append("Rapid ascent indicates potential overbought conditions.")
+
+    return eval_risks
 
 
 def generate_explanation(decision: Dict[str, Any], signals: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -298,13 +335,18 @@ def generate_explanation(decision: Dict[str, Any], signals: List[Dict[str, Any]]
     
     fallback_why_now = "\n".join(rule_lines[:3]) if rule_lines else f"{dec_label} setup based on technical and filing signals."
     
-    risks: List[str] = []
+    # Base risks from negative drivers
+    base_risks: List[str] = []
     seen = set()
     for item in n_drivers:
         reason = item["reason"]
         if reason not in seen:
-            risks.append(reason)
+            base_risks.append(reason)
             seen.add(reason)
+            
+    # Evaluated risks from logic
+    eval_risks = evaluate_risks_from_signals(signal_rows)
+    all_risks = list(dict.fromkeys(base_risks + eval_risks))[:4]
 
     # 2. LLM-based explanation generation
     company = "this stock"
@@ -332,7 +374,7 @@ Signals detected:
 
 Current price: Rs {price}, change: {change_pct}%
 
-Write 3-4 sentences explaining WHY this is a {dec_label} 
+Describe what the signals and data indicate about this stock.
 right now. Focus on what the data shows, not generic advice.
 Then list 2-3 specific risks as bullet points.
 """
@@ -365,21 +407,23 @@ Then list 2-3 specific risks as bullet points.
                     why_lines.append(line_text)
 
             if why_lines:
+                # Merge LLM risks with evaluated risks
+                final_risks = list(dict.fromkeys(risk_lines + all_risks))
                 return {
-                    "why_now": ' '.join(why_lines),
-                    "risks": risk_lines if risk_lines else risks # Use parsed risks if any, else rule-based
+                    "why_now": ' '.join(why_lines[:4]),
+                    "risks": final_risks if final_risks else all_risks
                 }
         except Exception:
             pass
             
         return {
             "why_now": llm_output,
-            "risks": risks,
+            "risks": all_risks,
         }
 
     return {
         "why_now": fallback_why_now,
-        "risks": risks,
+        "risks": all_risks,
     }
 
 

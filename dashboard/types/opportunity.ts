@@ -4,7 +4,7 @@ export interface Opportunity {
   rank: number;
   score: number;
   confidence: "LOW" | "MEDIUM" | "HIGH";
-  decision: "BUY" | "SELL" | "HOLD" | "STRONG_BUY" | "STRONG_SELL";
+  decision: "BUY" | "SELL" | "HOLD" | "STRONG_BUY" | "STRONG_SELL" | "BULLISH" | "BEARISH" | "SIDEWAYS" | "STRONG BULLISH" | "STRONG BEARISH";
   explanation: string;
   why_now: string;
   actionability: string;

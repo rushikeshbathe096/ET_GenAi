@@ -37,9 +37,15 @@ def get_market_tickers() -> list[str]:
     return list(dict.fromkeys(tickers))
 
 def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
-    decision = str(payload.get("decision") or "HOLD").upper()
-    if decision not in {"BUY", "SELL", "HOLD", "STRONG_BUY", "STRONG_SELL"}:
-        decision = "HOLD"
+    decision_map = {
+        "BUY": "BULLISH",
+        "STRONG_BUY": "STRONG BULLISH",
+        "SELL": "BEARISH",
+        "STRONG_SELL": "STRONG BEARISH",
+        "HOLD": "SIDEWAYS"
+    }
+    raw_decision = str(payload.get("decision") or "HOLD").upper()
+    decision = decision_map.get(raw_decision, "SIDEWAYS")
 
     try:
         confidence = int(payload.get("confidence", 0))
@@ -52,6 +58,7 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "company": str(payload.get("company") or ""),
         "decision": decision,
         "confidence": confidence,
+        "score": round(confidence / 10, 1),
         "why_now": str(payload.get("why_now") or payload.get("why") or ""),
         "risks": payload.get("risks", []),
         "signals": payload.get("signals", []),
@@ -69,10 +76,11 @@ def _sanitize_output(payload: Dict[str, Any]) -> Dict[str, Any]:
         "technical_patterns": payload.get("technical_patterns", []),
     }
 
-def _build_actionability(decision: str, confidence: int) -> dict:
-    if decision in ("BUY", "STRONG_BUY"):
+def _build_actionability(decision: str, confidence: int, signals: list) -> dict:
+    d = decision.upper()
+    if "BULLISH" in d or "BUY" in d:
         color = "green"
-    elif decision in ("SELL", "STRONG_SELL"):
+    elif "BEARISH" in d or "SELL" in d:
         color = "red"
     else:
         color = "yellow"
@@ -84,10 +92,14 @@ def _build_actionability(decision: str, confidence: int) -> dict:
     else:
         risk_level = "High"
     
+    # Dynamic Horizon Logic: Insider trades/Bulk deals are longer term
+    has_fundamental = any(s.get("type") in ("insider_trade", "bulk_deal") for s in signals)
+    horizon = "Long Term (3-6 Months)" if has_fundamental else "Short Term (1-4 Weeks)"
+    
     return {
         "confidence_pct": f"{confidence}%",
         "risk_level": risk_level,
-        "time_horizon": "Short-term (2-4 weeks)",
+        "time_horizon": horizon,
         "color": color
     }
 
@@ -186,7 +198,7 @@ def analyze_stock(symbol: str) -> Dict[str, Any]:
         "change_pct": payload["price_data"].get("change_pct"),
         "date": date.today().strftime("%Y-%m-%d"),
         "disclaimer": "Educational analysis only. Not SEBI-registered investment advice.",
-        "actionability": _build_actionability(computed_decision, computed_confidence),
+        "actionability": _build_actionability(computed_decision, computed_confidence, signals),
         "confidence_breakdown": _build_confidence_breakdown(signals),
         "similar_events": cleaned_similar_events,
         "technical_patterns": tech_patterns,

@@ -1,8 +1,12 @@
 import os
 import json
+import time
 from datetime import date
 from fastapi import APIRouter
 from pipeline.run_pipeline import get_market_summary, run_market_pipeline, get_analytics_summary
+
+_market_cache = {"data": None, "timestamp": 0}
+CACHE_TTL = 3600  # 1 hour in seconds
 
 router = APIRouter(prefix="/market", tags=["market"])
 
@@ -24,14 +28,17 @@ def get_market_overview():
     return get_market_summary()
 
 @router.get("/signals")
-def get_signals():
-    """Return detailed stock signals with caching."""
-    cached = get_cached_signals()
-    if cached:
-        return {"stocks": cached, "cache": True}
-        
+def get_market_signals():
+    global _market_cache
+    now = time.time()
+    
+    if _market_cache["data"] is not None and (now - _market_cache["timestamp"]) < CACHE_TTL:
+        return {"stocks": _market_cache["data"]}
+    
     results = run_market_pipeline()
-    return {"stocks": results, "cache": False}
+    _market_cache["data"] = results
+    _market_cache["timestamp"] = now
+    return {"stocks": results}
 
 @router.get("/analytics")
 def get_analytics():
